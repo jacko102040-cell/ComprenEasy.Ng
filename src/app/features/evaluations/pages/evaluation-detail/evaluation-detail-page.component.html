@@ -4,12 +4,17 @@
   </article>
 } @else if (assessment) {
   <section class="detail-shell">
-    <article class="page-card">
+    <article class="page-card evaluation-hero">
       <span class="chip soft">{{ assessment.assessmentType }}</span>
       <h1 class="page-title">{{ assessment.title }}</h1>
       <p class="page-subtitle">
         {{ assessment.description || 'Responde cada pregunta con calma y revisa tus opciones antes de enviar.' }}
       </p>
+
+      <div class="visual-meter">
+        <div class="visual-meter-fill" [style.width.%]="(answeredCount() / assessment.questions.length) * 100"></div>
+      </div>
+      <p class="helper-text">Respondidas en pantalla: {{ answeredCount() }}/{{ assessment.questions.length }}</p>
 
       <div class="page-actions">
         <button class="btn btn-primary" type="button" [disabled]="busy" (click)="startAttempt()">
@@ -18,12 +23,14 @@
         <button class="btn btn-secondary" type="button" [disabled]="busy" (click)="saveProgress()">
           Guardar avance
         </button>
-        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="submitAttempt()">
+        <button class="btn btn-primary primary-action" type="button" [disabled]="busy || !canSubmitAttempt()" (click)="submitAttempt()">
           {{ busy ? 'Enviando...' : 'Finalizar intento' }}
         </button>
       </div>
 
-      <p class="helper-text">Respondidas en pantalla: {{ answeredCount() }}/{{ assessment.questions.length }}</p>
+      @if (!canSubmitAttempt()) {
+        <p class="helper-text">{{ incompleteAttemptMessage() }}</p>
+      }
       <p class="status-text error">{{ errorMessage }}</p>
       <p class="status-text success">{{ successMessage }}</p>
     </article>
@@ -33,14 +40,14 @@
         <article class="page-card question-card">
           <div class="question-head">
             <span class="chip soft">Pregunta {{ question.displayOrder }}</span>
-            <span class="helper-text">{{ question.dimensionName }} · {{ question.points }} pts</span>
+            <span class="helper-text">{{ question.dimensionName }} | {{ question.points }} pts</span>
           </div>
 
           <h2>{{ question.stem }}</h2>
 
           <div class="options-list">
             @for (option of question.options; track option.optionId) {
-              <label class="option-item">
+              <label class="option-item" [class.selected]="isSelected(question.questionId, option.optionId)">
                 <input
                   type="radio"
                   [name]="'question-' + question.questionId"

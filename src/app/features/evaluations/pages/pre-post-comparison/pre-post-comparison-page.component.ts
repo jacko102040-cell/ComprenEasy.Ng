@@ -26,7 +26,7 @@ export class PrePostComparisonPageComponent {
       error: (error) => {
         this.loading = false;
         this.errorMessage =
-          error?.error?.message ?? 'No se pudo cargar la comparacion final del estudiante.';
+          error?.error?.message ?? 'No se pudo cargar la comparación final del estudiante.';
       }
     });
   }

@@ -4,7 +4,7 @@
       <span class="chip soft">Hola, {{ user.fullName }}</span>
       <h1 class="page-title">Tu panel de aprendizaje</h1>
       <p class="page-subtitle">
-        Desde aqui puedes acceder a lecturas PQ4R, pretests y postests sin salir del mismo flujo.
+        Desde aquí puedes acceder a lecturas PQ4R, pretests y posttests sin salir del mismo flujo.
       </p>
 
       <div class="grid-cards cols-3 stats-grid">
@@ -17,8 +17,62 @@
           <strong>{{ user.grade ?? 'No registrado' }}</strong>
         </div>
         <div class="stat-card">
-          <span>Seccion</span>
+          <span>Sección</span>
           <strong>{{ user.section || 'No registrada' }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="page-card next-step-card">
+      <div>
+        <span class="chip warning">Siguiente paso</span>
+        <h2>{{ nextActivityLabel() }}</h2>
+        <p class="page-subtitle">
+          {{ summary?.recommendedMessage || 'Continúa tu ruta de aprendizaje desde el punto recomendado.' }}
+        </p>
+      </div>
+
+      <div class="next-step-side">
+        <div class="reading-progress-box">
+          <span>Lecturas completadas</span>
+          <strong>
+            {{ summary?.completedReadingSessions ?? 0 }}/{{ summary?.minimumReadingSessionsRequired ?? 0 }}
+          </strong>
+          <div class="visual-meter">
+            <div class="visual-meter-fill" [style.width.%]="readingProgressPercent()"></div>
+          </div>
+        </div>
+
+        <a class="btn btn-primary primary-action" [routerLink]="nextActivityRoute()">
+          {{ nextActivityLabel() }}
+        </a>
+      </div>
+    </article>
+
+    <article class="page-card learning-map-card">
+      <div class="recommendation-head">
+        <div>
+          <span class="chip soft">Ruta de aprendizaje</span>
+          <h2>Tu recorrido lector</h2>
+        </div>
+      </div>
+
+      <div class="learning-map">
+        <div class="map-step" [ngClass]="flowStepClass('Pretest')">
+          <span>1</span>
+          <strong>Pretest</strong>
+        </div>
+        <div class="map-step" [ngClass]="flowStepClass('Readings')">
+          <span>2</span>
+          <strong>Lecturas PQ4R</strong>
+        </div>
+        <div class="map-step" [ngClass]="flowStepClass('Posttest')">
+          <span>3</span>
+          <strong>Posttest</strong>
+        </div>
+        <div class="map-step" [ngClass]="flowStepClass('Completed')">
+          <span>4</span>
+          <strong>Comparación final</strong>
         </div>
       </div>
     </article>
@@ -27,7 +81,7 @@
       <div class="recommendation-head">
         <div>
           <span class="chip soft">Motor adaptativo</span>
-          <h2>Tu recomendacion mas reciente</h2>
+          <h2>Tu recomendación más reciente</h2>
         </div>
         @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
           <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
@@ -35,11 +89,11 @@
       </div>
 
       @if (recommendationLoading) {
-        <p class="page-subtitle">Analizando tu recomendacion mas reciente...</p>
+        <p class="page-subtitle">Analizando tu recomendación más reciente...</p>
       } @else if (recommendation) {
         <div class="recommendation-grid">
           <div class="recommendation-metric">
-            <span>Accion sugerida</span>
+            <span>Acción sugerida</span>
             <strong>{{ recommendation.predictedAction }}</strong>
           </div>
           <div class="recommendation-metric">
@@ -47,27 +101,27 @@
             <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
           </div>
           <div class="recommendation-metric">
-            <span>Origen</span>
-            <strong>{{ recommendation.sourceAssessmentTitle }}</strong>
+            <span>Actividad sugerida</span>
+            <strong>{{ recommendationActivityLabel() }}</strong>
           </div>
         </div>
 
         <p class="page-subtitle">{{ recommendationHint() }}</p>
 
         <div class="page-actions">
-          <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
-          @if (recommendation.recommendedAssessmentId && summary?.currentStage === 'Posttest') {
+          @if (hasRecommendationPrimaryRoute()) {
             <a
-              class="btn btn-secondary"
-              [routerLink]="['/evaluations', recommendation.recommendedAssessmentId]"
+              class="btn btn-primary"
+              [routerLink]="recommendationPrimaryRoute()"
             >
               Ver actividad sugerida
             </a>
           }
+          <a class="btn btn-secondary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
         </div>
       } @else if (recommendationEmpty) {
         <p class="page-subtitle">
-          Aun no hay una recomendacion disponible. Completa una evaluacion o una sesion de lectura para generarla.
+          Aún no hay una recomendación disponible. Completa una evaluación o una sesión de lectura para generarla.
         </p>
         <div class="page-actions">
           <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
@@ -116,7 +170,7 @@
 
         <div class="page-actions">
           <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
-          <a class="btn btn-secondary" routerLink="/pre-post-comparison">Ver comparacion final</a>
+          <a class="btn btn-secondary" routerLink="/pre-post-comparison">Ver comparación final</a>
         </div>
       }
     </article>
@@ -130,20 +184,20 @@
 
       <article class="page-card menu-card">
         <h2>Pretests</h2>
-        <p>Explora las evaluaciones diagnosticas activas y comienza tu intento.</p>
+        <p>Explora las evaluaciones diagnósticas activas y comienza tu intento.</p>
         <a class="btn btn-primary" routerLink="/pretests">Ver pretests</a>
       </article>
 
       <article class="page-card menu-card">
-        <h2>Postests</h2>
+        <h2>Posttests</h2>
         <p>Revisa las evaluaciones finales disponibles para medir tu avance lector.</p>
-        <a class="btn btn-primary" routerLink="/posttests">Ver postests</a>
+        <a class="btn btn-primary" routerLink="/posttests">Ver posttests</a>
       </article>
 
       <article class="page-card menu-card">
-        <h2>Comparacion final</h2>
-        <p>Consulta tu avance entre el pretest y el posttest mas recientes.</p>
-        <a class="btn btn-primary" routerLink="/pre-post-comparison">Ver comparacion</a>
+        <h2>Comparación final</h2>
+        <p>Consulta tu avance entre el pretest y el posttest más recientes.</p>
+        <a class="btn btn-primary" routerLink="/pre-post-comparison">Ver comparación</a>
       </article>
     </div>
   </section>

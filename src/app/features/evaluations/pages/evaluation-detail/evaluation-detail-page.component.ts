@@ -51,7 +51,7 @@ export class EvaluationDetailPageComponent {
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error?.error?.message ?? 'No se pudo cargar la evaluacion.';
+        this.errorMessage = error?.error?.message ?? 'No se pudo cargar la evaluación.';
       }
     });
   }
@@ -134,6 +134,12 @@ export class EvaluationDetailPageComponent {
       return;
     }
 
+    if (!this.canSubmitAttempt()) {
+      this.successMessage = '';
+      this.errorMessage = this.incompleteAttemptMessage();
+      return;
+    }
+
     this.ensureAttempt(() => {
       const answers = this.buildAnswerPayload();
       const finalizeAttempt = () => {
@@ -174,6 +180,28 @@ export class EvaluationDetailPageComponent {
 
   protected answeredCount(): number {
     return Object.keys(this.selectedAnswers).length;
+  }
+
+  protected remainingQuestionsCount(): number {
+    if (!this.assessment) {
+      return 0;
+    }
+
+    return Math.max(0, this.assessment.questions.length - this.answeredCount());
+  }
+
+  protected canSubmitAttempt(): boolean {
+    return this.remainingQuestionsCount() === 0;
+  }
+
+  protected incompleteAttemptMessage(): string {
+    const remaining = this.remainingQuestionsCount();
+
+    if (remaining <= 0) {
+      return '';
+    }
+
+    return `Debes responder todas las preguntas antes de finalizar. Faltan ${remaining} pregunta${remaining === 1 ? '' : 's'}.`;
   }
 
   private ensureAttempt(nextStep: () => void): void {
@@ -222,7 +250,7 @@ export class EvaluationDetailPageComponent {
         this.busy = false;
 
         if (result.answers.some((answer) => answer.selectedOptionId !== null)) {
-          this.successMessage = successMessage ?? 'Se restauro tu avance guardado.';
+          this.successMessage = successMessage ?? 'Se restauró tu avance guardado.';
         } else if (successMessage) {
           this.successMessage = successMessage;
         }
@@ -283,7 +311,7 @@ export class EvaluationDetailPageComponent {
 
     if (draft.attemptId) {
       this.busy = true;
-      this.syncAttemptFromBackend(draft.attemptId, 'Se restauro tu avance guardado.');
+      this.syncAttemptFromBackend(draft.attemptId, 'Se restauró tu avance guardado.');
     }
   }
 

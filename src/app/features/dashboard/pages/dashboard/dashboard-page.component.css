@@ -1,10 +1,13 @@
 .dashboard-grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .intro-card {
   padding: 1.8rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.82));
+  border-color: rgba(127, 23, 52, 0.16);
 }
 
 .recommendation-card {
@@ -25,6 +28,106 @@
   gap: 1rem;
 }
 
+.next-step-card {
+  display: grid;
+  gap: 1.2rem;
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(91, 16, 35, 0.96), rgba(127, 23, 52, 0.9)),
+    var(--color-maroon-900);
+  color: var(--color-white);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 22px 48px rgba(91, 16, 35, 0.2);
+}
+
+.next-step-card h2 {
+  margin: 0.5rem 0 0;
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+  color: var(--color-white);
+}
+
+.next-step-card .page-subtitle,
+.next-step-card .reading-progress-box span {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.next-step-side {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+}
+
+.reading-progress-box {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.reading-progress-box strong {
+  color: var(--color-white);
+  font-size: 1.5rem;
+}
+
+.learning-map-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.learning-map {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.map-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(129, 117, 123, 0.16);
+  background: rgba(240, 236, 238, 0.58);
+}
+
+.map-step span {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-weight: 800;
+  background: rgba(129, 117, 123, 0.16);
+  color: var(--color-gray-700);
+}
+
+.map-step strong {
+  color: var(--color-maroon-900);
+}
+
+.map-step.done {
+  background: rgba(33, 122, 87, 0.08);
+  border-color: rgba(33, 122, 87, 0.22);
+}
+
+.map-step.done span {
+  background: rgba(33, 122, 87, 0.16);
+  color: var(--color-success);
+}
+
+.map-step.current {
+  background: rgba(127, 23, 52, 0.08);
+  border-color: rgba(127, 23, 52, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(127, 23, 52, 0.08);
+}
+
+.map-step.current span {
+  background: var(--color-maroon-700);
+  color: var(--color-white);
+}
+
 .recommendation-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -34,6 +137,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(127, 23, 52, 0.06);
+  border: 1px solid rgba(127, 23, 52, 0.08);
 }
 
 .recommendation-metric span {
@@ -54,6 +158,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(127, 23, 52, 0.06);
+  border: 1px solid rgba(127, 23, 52, 0.08);
 }
 
 .stat-card span {
@@ -81,6 +186,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: linear-gradient(180deg, rgba(127, 23, 52, 0.08), rgba(127, 23, 52, 0.03));
+  border: 1px solid rgba(127, 23, 52, 0.09);
 }
 
 .flow-step-card span {
@@ -104,5 +210,15 @@
 @media (max-width: 760px) {
   .recommendation-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 760px) {
+  .next-step-card {
+    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  }
+
+  .learning-map {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

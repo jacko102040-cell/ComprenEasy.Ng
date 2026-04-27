@@ -49,14 +49,36 @@ export class AttemptResultPageComponent {
   protected recommendationHint(): string {
     switch (this.recommendation?.predictedAction) {
       case 'Avanzar':
-        return 'Tu desempeno permite continuar con una actividad mas desafiante.';
+        return 'Tu desempeño permite continuar con una actividad más desafiante.';
       case 'AvanzarConApoyo':
-        return 'La sugerencia es avanzar con acompanamiento y refuerzo puntual.';
+        return 'La sugerencia es avanzar con acompañamiento y refuerzo puntual.';
       case 'Reforzar':
         return 'Se recomienda reforzar antes de avanzar al siguiente nivel.';
       default:
         return '';
     }
+  }
+
+  protected recommendationActivityLabel(): string {
+    if (!this.recommendation) {
+      return 'Sin actividad directa';
+    }
+
+    return this.recommendation.recommendedActivityType
+      ?? this.recommendation.recommendedAssessmentTitle
+      ?? 'Sin actividad directa';
+  }
+
+  protected recommendationPrimaryRoute(): string | unknown[] | null {
+    if (this.recommendation?.recommendedRoute) {
+      return this.recommendation.recommendedRoute;
+    }
+
+    if (this.recommendation?.recommendedAssessmentId) {
+      return ['/evaluations', this.recommendation.recommendedAssessmentId];
+    }
+
+    return null;
   }
 
   private loadRecommendation(attemptId: number): void {
@@ -95,7 +117,7 @@ export class AttemptResultPageComponent {
         }
 
         this.recommendationError =
-          error?.error?.message ?? 'No se pudo cargar la recomendacion adaptativa.';
+          error?.error?.message ?? 'No se pudo cargar la recomendación adaptativa.';
       }
     });
   }

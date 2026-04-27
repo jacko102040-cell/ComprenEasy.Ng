@@ -6,6 +6,9 @@
 .result-hero {
   display: grid;
   gap: 1rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
+  border-color: rgba(127, 23, 52, 0.16);
 }
 
 .recommendation-card {
@@ -24,6 +27,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(127, 23, 52, 0.06);
+  border: 1px solid rgba(127, 23, 52, 0.08);
 }
 
 .stat-box span,
@@ -35,6 +39,33 @@
 .page-card h2,
 .phase-summary-item strong {
   color: var(--color-maroon-900);
+}
+
+.result-note {
+  margin: 0;
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(33, 122, 87, 0.08);
+  color: var(--color-success);
+  line-height: 1.55;
+}
+
+.success-card {
+  background: rgba(33, 122, 87, 0.08) !important;
+  border-color: rgba(33, 122, 87, 0.18) !important;
+}
+
+.success-card strong {
+  color: var(--color-success);
+}
+
+.danger-card {
+  background: rgba(176, 48, 82, 0.08) !important;
+  border-color: rgba(176, 48, 82, 0.18) !important;
+}
+
+.danger-card strong {
+  color: var(--color-danger);
 }
 
 .phase-summary-list {
@@ -51,6 +82,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(240, 236, 238, 0.62);
+  border: 1px solid rgba(129, 117, 123, 0.12);
 }
 
 .phase-summary-item p {

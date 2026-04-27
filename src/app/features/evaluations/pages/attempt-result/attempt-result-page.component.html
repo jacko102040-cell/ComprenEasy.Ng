@@ -8,12 +8,15 @@
       <span class="chip soft">{{ result.assessmentType }}</span>
       <h1 class="page-title">{{ result.assessmentTitle }}</h1>
       <p class="page-subtitle">
-        Estado: {{ result.status }} · Finalizado:
+        Estado: {{ result.status }} | Finalizado:
         {{ result.finishedAt ? (result.finishedAt | date: 'short') : 'Aún no finalizado' }}
+      </p>
+      <p class="result-note">
+        Has completado esta evaluación. Revisa tus fortalezas por dimensión y continúa con la actividad sugerida.
       </p>
 
       <div class="grid-cards cols-3 metrics-grid">
-        <div class="metric-card">
+        <div class="metric-card metric-emphasis">
           <span>Puntaje total</span>
           <strong>{{ result.totalScore | number: '1.0-2' }}%</strong>
         </div>
@@ -29,18 +32,18 @@
           <span>Crítica</span>
           <strong>{{ result.criticalScore | number: '1.0-2' }}%</strong>
         </div>
-        <div class="metric-card">
+        <div class="metric-card success-card">
           <span>Aciertos</span>
           <strong>{{ result.totalCorrect }}</strong>
         </div>
-        <div class="metric-card">
+        <div class="metric-card danger-card">
           <span>Errores</span>
           <strong>{{ result.totalErrors }}</strong>
         </div>
       </div>
 
       <p class="helper-text">
-        Tiempo total: {{ result.totalTimeSeconds }} s · Avance completado:
+        Tiempo total: {{ result.totalTimeSeconds }} s | Avance completado:
         {{ result.completionPercentage | number: '1.0-2' }}%
       </p>
 
@@ -53,7 +56,7 @@
       <div class="recommendation-head">
         <div>
           <span class="chip soft">Siguiente paso</span>
-          <h2>Recomendacion adaptativa</h2>
+          <h2>Recomendación adaptativa</h2>
         </div>
         @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
           <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
@@ -61,11 +64,11 @@
       </div>
 
       @if (recommendationLoading) {
-        <p class="page-subtitle">Generando recomendacion segun tu intento...</p>
+        <p class="page-subtitle">Generando recomendación según tu intento...</p>
       } @else if (recommendation) {
         <div class="recommendation-grid">
           <div class="metric-card">
-            <span>Accion recomendada</span>
+            <span>Acción recomendada</span>
             <strong>{{ recommendation.predictedAction }}</strong>
           </div>
           <div class="metric-card">
@@ -73,25 +76,20 @@
             <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
           </div>
           <div class="metric-card">
-            <span>Evaluacion sugerida</span>
-            <strong>{{ recommendation.recommendedAssessmentTitle || 'Sin evaluacion directa' }}</strong>
+            <span>Actividad sugerida</span>
+            <strong>{{ recommendationActivityLabel() }}</strong>
           </div>
         </div>
 
         <p class="page-subtitle">{{ recommendationHint() }}</p>
 
-        @if (recommendation.recommendedAssessmentId) {
+        @if (recommendationPrimaryRoute(); as route) {
           <div class="page-actions">
-            <a
-              class="btn btn-primary"
-              [routerLink]="['/evaluations', recommendation.recommendedAssessmentId]"
-            >
-              Ir a evaluacion sugerida
-            </a>
+            <a class="btn btn-primary primary-action" [routerLink]="route">Abrir actividad sugerida</a>
           </div>
         }
       } @else if (recommendationEmpty) {
-        <p class="page-subtitle">No hay una recomendacion disponible para este intento.</p>
+        <p class="page-subtitle">No hay una recomendación disponible para este intento.</p>
       } @else {
         <p class="status-text error">{{ recommendationError }}</p>
       }
@@ -119,7 +117,7 @@
           </div>
           <h2>{{ answer.stem }}</h2>
           <p class="helper-text">
-            Puntaje: {{ answer.scoreObtained | number: '1.0-2' }} · Tiempo:
+            Puntaje: {{ answer.scoreObtained | number: '1.0-2' }} | Tiempo:
             {{ answer.answerTimeSeconds }} s
           </p>
         </article>

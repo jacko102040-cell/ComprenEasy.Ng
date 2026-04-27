@@ -46,8 +46,8 @@ export interface ReadingPhaseQuestion {
   points: number;
   selectedOptionId: number | null;
   isCorrect: boolean | null;
-  scoreObtained: number;
-  answerTimeSeconds: number;
+  scoreObtained: number | null;
+  answerTimeSeconds: number | null;
   options: ReadingPhaseQuestionOption[];
 }
 
@@ -55,7 +55,8 @@ export interface PhaseProgress {
   phaseId: number;
   code: string;
   displayName: string;
-  sequenceOrder: number;
+  sequenceOrder?: number | null;
+  displayOrder?: number | null;
   isRequired: boolean;
   minQuestionsToUnlockNext: number | null;
   status: string;
@@ -78,12 +79,12 @@ export interface ReadingSessionProgress {
   startedAt: string;
   finishedAt: string | null;
   completionPercentage: number;
-  totalScore: number;
-  literalScore: number;
-  inferentialScore: number;
-  criticalScore: number;
-  totalCorrect: number;
-  totalErrors: number;
+  totalScore: number | null;
+  literalScore: number | null;
+  inferentialScore: number | null;
+  criticalScore: number | null;
+  totalCorrect: number | null;
+  totalErrors: number | null;
   totalTimeSeconds: number;
   currentPhaseId: number | null;
   currentPhaseCode: string | null;

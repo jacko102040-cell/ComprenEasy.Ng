@@ -55,7 +55,7 @@ export class ReadingDetailPageComponent {
       },
       error: (error) => {
         this.starting = false;
-        this.errorMessage = error?.error?.message ?? 'No se pudo iniciar la sesion de lectura.';
+        this.errorMessage = error?.error?.message ?? 'No se pudo iniciar la sesión de lectura.';
       }
     });
   }

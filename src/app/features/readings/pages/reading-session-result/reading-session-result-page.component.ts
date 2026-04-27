@@ -41,7 +41,7 @@ export class ReadingSessionResultPageComponent {
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error?.error?.message ?? 'No se pudo cargar el resumen de la sesion.';
+        this.errorMessage = error?.error?.message ?? 'No se pudo cargar el resumen de la sesión.';
       }
     });
   }
@@ -60,17 +60,51 @@ export class ReadingSessionResultPageComponent {
     );
   }
 
+  protected phaseOrder(sequenceOrder?: number | null, displayOrder?: number | null): number {
+    return sequenceOrder ?? displayOrder ?? 0;
+  }
+
+  protected scoreLabel(score: number | null): string {
+    return score === null ? 'Sin puntaje' : `${score}%`;
+  }
+
+  protected countLabel(value: number | null): string {
+    return value === null ? '-' : `${value}`;
+  }
+
   protected recommendationHint(): string {
     switch (this.recommendation?.predictedAction) {
       case 'Avanzar':
-        return 'El motor sugiere subir el reto despues de esta lectura.';
+        return 'El motor sugiere subir el reto después de esta lectura.';
       case 'AvanzarConApoyo':
         return 'Se sugiere continuar, pero con apoyo guiado en la siguiente actividad.';
       case 'Reforzar':
-        return 'Antes de avanzar, conviene reforzar comprension y ritmo lector.';
+        return 'Antes de avanzar, conviene reforzar comprensión y ritmo lector.';
       default:
         return '';
     }
+  }
+
+  protected recommendationActivityLabel(): string {
+    if (!this.recommendation) {
+      return 'Sin actividad directa';
+    }
+
+    return this.recommendation.recommendedActivityType
+      ?? this.recommendation.recommendedAssessmentTitle
+      ?? 'Sin actividad directa';
+  }
+
+  protected recommendationPrimaryRoute(): string | unknown[] | null {
+    if (this.recommendation?.recommendedRoute) {
+      return this.recommendation.recommendedRoute;
+    }
+
+    if (this.recommendation?.recommendedAssessmentId) {
+      return ['/evaluations', this.recommendation.recommendedAssessmentId];
+    }
+
+    return null;
   }
 
   private loadRecommendation(attemptId: number): void {
@@ -109,7 +143,7 @@ export class ReadingSessionResultPageComponent {
         }
 
         this.recommendationError =
-          error?.error?.message ?? 'No se pudo cargar la recomendacion adaptativa.';
+          error?.error?.message ?? 'No se pudo cargar la recomendación adaptativa.';
       }
     });
   }

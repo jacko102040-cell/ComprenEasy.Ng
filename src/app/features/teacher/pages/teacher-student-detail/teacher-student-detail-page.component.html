@@ -10,7 +10,7 @@
           <span class="chip soft">Panel docente</span>
           <h1 class="page-title">{{ student.fullName }}</h1>
           <p class="page-subtitle">
-            {{ student.username }} · {{ student.grade }}ro · {{ student.section || 'Sin seccion' }}
+            {{ student.username }} | {{ student.grade }}ro | {{ student.section || 'Sin sección' }}
           </p>
         </div>
         <a class="btn btn-secondary" routerLink="/teacher/students">Volver a estudiantes</a>
@@ -19,14 +19,14 @@
       <div class="grid-cards cols-3 metrics-grid">
         <div class="metric-card">
           <span>Activo</span>
-          <strong>{{ student.isActive ? 'Si' : 'No' }}</strong>
+          <strong>{{ student.isActive ? 'Sí' : 'No' }}</strong>
         </div>
         <div class="metric-card">
           <span>Habilitado para prueba</span>
-          <strong>{{ student.isEnabledForTest ? 'Si' : 'No' }}</strong>
+          <strong>{{ student.isEnabledForTest ? 'Sí' : 'No' }}</strong>
         </div>
         <div class="metric-card">
-          <span>Ultima actividad</span>
+          <span>Última actividad</span>
           <strong>
             {{
               student.progressSummary.lastActivityAt
@@ -44,8 +44,8 @@
           <strong>{{ student.progressSummary.completedReadingSessions }}</strong>
         </div>
         <div class="metric-card">
-          <span>Ultima recomendacion</span>
-          <strong>{{ student.progressSummary.latestRecommendationAction || 'Sin recomendacion' }}</strong>
+          <span>Última recomendación</span>
+          <strong>{{ student.progressSummary.latestRecommendationAction || 'Sin recomendación' }}</strong>
         </div>
       </div>
 
@@ -55,17 +55,17 @@
     <article class="page-card action-card">
       <div class="action-head">
         <div>
-          <h2>Reinicio simple de contrasena</h2>
-          <p class="page-subtitle">Genera una contrasena temporal para compartirla con el estudiante.</p>
+          <h2>Reinicio simple de contraseña</h2>
+          <p class="page-subtitle">Genera una contraseña temporal para compartirla con el estudiante.</p>
         </div>
         <button class="btn btn-primary" type="button" [disabled]="resettingPassword" (click)="resetPassword()">
-          {{ resettingPassword ? 'Reiniciando...' : 'Reiniciar contrasena' }}
+          {{ resettingPassword ? 'Reiniciando...' : 'Reiniciar contraseña' }}
         </button>
       </div>
 
       @if (resetResult) {
         <p class="page-subtitle">
-          Nueva contrasena temporal: <strong>{{ resetResult.temporaryPassword }}</strong>
+          Nueva contraseña temporal: <strong>{{ resetResult.temporaryPassword }}</strong>
         </p>
       }
 
@@ -74,7 +74,7 @@
 
     <div class="grid-cards cols-2">
       <article class="page-card">
-        <h2>Intentos de evaluacion</h2>
+        <h2>Intentos de evaluación</h2>
 
         @if (student.evaluationAttempts.length) {
           <div class="list-block">
@@ -82,14 +82,14 @@
               <div class="list-item">
                 <div>
                   <strong>{{ attempt.assessmentTitle }}</strong>
-                  <p>{{ attempt.assessmentType }} · {{ attempt.status }}</p>
+                  <p>{{ attempt.assessmentType }} | {{ attempt.status }}</p>
                 </div>
                 <span>{{ attempt.totalScore !== null ? (attempt.totalScore | number: '1.0-2') + '%' : 'Sin puntaje' }}</span>
               </div>
             }
           </div>
         } @else {
-          <p class="page-subtitle">No hay intentos de evaluacion registrados.</p>
+          <p class="page-subtitle">No hay intentos de evaluación registrados.</p>
         }
       </article>
 
@@ -102,7 +102,7 @@
               <div class="list-item">
                 <div>
                   <strong>{{ session.readingTitle }}</strong>
-                  <p>{{ session.status }} · {{ session.totalTimeSeconds || 0 }} s</p>
+                  <p>{{ session.status }} | {{ session.totalTimeSeconds || 0 }} s</p>
                 </div>
                 <span>{{ session.completionPercentage !== null ? (session.completionPercentage | number: '1.0-2') + '%' : 'Sin avance' }}</span>
               </div>
@@ -124,7 +124,7 @@
               <div class="list-item">
                 <div>
                   <strong>{{ recommendation.predictedAction }}</strong>
-                  <p>{{ recommendation.recommendedDifficultyLevelName }} · {{ recommendation.sourceAssessmentTitle }}</p>
+                  <p>{{ recommendation.recommendedDifficultyLevelName }} | {{ recommendation.sourceAssessmentTitle }}</p>
                 </div>
                 <span>{{ recommendation.confidenceScore ?? 0 }}%</span>
               </div>
@@ -141,10 +141,7 @@
         <div class="field-grid">
           <div class="field-group">
             <label for="commentTagId">Etiqueta</label>
-            <select
-              id="commentTagId"
-              [(ngModel)]="selectedTagId"
-            >
+            <select id="commentTagId" [(ngModel)]="selectedTagId">
               @for (tag of student.availableCommentTags; track trackTag($index, tag)) {
                 <option [ngValue]="tag.commentTagId">{{ tag.name }}</option>
               }
@@ -167,7 +164,7 @@
               id="commentText"
               rows="5"
               [(ngModel)]="commentText"
-              placeholder="Escribe una observacion breve y util para el seguimiento del estudiante."
+              placeholder="Escribe una observación breve y útil para el seguimiento del estudiante."
             ></textarea>
           </div>
         </div>
@@ -201,13 +198,13 @@
           }
         </div>
       } @else {
-        <p class="page-subtitle">Todavia no hay comentarios docentes para este estudiante.</p>
+        <p class="page-subtitle">Todavía no hay comentarios docentes para este estudiante.</p>
       }
     </article>
   </section>
 } @else {
   <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontro el estudiante.' }}</p>
+    <p class="status-text error">{{ errorMessage || 'No se encontró el estudiante.' }}</p>
     <a class="btn btn-link" routerLink="/teacher/students">Volver a estudiantes</a>
   </article>
 }

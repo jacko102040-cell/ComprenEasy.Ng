@@ -71,6 +71,10 @@ export class ReadingSessionPageComponent {
     return this.currentPhase()?.questions ?? [];
   }
 
+  protected phaseOrder(phase: PhaseProgress): number {
+    return phase.sequenceOrder ?? phase.displayOrder ?? 0;
+  }
+
   protected selectOption(questionId: number, optionId: number): void {
     const now = Date.now();
     this.captureQuestionElapsedTime(questionId, now, true);
@@ -86,7 +90,11 @@ export class ReadingSessionPageComponent {
   }
 
   protected answeredQuestionsForPhase(phase: PhaseProgress): number {
-    return phase.questions.filter((question) => this.selectedAnswers[question.questionId] !== undefined).length;
+    const localAnswered = phase.questions.filter(
+      (question) => this.selectedAnswers[question.questionId] !== undefined
+    ).length;
+
+    return Math.max(phase.answeredQuestions, localAnswered);
   }
 
   protected phaseRequirementMessage(phase: PhaseProgress): string {
@@ -94,7 +102,7 @@ export class ReadingSessionPageComponent {
       return '';
     }
 
-    return `Necesitas responder al menos ${phase.minQuestionsToUnlockNext} de ${phase.totalQuestions} preguntas para cerrar esta fase.`;
+    return `Responde al menos ${phase.minQuestionsToUnlockNext} de ${phase.totalQuestions} preguntas para completar esta fase con seguridad.`;
   }
 
   protected isPhaseBelowMinimum(phase: PhaseProgress): boolean {
@@ -134,7 +142,11 @@ export class ReadingSessionPageComponent {
   }
 
   protected questionTime(question: ReadingPhaseQuestion): number {
-    return this.answerTimeSeconds[question.questionId] ?? question.answerTimeSeconds;
+    return this.answerTimeSeconds[question.questionId] ?? question.answerTimeSeconds ?? 0;
+  }
+
+  protected hasQuestions(phase: PhaseProgress): boolean {
+    return phase.totalQuestions > 0 && phase.questions.length > 0;
   }
 
   protected onNoteChange(note: string): void {
@@ -226,7 +238,7 @@ export class ReadingSessionPageComponent {
       },
       error: (error) => {
         this.busy = false;
-        this.errorMessage = error?.error?.message ?? 'No se pudo finalizar la sesion de lectura.';
+        this.errorMessage = error?.error?.message ?? 'No se pudo finalizar la sesión de lectura.';
       }
     });
   }
@@ -251,7 +263,7 @@ export class ReadingSessionPageComponent {
     }
 
     if (this.session?.currentPhaseId === phase.phaseId) {
-      return phase.guidanceText || 'Fase activa. Registra tu avance y completala cuando termines.';
+      return phase.guidanceText || 'Fase activa. Registra tu avance y complétala cuando termines.';
     }
 
     if (phase.status === 'Pending') {
@@ -266,6 +278,11 @@ export class ReadingSessionPageComponent {
   private mapPhaseCompletionError(phase: PhaseProgress, error: unknown): string {
     const backendMessage =
       (error as { error?: { message?: string } })?.error?.message ?? 'No se pudo completar la fase actual.';
+    const normalizedMessage = backendMessage.toLowerCase();
+
+    if (normalizedMessage.includes('min') || normalizedMessage.includes('minimum')) {
+      return this.phaseRequirementMessage(phase) || backendMessage;
+    }
 
     if (this.isPhaseBelowMinimum(phase)) {
       return this.phaseRequirementMessage(phase) || backendMessage;
@@ -286,7 +303,7 @@ export class ReadingSessionPageComponent {
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error?.error?.message ?? 'No se pudo cargar la sesion de lectura.';
+        this.errorMessage = error?.error?.message ?? 'No se pudo cargar la sesión de lectura.';
       }
     });
   }
@@ -416,14 +433,20 @@ export class ReadingSessionPageComponent {
           selectedAnswers[question.questionId] = question.selectedOptionId;
         }
 
-        if (question.answerTimeSeconds > 0) {
-          answerTimeSeconds[question.questionId] = question.answerTimeSeconds;
+        if ((question.answerTimeSeconds ?? 0) > 0) {
+          answerTimeSeconds[question.questionId] = question.answerTimeSeconds ?? 0;
         }
       }
     }
 
-    this.selectedAnswers = selectedAnswers;
-    this.answerTimeSeconds = answerTimeSeconds;
+    this.selectedAnswers = {
+      ...this.selectedAnswers,
+      ...selectedAnswers
+    };
+    this.answerTimeSeconds = {
+      ...this.answerTimeSeconds,
+      ...answerTimeSeconds
+    };
   }
 
   private persistDraft(): void {

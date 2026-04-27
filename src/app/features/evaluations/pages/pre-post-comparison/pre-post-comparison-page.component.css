@@ -5,9 +5,32 @@
 
 .hero-card,
 .overview-card,
-.dimension-card {
+.dimension-card,
+.completion-card {
   display: grid;
   gap: 1rem;
+}
+
+.hero-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
+  border-color: rgba(127, 23, 52, 0.16);
+}
+
+.completion-card {
+  background: rgba(33, 122, 87, 0.08);
+  border-color: rgba(33, 122, 87, 0.18);
+}
+
+.completion-card h2 {
+  margin: 0;
+  color: var(--color-success);
+}
+
+.completion-card p {
+  margin: 0;
+  color: var(--color-gray-700);
+  line-height: 1.6;
 }
 
 .overview-head {
@@ -39,6 +62,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(127, 23, 52, 0.06);
+  border: 1px solid rgba(127, 23, 52, 0.08);
 }
 
 .metric-card span,
@@ -68,6 +92,10 @@
   gap: 0.5rem;
 }
 
+.dimension-card {
+  border-color: rgba(127, 23, 52, 0.1);
+}
+
 .dimension-values p {
   margin: 0;
 }
@@ -84,6 +112,26 @@
 .negative,
 .highlight.negative strong {
   color: var(--color-danger);
+}
+
+.neutral,
+.highlight.neutral strong {
+  color: var(--color-info);
+}
+
+.highlight.positive {
+  background: rgba(33, 122, 87, 0.08);
+  border-color: rgba(33, 122, 87, 0.18);
+}
+
+.highlight.negative {
+  background: rgba(176, 48, 82, 0.08);
+  border-color: rgba(176, 48, 82, 0.18);
+}
+
+.highlight.neutral {
+  background: rgba(59, 111, 135, 0.08);
+  border-color: rgba(59, 111, 135, 0.18);
 }
 
 @media (max-width: 760px) {

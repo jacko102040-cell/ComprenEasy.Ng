@@ -9,6 +9,9 @@ export interface AdaptiveRecommendation {
   recommendedDifficultyLevelId: number;
   recommendedDifficultyLevelName: string;
   predictedAction: string;
+  recommendedActivityType: string | null;
+  recommendedRoute: string | null;
+  recommendedReadingId: number | null;
   recommendedAssessmentId: number | null;
   recommendedAssessmentTitle: string | null;
   engineType: string;

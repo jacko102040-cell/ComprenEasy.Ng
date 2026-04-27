@@ -9,6 +9,12 @@
   gap: 1rem;
 }
 
+.summary-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
+  border-color: rgba(127, 23, 52, 0.16);
+}
+
 .summary-head,
 .action-head,
 .list-item,
@@ -27,6 +33,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(127, 23, 52, 0.06);
+  border: 1px solid rgba(127, 23, 52, 0.08);
 }
 
 .metric-card span,
@@ -55,6 +62,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(240, 236, 238, 0.62);
+  border: 1px solid rgba(129, 117, 123, 0.12);
 }
 
 .list-item p,

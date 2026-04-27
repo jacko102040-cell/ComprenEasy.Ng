@@ -5,5 +5,12 @@
 .app-main {
   width: min(1120px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 1.5rem 0 3rem;
+  padding: 1.6rem 0 3.2rem;
+}
+
+@media (max-width: 560px) {
+  .app-main {
+    width: min(100% - 1rem, 1120px);
+    padding-top: 1rem;
+  }
 }

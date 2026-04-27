@@ -58,7 +58,7 @@ export class TeacherStudentDetailPageComponent {
       error: (error) => {
         this.resettingPassword = false;
         this.resetErrorMessage =
-          error?.error?.message ?? 'No se pudo reiniciar la contrasena del estudiante.';
+          error?.error?.message ?? 'No se pudo reiniciar la contraseña del estudiante.';
       }
     });
   }

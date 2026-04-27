@@ -7,6 +7,21 @@
   margin: 1.5rem 0;
 }
 
+.summary-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
+  border-color: rgba(127, 23, 52, 0.16);
+}
+
+.result-note {
+  margin: 1rem 0 0;
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(33, 122, 87, 0.08);
+  color: var(--color-success);
+  line-height: 1.55;
+}
+
 .recommendation-card {
   display: grid;
   gap: 1rem;
@@ -30,6 +45,7 @@
   padding: 1rem;
   border-radius: var(--radius-md);
   background: rgba(127, 23, 52, 0.06);
+  border: 1px solid rgba(127, 23, 52, 0.08);
 }
 
 .metric-card span {
@@ -39,6 +55,24 @@
 .metric-card strong,
 .answer-card h2 {
   color: var(--color-maroon-900);
+}
+
+.success-card {
+  background: rgba(33, 122, 87, 0.08);
+  border-color: rgba(33, 122, 87, 0.18);
+}
+
+.success-card strong {
+  color: var(--color-success);
+}
+
+.danger-card {
+  background: rgba(176, 48, 82, 0.08);
+  border-color: rgba(176, 48, 82, 0.18);
+}
+
+.danger-card strong {
+  color: var(--color-danger);
 }
 
 .question-list {

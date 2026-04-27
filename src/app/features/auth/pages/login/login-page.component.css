@@ -10,9 +10,10 @@
 
 .hero-card {
   background:
-    linear-gradient(160deg, rgba(91, 16, 35, 0.95), rgba(159, 39, 72, 0.84)),
+    linear-gradient(160deg, rgba(91, 16, 35, 0.97), rgba(127, 23, 52, 0.88)),
     var(--color-maroon-900);
   color: var(--color-white);
+  overflow: hidden;
 }
 
 .hero-card .page-title,
@@ -23,14 +24,27 @@
 
 .hero-points {
   margin: 1.5rem 0 0;
-  padding-left: 1.2rem;
+  padding: 0;
   display: grid;
   gap: 0.5rem;
+  list-style: none;
+}
+
+.hero-points li {
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .form-card h2 {
-  margin: 0;
+  margin: 0.6rem 0 0;
   color: var(--color-maroon-900);
+}
+
+.form-card {
+  display: grid;
+  align-content: center;
 }
 
 @media (min-width: 920px) {

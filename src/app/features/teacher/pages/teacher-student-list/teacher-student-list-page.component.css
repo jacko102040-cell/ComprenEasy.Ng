@@ -5,11 +5,15 @@
 
 .hero-card {
   padding: 1.8rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
+  border-color: rgba(127, 23, 52, 0.16);
 }
 
 .student-card {
   display: grid;
   gap: 1rem;
+  border-color: rgba(127, 23, 52, 0.1);
 }
 
 .student-head,
@@ -18,6 +22,9 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.8rem;
+  padding: 0.8rem;
+  border-radius: var(--radius-md);
+  background: rgba(240, 236, 238, 0.58);
 }
 
 .student-head h2 {

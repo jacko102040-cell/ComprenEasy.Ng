@@ -2,15 +2,21 @@
   --color-maroon-900: #5b1023;
   --color-maroon-700: #7f1734;
   --color-maroon-500: #9f2748;
+  --color-maroon-100: #f7e7ed;
   --color-white: #ffffff;
   --color-gray-50: #f7f5f6;
   --color-gray-100: #f0ecee;
   --color-gray-300: #d0c6cb;
   --color-gray-500: #81757b;
   --color-gray-700: #4d4348;
+  --color-gray-900: #231f22;
+  --color-gold-100: #fff3d6;
+  --color-gold-500: #c98723;
   --color-success: #217a57;
   --color-danger: #b03052;
+  --color-info: #3b6f87;
   --shadow-soft: 0 18px 45px rgba(91, 16, 35, 0.12);
+  --shadow-card: 0 10px 28px rgba(91, 16, 35, 0.09);
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 12px;
@@ -26,8 +32,10 @@ body {
   min-height: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(159, 39, 72, 0.18), transparent 22rem),
-    linear-gradient(180deg, #fffdfd 0%, #f4eef1 52%, #ece7ea 100%);
+    linear-gradient(135deg, rgba(91, 16, 35, 0.08) 0 25%, transparent 25% 100%),
+    radial-gradient(circle at top left, rgba(159, 39, 72, 0.16), transparent 22rem),
+    radial-gradient(circle at bottom right, rgba(129, 117, 123, 0.14), transparent 24rem),
+    linear-gradient(180deg, #fffdfd 0%, #f6f1f3 54%, #ece7ea 100%);
   color: var(--color-gray-700);
 }
 
@@ -42,7 +50,8 @@ a {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -54,7 +63,7 @@ button {
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(129, 117, 123, 0.15);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-soft);
+  box-shadow: var(--shadow-card);
   padding: 1.5rem;
   backdrop-filter: blur(10px);
 }
@@ -64,6 +73,7 @@ button {
   color: var(--color-maroon-900);
   font-size: clamp(1.8rem, 4vw, 2.6rem);
   line-height: 1.1;
+  letter-spacing: 0;
 }
 
 .page-subtitle {
@@ -76,6 +86,12 @@ button {
   border: 0;
   border-radius: 999px;
   padding: 0.8rem 1.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  font-weight: 700;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -91,10 +107,25 @@ button {
   cursor: default;
 }
 
+.btn:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(201, 135, 35, 0.45);
+  outline-offset: 3px;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, var(--color-maroon-700), var(--color-maroon-500));
   color: var(--color-white);
   box-shadow: 0 12px 24px rgba(127, 23, 52, 0.28);
+}
+
+.btn-primary.primary-action {
+  padding-inline: 1.6rem;
+  min-height: 3rem;
+  box-shadow: 0 16px 32px rgba(127, 23, 52, 0.32);
 }
 
 .btn-secondary {
@@ -139,7 +170,8 @@ button {
 }
 
 .field-group input,
-.field-group select {
+.field-group select,
+.field-group textarea {
   width: 100%;
   border: 1px solid var(--color-gray-300);
   border-radius: var(--radius-sm);
@@ -148,7 +180,8 @@ button {
 }
 
 .field-group input:focus,
-.field-group select:focus {
+.field-group select:focus,
+.field-group textarea:focus {
   outline: 2px solid rgba(159, 39, 72, 0.2);
   border-color: var(--color-maroon-500);
 }
@@ -180,9 +213,45 @@ button {
   color: var(--color-maroon-700);
 }
 
+.chip.success {
+  background: rgba(33, 122, 87, 0.12);
+  color: var(--color-success);
+}
+
+.chip.warning {
+  background: var(--color-gold-100);
+  color: #7b4d09;
+}
+
+.chip.muted {
+  background: rgba(129, 117, 123, 0.12);
+  color: var(--color-gray-700);
+}
+
 .grid-cards {
   display: grid;
   gap: 1rem;
+}
+
+.visual-meter {
+  position: relative;
+  width: 100%;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: rgba(129, 117, 123, 0.18);
+  overflow: hidden;
+}
+
+.visual-meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-maroon-700), var(--color-gold-500));
+}
+
+.metric-emphasis {
+  background:
+    linear-gradient(180deg, rgba(127, 23, 52, 0.09), rgba(127, 23, 52, 0.035));
+  border: 1px solid rgba(127, 23, 52, 0.12);
 }
 
 @media (min-width: 760px) {
@@ -192,5 +261,17 @@ button {
 
   .grid-cards.cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .page-card {
+    padding: 1.15rem;
+    border-radius: 18px;
+  }
+
+  .page-actions .btn,
+  .page-actions a {
+    width: 100%;
   }
 }

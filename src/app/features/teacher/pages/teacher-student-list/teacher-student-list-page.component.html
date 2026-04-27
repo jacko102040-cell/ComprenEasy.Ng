@@ -8,7 +8,7 @@
       <span class="chip soft">Panel docente</span>
       <h1 class="page-title">Estudiantes</h1>
       <p class="page-subtitle">
-        Revisa progreso, intentos, sesiones y comentarios desde un panel unico de seguimiento.
+        Revisa progreso, intentos, sesiones y comentarios desde un panel único de seguimiento.
       </p>
       <p class="status-text error">{{ errorMessage }}</p>
     </article>
@@ -22,24 +22,24 @@
                 <h2>{{ student.fullName }}</h2>
                 <p>{{ student.username }}</p>
               </div>
-              <span class="chip soft">{{ student.grade }}ro · {{ student.section || 'Sin seccion' }}</span>
+              <span class="chip soft">{{ student.grade }}ro | {{ student.section || 'Sin sección' }}</span>
             </div>
 
             <div class="student-metrics">
-              <span>Activo: {{ student.isActive ? 'Si' : 'No' }}</span>
-              <span>Habilitado: {{ student.isEnabledForTest ? 'Si' : 'No' }}</span>
+              <span>Activo: {{ student.isActive ? 'Sí' : 'No' }}</span>
+              <span>Habilitado: {{ student.isEnabledForTest ? 'Sí' : 'No' }}</span>
               <span>
-                Ultimo puntaje:
+                Último puntaje:
                 {{ student.latestScore !== null ? (student.latestScore | number: '1.0-2') + '%' : 'Sin datos' }}
               </span>
             </div>
 
             <p class="helper-text">
-              Ultima actividad:
+              Última actividad:
               {{ student.lastActivityAt ? (student.lastActivityAt | date: 'short') : 'Sin actividad registrada' }}
             </p>
             <p class="helper-text">
-              Recomendacion reciente: {{ student.latestRecommendationAction || 'Sin recomendacion' }}
+              Recomendación reciente: {{ student.latestRecommendationAction || 'Sin recomendación' }}
             </p>
 
             <a class="btn btn-primary" [routerLink]="['/teacher/students', student.studentId]">

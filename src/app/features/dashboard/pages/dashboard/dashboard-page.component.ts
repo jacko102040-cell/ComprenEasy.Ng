@@ -49,7 +49,7 @@ export class DashboardPageComponent {
         }
 
         this.recommendationError =
-          error?.error?.message ?? 'No se pudo cargar la recomendacion adaptativa.';
+          error?.error?.message ?? 'No se pudo cargar la recomendación adaptativa.';
       }
     });
 
@@ -102,7 +102,7 @@ export class DashboardPageComponent {
 
   protected pretestHint(): string {
     if (this.hasCompletedPretest()) {
-      return 'Tu diagnostico inicial ya esta registrado.';
+      return 'Tu diagnóstico inicial ya está registrado.';
     }
 
     return this.availablePretests > 0
@@ -124,7 +124,7 @@ export class DashboardPageComponent {
     }
 
     if (this.summary.hasCompletedMinimumReadingIntervention) {
-      return 'Minimo cumplido';
+      return 'Mínimo cumplido';
     }
 
     return this.summary.completedReadingSessions > 0 ? 'En progreso' : 'Disponibles';
@@ -136,14 +136,14 @@ export class DashboardPageComponent {
     }
 
     if (!this.summary.hasCompletedPretest) {
-      return 'Las lecturas se habilitan despues de completar el pretest.';
+      return 'Las lecturas se habilitan después de completar el pretest.';
     }
 
     if (this.summary.hasCompletedPosttest) {
-      return 'La intervencion principal ya termino y el cierre esta en la comparacion final.';
+      return 'La intervención principal ya terminó y el cierre está en la comparación final.';
     }
 
-    return `${this.summary.completedReadingSessions}/${this.summary.minimumReadingSessionsRequired} sesion(es) completas para habilitar el posttest. ${this.availableReadings} lectura(s) activa(s) disponibles.`;
+    return `${this.summary.completedReadingSessions}/${this.summary.minimumReadingSessionsRequired} sesión(es) completas para habilitar el posttest. ${this.availableReadings} lectura(s) activa(s) disponibles.`;
   }
 
   protected posttestStatus(): string {
@@ -160,14 +160,14 @@ export class DashboardPageComponent {
 
   protected posttestHint(): string {
     if (this.hasCompletedPosttest()) {
-      return 'Tu evaluacion final ya esta registrada.';
+      return 'Tu evaluación final ya está registrada.';
     }
 
     if (this.summary?.canAccessPosttest) {
       return 'Ya puedes medir tu avance final con un posttest.';
     }
 
-    return 'Se habilita despues de avanzar por lecturas y practica.';
+    return 'Se habilita después de avanzar por lecturas y práctica.';
   }
 
   protected nextActivityLabel(): string {
@@ -179,7 +179,7 @@ export class DashboardPageComponent {
       case 'Posttest':
         return 'Ir al posttest';
       case 'Completed':
-        return 'Ver comparacion final';
+        return 'Ver comparación final';
       default:
         return 'Ir al siguiente paso';
     }
@@ -187,5 +187,58 @@ export class DashboardPageComponent {
 
   protected nextActivityRoute(): string | unknown[] {
     return this.summary?.recommendedRoute ?? '/dashboard';
+  }
+
+  protected recommendationActivityLabel(): string {
+    if (!this.recommendation) {
+      return 'Sin actividad directa';
+    }
+
+    return this.recommendation.recommendedActivityType
+      ?? this.recommendation.recommendedAssessmentTitle
+      ?? 'Sin actividad directa';
+  }
+
+  protected recommendationPrimaryRoute(): string | unknown[] {
+    if (this.recommendation?.recommendedRoute) {
+      return this.recommendation.recommendedRoute;
+    }
+
+    if (this.recommendation?.recommendedAssessmentId) {
+      return ['/evaluations', this.recommendation.recommendedAssessmentId];
+    }
+
+    return this.nextActivityRoute();
+  }
+
+  protected hasRecommendationPrimaryRoute(): boolean {
+    return !!(this.recommendation?.recommendedRoute || this.recommendation?.recommendedAssessmentId);
+  }
+
+  protected readingProgressPercent(): number {
+    if (!this.summary?.minimumReadingSessionsRequired) {
+      return 0;
+    }
+
+    return Math.min(
+      100,
+      Math.round((this.summary.completedReadingSessions / this.summary.minimumReadingSessionsRequired) * 100)
+    );
+  }
+
+  protected flowStepClass(stage: AcademicFlowSummary['currentStage']): string {
+    if (!this.summary) {
+      return 'pending';
+    }
+
+    const order: AcademicFlowSummary['currentStage'][] = ['Pretest', 'Readings', 'Posttest', 'Completed'];
+    const currentIndex = order.indexOf(this.summary.currentStage);
+    const stepIndex = order.indexOf(stage);
+
+    if (stepIndex < currentIndex || this.summary.currentStage === 'Completed') {
+      return 'done';
+    }
+
+    return stepIndex === currentIndex ? 'current' : 'pending';
   }
 }

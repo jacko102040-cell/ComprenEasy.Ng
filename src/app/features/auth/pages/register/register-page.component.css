@@ -4,6 +4,9 @@
 
 .register-card {
   padding: 1.8rem;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
+  border-color: rgba(127, 23, 52, 0.16);
 }
 
 .double-grid {

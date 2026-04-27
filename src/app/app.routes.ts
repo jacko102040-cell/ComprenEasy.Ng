@@ -53,7 +53,7 @@ export const routes: Routes = [
       roles: ['Student'],
       allowedAcademicStages: ['Posttest'],
       assessmentType: 'Posttest',
-      title: 'Postests disponibles'
+      title: 'Posttests disponibles'
     }
   },
   {
@@ -108,7 +108,8 @@ export const routes: Routes = [
     path: 'evaluations/:assessmentId',
     canActivate: [authGuard],
     data: {
-      roles: ['Student']
+      roles: ['Student'],
+      allowedAcademicStages: ['Pretest', 'Posttest']
     },
     loadComponent: () =>
       import('./features/evaluations/pages/evaluation-detail/evaluation-detail-page.component').then(

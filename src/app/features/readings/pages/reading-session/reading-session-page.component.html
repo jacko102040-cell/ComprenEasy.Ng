@@ -1,6 +1,6 @@
 @if (loading) {
   <article class="page-card">
-    <p class="page-subtitle">Cargando sesion de lectura...</p>
+    <p class="page-subtitle">Cargando sesión de lectura...</p>
   </article>
 } @else if (session) {
   <section class="reading-session-shell">
@@ -31,15 +31,23 @@
       </div>
       <p class="helper-text">Progreso general: {{ session.completionPercentage }}%</p>
 
+      <div class="phase-chip-row" aria-label="Progreso de fases PQ4R">
+        @for (phase of session.phases; track phase.phaseId) {
+          <span class="phase-chip" [class.current]="session.currentPhaseId === phase.phaseId" [ngClass]="phaseStatusClass(phase.status)">
+            {{ phaseOrder(phase) }}. {{ phase.displayName }}
+          </span>
+        }
+      </div>
+
       <div class="page-actions">
         <button class="btn btn-secondary" type="button" [disabled]="busy" (click)="saveProgress()">
           Guardar avance
         </button>
-        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="completePhase()">
+        <button class="btn btn-primary primary-action" type="button" [disabled]="busy" (click)="completePhase()">
           Completar fase actual
         </button>
         <button class="btn btn-primary" type="button" [disabled]="busy || !canFinishSession()" (click)="finishSession()">
-          Finalizar sesion
+          Finalizar sesión
         </button>
       </div>
 
@@ -47,7 +55,7 @@
       <p class="status-text success">{{ successMessage }}</p>
     </article>
 
-    <div class="grid-cards cols-2">
+    <div class="grid-cards cols-2 reading-workspace">
       <article class="page-card">
         <h2>Ruta de fases</h2>
 
@@ -55,7 +63,7 @@
           @for (phase of session.phases; track phase.phaseId) {
             <div class="phase-step" [class.current]="session.currentPhaseId === phase.phaseId">
               <div [ngClass]="['phase-badge', phaseStatusClass(phase.status)]">
-                {{ phase.sequenceOrder }}
+                {{ phaseOrder(phase) }}
               </div>
               <div class="phase-copy">
                 <div class="phase-row">
@@ -81,17 +89,6 @@
           <h2>{{ phase.displayName }}</h2>
           <p class="page-subtitle">{{ feedbackForPhase(phase) }}</p>
 
-          <div class="field-group">
-            <label for="progressNote">Nota de avance</label>
-            <textarea
-              id="progressNote"
-              rows="7"
-              [ngModel]="currentNote()"
-              (ngModelChange)="onNoteChange($event)"
-              placeholder="Escribe una nota breve sobre lo que estas trabajando en esta fase."
-            ></textarea>
-          </div>
-
           <div class="phase-summary">
             <span>Estado: {{ phase.status }}</span>
             <span>Tiempo acumulado: {{ phase.timeSpentSeconds }} s</span>
@@ -104,51 +101,68 @@
             </p>
           }
 
-          @if (phase.totalQuestions) {
-            <div class="question-shell">
-              <div class="question-summary">
-                <span class="chip soft">Preguntas</span>
-                <span class="helper-text">
-                  {{ answeredQuestionsForPhase(phase) }}/{{ phase.totalQuestions }} respondidas
-                </span>
+          <div class="current-phase-layout">
+            <aside class="phase-note-panel">
+              <div class="field-group">
+                <label for="progressNote">Nota de avance</label>
+                <textarea
+                  id="progressNote"
+                  rows="5"
+                  [ngModel]="currentNote()"
+                  (ngModelChange)="onNoteChange($event)"
+                  placeholder="Anota una idea clave o una duda breve."
+                ></textarea>
               </div>
+            </aside>
 
-              <div class="question-list">
-                @for (question of currentQuestions(); track question.questionId) {
-                  <article class="question-card">
-                    <div class="question-head">
-                      <span class="chip soft">{{ question.dimensionName }}</span>
-                      <span class="chip" [ngClass]="questionStateClass(question)">
-                        {{ questionStateLabel(question) }}
-                      </span>
-                    </div>
+            @if (hasQuestions(phase)) {
+              <div class="question-shell">
+                <div class="question-summary">
+                  <span class="chip soft">Preguntas de la fase</span>
+                  <span class="answered-pill">
+                    {{ answeredQuestionsForPhase(phase) }}/{{ phase.totalQuestions }} respondidas
+                  </span>
+                </div>
 
-                    <h3>{{ question.displayOrder }}. {{ question.stem }}</h3>
-                    <p class="helper-text">
-                      {{ question.points }} pts · {{ questionTime(question) }} s
-                    </p>
+                <div class="question-list">
+                  @for (question of currentQuestions(); track question.questionId) {
+                    <article class="question-card">
+                      <div class="question-head">
+                        <span class="chip soft">{{ question.dimensionName }}</span>
+                        <span class="chip" [ngClass]="questionStateClass(question)">
+                          {{ questionStateLabel(question) }}
+                        </span>
+                      </div>
 
-                    <div class="options-list">
-                      @for (option of question.options; track option.optionId) {
-                        <label class="option-item">
-                          <input
-                            type="radio"
-                            [name]="'reading-question-' + question.questionId"
-                            [checked]="isSelected(question.questionId, option.optionId)"
-                            (change)="selectOption(question.questionId, option.optionId)"
-                          />
-                          <span>{{ option.optionText }}</span>
-                        </label>
-                      }
-                    </div>
-                  </article>
-                }
+                      <h3>{{ question.displayOrder }}. {{ question.stem }}</h3>
+                      <p class="helper-text">{{ question.points }} pts | {{ questionTime(question) }} s</p>
+
+                      <div class="options-list">
+                        @for (option of question.options; track option.optionId) {
+                          <label class="option-item" [class.selected]="isSelected(question.questionId, option.optionId)">
+                            <input
+                              type="radio"
+                              [name]="'reading-question-' + question.questionId"
+                              [checked]="isSelected(question.questionId, option.optionId)"
+                              (change)="selectOption(question.questionId, option.optionId)"
+                            />
+                            <span>{{ option.optionText }}</span>
+                          </label>
+                        }
+                      </div>
+                    </article>
+                  }
+                </div>
               </div>
-            </div>
-          }
+            } @else if (phase.totalQuestions > 0) {
+              <p class="helper-text">
+                Esta fase tiene {{ phase.totalQuestions }} preguntas registradas, pero no llegaron en el detalle de la sesión.
+              </p>
+            }
+          </div>
         } @else {
           <h2>Sin fase activa</h2>
-          <p class="page-subtitle">Esta sesion ya no tiene fases pendientes por mostrar.</p>
+          <p class="page-subtitle">Esta sesión ya no tiene fases pendientes por mostrar.</p>
         }
       </article>
     </div>
@@ -162,7 +176,7 @@
   </section>
 } @else {
   <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontro la sesion de lectura.' }}</p>
+    <p class="status-text error">{{ errorMessage || 'No se encontró la sesión de lectura.' }}</p>
     <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
   </article>
 }
