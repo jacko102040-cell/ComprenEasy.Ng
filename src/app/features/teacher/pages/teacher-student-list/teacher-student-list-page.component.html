@@ -1,0 +1,57 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando estudiantes...</p>
+  </article>
+} @else {
+  <section class="teacher-shell">
+    <article class="page-card hero-card">
+      <span class="chip soft">Panel docente</span>
+      <h1 class="page-title">Estudiantes</h1>
+      <p class="page-subtitle">
+        Revisa progreso, intentos, sesiones y comentarios desde un panel unico de seguimiento.
+      </p>
+      <p class="status-text error">{{ errorMessage }}</p>
+    </article>
+
+    @if (students.length) {
+      <div class="grid-cards cols-2">
+        @for (student of students; track student.studentId) {
+          <article class="page-card student-card">
+            <div class="student-head">
+              <div>
+                <h2>{{ student.fullName }}</h2>
+                <p>{{ student.username }}</p>
+              </div>
+              <span class="chip soft">{{ student.grade }}ro · {{ student.section || 'Sin seccion' }}</span>
+            </div>
+
+            <div class="student-metrics">
+              <span>Activo: {{ student.isActive ? 'Si' : 'No' }}</span>
+              <span>Habilitado: {{ student.isEnabledForTest ? 'Si' : 'No' }}</span>
+              <span>
+                Ultimo puntaje:
+                {{ student.latestScore !== null ? (student.latestScore | number: '1.0-2') + '%' : 'Sin datos' }}
+              </span>
+            </div>
+
+            <p class="helper-text">
+              Ultima actividad:
+              {{ student.lastActivityAt ? (student.lastActivityAt | date: 'short') : 'Sin actividad registrada' }}
+            </p>
+            <p class="helper-text">
+              Recomendacion reciente: {{ student.latestRecommendationAction || 'Sin recomendacion' }}
+            </p>
+
+            <a class="btn btn-primary" [routerLink]="['/teacher/students', student.studentId]">
+              Ver detalle
+            </a>
+          </article>
+        }
+      </div>
+    } @else {
+      <article class="page-card">
+        <p class="page-subtitle">No hay estudiantes registrados para mostrar.</p>
+      </article>
+    }
+  </section>
+}

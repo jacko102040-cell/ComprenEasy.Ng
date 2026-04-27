@@ -1,0 +1,108 @@
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.intro-card {
+  padding: 1.8rem;
+}
+
+.recommendation-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.flow-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.recommendation-head,
+.recommendation-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.recommendation-metric {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(127, 23, 52, 0.06);
+}
+
+.recommendation-metric span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+}
+
+.recommendation-metric strong {
+  color: var(--color-maroon-900);
+}
+
+.stats-grid {
+  margin-top: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(127, 23, 52, 0.06);
+}
+
+.stat-card span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+}
+
+.stat-card strong,
+.menu-card h2 {
+  color: var(--color-maroon-900);
+}
+
+.menu-card {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.flow-grid {
+  align-items: stretch;
+}
+
+.flow-step-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(127, 23, 52, 0.08), rgba(127, 23, 52, 0.03));
+}
+
+.flow-step-card span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+}
+
+.flow-step-card strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--color-maroon-900);
+}
+
+.flow-step-card p {
+  margin: 0.6rem 0 0;
+  color: var(--color-gray-500);
+  line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .recommendation-grid {
+    grid-template-columns: 1fr;
+  }
+}

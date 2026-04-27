@@ -1,0 +1,53 @@
+<section class="register-shell">
+  <article class="page-card register-card">
+    <span class="chip soft">Registro de estudiante</span>
+    <h1 class="page-title">Crea tu cuenta para comenzar</h1>
+    <p class="page-subtitle">
+      Regístrate una sola vez y luego podrás ingresar a tus evaluaciones y revisar tus resultados.
+    </p>
+
+    <form [formGroup]="form" class="field-grid double-grid" (ngSubmit)="submit()">
+      <div class="field-group full-span">
+        <label for="fullName">Nombre completo</label>
+        <input id="fullName" type="text" formControlName="fullName" />
+      </div>
+
+      <div class="field-group">
+        <label for="username">Usuario</label>
+        <input id="username" type="text" formControlName="username" />
+      </div>
+
+      <div class="field-group">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" formControlName="password" />
+      </div>
+
+      <div class="field-group">
+        <label for="grade">Grado</label>
+        <select id="grade" formControlName="grade">
+          <option [ngValue]="1">1</option>
+          <option [ngValue]="2">2</option>
+          <option [ngValue]="3">3</option>
+          <option [ngValue]="4">4</option>
+          <option [ngValue]="5">5</option>
+          <option [ngValue]="6">6</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="section">Sección</label>
+        <input id="section" type="text" formControlName="section" placeholder="Opcional" />
+      </div>
+
+      <p class="status-text error full-span">{{ errorMessage }}</p>
+      <p class="status-text success full-span">{{ successMessage }}</p>
+
+      <div class="page-actions full-span">
+        <button class="btn btn-primary" type="submit" [disabled]="loading">
+          {{ loading ? 'Creando cuenta...' : 'Registrarme' }}
+        </button>
+        <a class="btn btn-link" routerLink="/login">Ya tengo cuenta</a>
+      </div>
+    </form>
+  </article>
+</section>

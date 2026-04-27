@@ -1,0 +1,121 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando gestion de preguntas...</p>
+  </article>
+} @else {
+  <section class="content-shell">
+    <article class="page-card sidebar-card">
+      <div class="sidebar-head">
+        <div>
+          <span class="chip soft">Interno</span>
+          <h1 class="page-title compact">Preguntas</h1>
+        </div>
+        <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva</button>
+      </div>
+
+      <a class="btn btn-link" routerLink="/teacher/content">Volver al indice</a>
+
+      <div class="list-shell">
+        @for (question of questions; track question.questionId) {
+          <button
+            class="list-item"
+            type="button"
+            [class.active]="selectedQuestionId === question.questionId"
+            (click)="selectQuestion(question.questionId)"
+          >
+            <strong>{{ question.stem }}</strong>
+            <small>{{ question.dimensionName }} · {{ question.optionCount }} opciones</small>
+            <small>{{ question.isActive ? 'Activa' : 'Archivada' }}</small>
+          </button>
+        }
+      </div>
+    </article>
+
+    <article class="page-card editor-card">
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Enunciado</label>
+          <textarea rows="4" [(ngModel)]="form.stem"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Tipo</label>
+          <input [(ngModel)]="form.questionType" />
+        </div>
+
+        <div class="field-group">
+          <label>Dimension</label>
+          <select [(ngModel)]="form.dimensionId">
+            @for (item of lookups?.dimensions ?? []; track item.id) {
+              <option [ngValue]="item.id">{{ item.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Dificultad</label>
+          <select [(ngModel)]="form.difficultyLevelId">
+            <option [ngValue]="null">Sin dificultad</option>
+            @for (item of lookups?.difficultyLevels ?? []; track item.id) {
+              <option [ngValue]="item.id">{{ item.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group full-width">
+          <label>Explicacion</label>
+          <textarea rows="3" [(ngModel)]="form.explanation"></textarea>
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" [(ngModel)]="form.isActive" />
+          <span>Pregunta activa</span>
+        </label>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head">
+          <h3>Opciones</h3>
+          <button class="btn btn-secondary" type="button" (click)="addOption()">Agregar</button>
+        </div>
+
+        <div class="option-list">
+          @for (option of form.options; track $index) {
+            <article class="phase-card">
+              <div class="field-grid">
+                <div class="field-group full-width">
+                  <label>Texto</label>
+                  <input [(ngModel)]="option.optionText" />
+                </div>
+
+                <div class="field-group">
+                  <label>Orden</label>
+                  <input type="number" [(ngModel)]="option.displayOrder" />
+                </div>
+
+                <label class="toggle-row">
+                  <input type="checkbox" [(ngModel)]="option.isCorrect" />
+                  <span>Correcta</span>
+                </label>
+
+                <button class="btn btn-link" type="button" (click)="removeOption($index)">Quitar</button>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" [disabled]="saving" (click)="save()">Guardar</button>
+        @if (selectedQuestionId) {
+          <button class="btn btn-secondary" type="button" [disabled]="saving" (click)="archive()">
+            Archivar
+          </button>
+        }
+      </div>
+
+      <p class="status-text error">{{ errorMessage }}</p>
+      <p class="status-text success">{{ successMessage }}</p>
+    </article>
+  </section>
+}

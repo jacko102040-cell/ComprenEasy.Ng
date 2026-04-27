@@ -1,0 +1,150 @@
+@if (authService.currentUser(); as user) {
+  <section class="dashboard-grid">
+    <article class="page-card intro-card">
+      <span class="chip soft">Hola, {{ user.fullName }}</span>
+      <h1 class="page-title">Tu panel de aprendizaje</h1>
+      <p class="page-subtitle">
+        Desde aqui puedes acceder a lecturas PQ4R, pretests y postests sin salir del mismo flujo.
+      </p>
+
+      <div class="grid-cards cols-3 stats-grid">
+        <div class="stat-card">
+          <span>Rol</span>
+          <strong>{{ user.role }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Grado</span>
+          <strong>{{ user.grade ?? 'No registrado' }}</strong>
+        </div>
+        <div class="stat-card">
+          <span>Seccion</span>
+          <strong>{{ user.section || 'No registrada' }}</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="page-card recommendation-card">
+      <div class="recommendation-head">
+        <div>
+          <span class="chip soft">Motor adaptativo</span>
+          <h2>Tu recomendacion mas reciente</h2>
+        </div>
+        @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
+          <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
+        }
+      </div>
+
+      @if (recommendationLoading) {
+        <p class="page-subtitle">Analizando tu recomendacion mas reciente...</p>
+      } @else if (recommendation) {
+        <div class="recommendation-grid">
+          <div class="recommendation-metric">
+            <span>Accion sugerida</span>
+            <strong>{{ recommendation.predictedAction }}</strong>
+          </div>
+          <div class="recommendation-metric">
+            <span>Dificultad sugerida</span>
+            <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
+          </div>
+          <div class="recommendation-metric">
+            <span>Origen</span>
+            <strong>{{ recommendation.sourceAssessmentTitle }}</strong>
+          </div>
+        </div>
+
+        <p class="page-subtitle">{{ recommendationHint() }}</p>
+
+        <div class="page-actions">
+          <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
+          @if (recommendation.recommendedAssessmentId && summary?.currentStage === 'Posttest') {
+            <a
+              class="btn btn-secondary"
+              [routerLink]="['/evaluations', recommendation.recommendedAssessmentId]"
+            >
+              Ver actividad sugerida
+            </a>
+          }
+        </div>
+      } @else if (recommendationEmpty) {
+        <p class="page-subtitle">
+          Aun no hay una recomendacion disponible. Completa una evaluacion o una sesion de lectura para generarla.
+        </p>
+        <div class="page-actions">
+          <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
+        </div>
+      } @else {
+        <p class="status-text error">{{ recommendationError }}</p>
+      }
+    </article>
+
+    <article class="page-card flow-card">
+      <div class="recommendation-head">
+        <div>
+          <span class="chip soft">Ruta del estudiante</span>
+          <h2>Estado de tu flujo principal</h2>
+        </div>
+      </div>
+
+      @if (flowLoading) {
+        <p class="page-subtitle">Revisando tu progreso actual...</p>
+      } @else if (flowError) {
+        <p class="status-text error">{{ flowError }}</p>
+      } @else {
+        @if (summary?.recommendedMessage) {
+          <p class="page-subtitle">{{ summary?.recommendedMessage }}</p>
+        }
+
+        <div class="grid-cards cols-3 flow-grid">
+          <article class="flow-step-card">
+            <span>Pretest</span>
+            <strong>{{ pretestStatus() }}</strong>
+            <p>{{ pretestHint() }}</p>
+          </article>
+
+          <article class="flow-step-card">
+            <span>Lecturas</span>
+            <strong>{{ readingsStatus() }}</strong>
+            <p>{{ readingsHint() }}</p>
+          </article>
+
+          <article class="flow-step-card">
+            <span>Posttest</span>
+            <strong>{{ posttestStatus() }}</strong>
+            <p>{{ posttestHint() }}</p>
+          </article>
+        </div>
+
+        <div class="page-actions">
+          <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
+          <a class="btn btn-secondary" routerLink="/pre-post-comparison">Ver comparacion final</a>
+        </div>
+      }
+    </article>
+
+    <div class="grid-cards cols-2">
+      <article class="page-card menu-card">
+        <h2>Lecturas PQ4R</h2>
+        <p>Ingresa a lecturas activas y avanza fase por fase con el flujo guiado.</p>
+        <a class="btn btn-primary" routerLink="/readings">Ver lecturas</a>
+      </article>
+
+      <article class="page-card menu-card">
+        <h2>Pretests</h2>
+        <p>Explora las evaluaciones diagnosticas activas y comienza tu intento.</p>
+        <a class="btn btn-primary" routerLink="/pretests">Ver pretests</a>
+      </article>
+
+      <article class="page-card menu-card">
+        <h2>Postests</h2>
+        <p>Revisa las evaluaciones finales disponibles para medir tu avance lector.</p>
+        <a class="btn btn-primary" routerLink="/posttests">Ver postests</a>
+      </article>
+
+      <article class="page-card menu-card">
+        <h2>Comparacion final</h2>
+        <p>Consulta tu avance entre el pretest y el posttest mas recientes.</p>
+        <a class="btn btn-primary" routerLink="/pre-post-comparison">Ver comparacion</a>
+      </article>
+    </div>
+  </section>
+}

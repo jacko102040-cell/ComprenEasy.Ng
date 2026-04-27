@@ -1,0 +1,38 @@
+<header class="header-shell">
+  <div class="header-card">
+    <a class="brand" routerLink="/dashboard">
+      <span class="brand-mark">RA</span>
+      <span>
+        <strong>ReadingAdaptiveSystem</strong>
+        <small>Aprendizaje lector guiado</small>
+      </span>
+    </a>
+
+    @if (authService.currentUser(); as user) {
+      <nav class="nav-links">
+        @if (user.role === 'Teacher') {
+          <a routerLink="/teacher/students" routerLinkActive="active">Panel docente</a>
+        } @else {
+          <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+          <a routerLink="/readings" routerLinkActive="active">Lecturas</a>
+          <a routerLink="/pretests" routerLinkActive="active">Pretests</a>
+          <a routerLink="/posttests" routerLinkActive="active">Postests</a>
+          <a routerLink="/pre-post-comparison" routerLinkActive="active">Comparacion</a>
+        }
+      </nav>
+
+      <div class="user-box">
+        <div>
+          <p>{{ user.fullName }}</p>
+          <small>{{ user.username }}</small>
+        </div>
+        <button class="btn btn-secondary" type="button" (click)="logout()">Salir</button>
+      </div>
+    } @else {
+      <nav class="nav-links compact">
+        <a routerLink="/login" routerLinkActive="active">Ingresar</a>
+        <a routerLink="/register" routerLinkActive="active">Crear cuenta</a>
+      </nav>
+    }
+  </div>
+</header>

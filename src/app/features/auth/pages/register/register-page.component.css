@@ -1,0 +1,21 @@
+.register-shell {
+  display: grid;
+}
+
+.register-card {
+  padding: 1.8rem;
+}
+
+.double-grid {
+  margin-top: 1.5rem;
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 760px) {
+  .double-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

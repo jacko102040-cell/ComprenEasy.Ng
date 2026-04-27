@@ -1,0 +1,141 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando gestion de lecturas...</p>
+  </article>
+} @else {
+  <section class="content-shell">
+    <article class="page-card sidebar-card">
+      <div class="sidebar-head">
+        <div>
+          <span class="chip soft">Interno</span>
+          <h1 class="page-title compact">Lecturas</h1>
+        </div>
+        <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva</button>
+      </div>
+
+      <a class="btn btn-link" routerLink="/teacher/content">Volver al indice</a>
+
+      <div class="list-shell">
+        @for (reading of readings; track reading.readingId) {
+          <button
+            class="list-item"
+            type="button"
+            [class.active]="selectedReadingId === reading.readingId"
+            (click)="selectReading(reading.readingId)"
+          >
+            <strong>{{ reading.title }}</strong>
+            <small>{{ reading.difficultyLevelName }} · {{ reading.enabledPhaseCount }} fases</small>
+            <small>{{ reading.isActive ? 'Activa' : 'Archivada' }}</small>
+          </button>
+        }
+      </div>
+    </article>
+
+    <article class="page-card editor-card">
+      <div class="editor-head">
+        <div>
+          <span class="chip soft">{{ selectedReadingId ? 'Editar lectura' : 'Nueva lectura' }}</span>
+          <h2>{{ form.title || 'Sin titulo' }}</h2>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Titulo</label>
+          <input [(ngModel)]="form.title" />
+        </div>
+
+        <div class="field-group">
+          <label>Dificultad</label>
+          <select [(ngModel)]="form.difficultyLevelId">
+            @for (item of lookups?.difficultyLevels ?? []; track item.id) {
+              <option [ngValue]="item.id">{{ item.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Resumen</label>
+          <textarea rows="3" [(ngModel)]="form.summary"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Imagen URL</label>
+          <input [(ngModel)]="form.imageUrl" />
+        </div>
+
+        <div class="field-group">
+          <label>Minutos estimados</label>
+          <input type="number" [(ngModel)]="form.estimatedMinutes" />
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" [(ngModel)]="form.isActive" />
+          <span>Lectura activa</span>
+        </label>
+
+        <div class="field-group full-width">
+          <label>Contenido</label>
+          <textarea rows="10" [(ngModel)]="form.content"></textarea>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head">
+          <h3>Fases PQ4R</h3>
+          <small>Activa solo las fases necesarias para esta lectura.</small>
+        </div>
+
+        <div class="phase-list">
+          @for (phase of form.phases; track phase.phaseId) {
+            <article class="phase-card">
+              <div class="phase-header">
+                <strong>{{ phase.displayName }}</strong>
+                <small>{{ phase.code }}</small>
+              </div>
+
+              <div class="phase-fields">
+                <label class="toggle-row">
+                  <input type="checkbox" [(ngModel)]="phase.isEnabled" />
+                  <span>Habilitada</span>
+                </label>
+
+                <label class="toggle-row">
+                  <input type="checkbox" [(ngModel)]="phase.isRequired" />
+                  <span>Obligatoria</span>
+                </label>
+
+                <div class="field-group">
+                  <label>Orden</label>
+                  <input type="number" [(ngModel)]="phase.displayOrder" />
+                </div>
+
+                <div class="field-group">
+                  <label>Minimo preguntas</label>
+                  <input type="number" [(ngModel)]="phase.minQuestionsToUnlockNext" />
+                </div>
+
+                <div class="field-group full-width">
+                  <label>Guia</label>
+                  <textarea rows="2" [(ngModel)]="phase.guidanceText"></textarea>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" [disabled]="saving" (click)="save()">Guardar</button>
+        @if (selectedReadingId) {
+          <button class="btn btn-secondary" type="button" [disabled]="saving" (click)="archive()">
+            Archivar
+          </button>
+        }
+      </div>
+
+      <p class="status-text error">{{ errorMessage }}</p>
+      <p class="status-text success">{{ successMessage }}</p>
+    </article>
+  </section>
+}

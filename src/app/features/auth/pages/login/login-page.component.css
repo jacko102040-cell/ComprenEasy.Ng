@@ -1,0 +1,41 @@
+.auth-grid {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.hero-card,
+.form-card {
+  padding: 1.8rem;
+}
+
+.hero-card {
+  background:
+    linear-gradient(160deg, rgba(91, 16, 35, 0.95), rgba(159, 39, 72, 0.84)),
+    var(--color-maroon-900);
+  color: var(--color-white);
+}
+
+.hero-card .page-title,
+.hero-card .page-subtitle,
+.hero-card .chip {
+  color: var(--color-white);
+}
+
+.hero-points {
+  margin: 1.5rem 0 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.form-card h2 {
+  margin: 0;
+  color: var(--color-maroon-900);
+}
+
+@media (min-width: 920px) {
+  .auth-grid {
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: stretch;
+  }
+}

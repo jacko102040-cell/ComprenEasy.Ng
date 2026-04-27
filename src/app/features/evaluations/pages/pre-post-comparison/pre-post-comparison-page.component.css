@@ -1,0 +1,93 @@
+.comparison-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-card,
+.overview-card,
+.dimension-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.overview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.dates-box {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--color-gray-500);
+  font-size: 0.95rem;
+}
+
+.metrics-grid {
+  align-items: stretch;
+}
+
+.partial-grid {
+  margin-top: 1rem;
+}
+
+.metric-card {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(127, 23, 52, 0.06);
+}
+
+.metric-card span,
+.dimension-values p {
+  color: var(--color-gray-500);
+}
+
+.metric-card small {
+  color: var(--color-gray-500);
+}
+
+.metric-card strong,
+.dimension-values strong {
+  color: var(--color-maroon-900);
+}
+
+.highlight {
+  background: linear-gradient(135deg, rgba(127, 23, 52, 0.12), rgba(159, 39, 72, 0.08));
+}
+
+.dimension-grid {
+  align-items: stretch;
+}
+
+.dimension-values {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dimension-values p {
+  margin: 0;
+}
+
+.improvement {
+  font-weight: 600;
+}
+
+.positive,
+.highlight.positive strong {
+  color: var(--color-success);
+}
+
+.negative,
+.highlight.negative strong {
+  color: var(--color-danger);
+}
+
+@media (max-width: 760px) {
+  .overview-head {
+    flex-direction: column;
+  }
+}

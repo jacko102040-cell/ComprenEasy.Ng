@@ -1,0 +1,74 @@
+.result-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.metrics-grid {
+  margin: 1.5rem 0;
+}
+
+.recommendation-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.recommendation-head,
+.recommendation-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.metric-card,
+.answer-card {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.metric-card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(127, 23, 52, 0.06);
+}
+
+.metric-card span {
+  color: var(--color-gray-500);
+}
+
+.metric-card strong,
+.answer-card h2 {
+  color: var(--color-maroon-900);
+}
+
+.question-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.answer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.answer-card h2 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.chip.correct {
+  background: rgba(33, 122, 87, 0.12);
+  color: var(--color-success);
+}
+
+.chip.incorrect {
+  background: rgba(176, 48, 82, 0.12);
+  color: var(--color-danger);
+}
+
+.chip.pending {
+  background: rgba(129, 117, 123, 0.12);
+  color: var(--color-gray-700);
+}

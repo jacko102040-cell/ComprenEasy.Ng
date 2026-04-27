@@ -1,0 +1,20 @@
+.content-home-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.content-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.content-card h2 {
+  margin: 0;
+  color: var(--color-maroon-900);
+}
+
+.content-card p {
+  margin: 0;
+  color: var(--color-gray-500);
+  line-height: 1.6;
+}

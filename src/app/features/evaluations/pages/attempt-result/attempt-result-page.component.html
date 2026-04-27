@@ -1,0 +1,134 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando resultado...</p>
+  </article>
+} @else if (result) {
+  <section class="result-shell">
+    <article class="page-card summary-card">
+      <span class="chip soft">{{ result.assessmentType }}</span>
+      <h1 class="page-title">{{ result.assessmentTitle }}</h1>
+      <p class="page-subtitle">
+        Estado: {{ result.status }} · Finalizado:
+        {{ result.finishedAt ? (result.finishedAt | date: 'short') : 'Aún no finalizado' }}
+      </p>
+
+      <div class="grid-cards cols-3 metrics-grid">
+        <div class="metric-card">
+          <span>Puntaje total</span>
+          <strong>{{ result.totalScore | number: '1.0-2' }}%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Literal</span>
+          <strong>{{ result.literalScore | number: '1.0-2' }}%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Inferencial</span>
+          <strong>{{ result.inferentialScore | number: '1.0-2' }}%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Crítica</span>
+          <strong>{{ result.criticalScore | number: '1.0-2' }}%</strong>
+        </div>
+        <div class="metric-card">
+          <span>Aciertos</span>
+          <strong>{{ result.totalCorrect }}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Errores</span>
+          <strong>{{ result.totalErrors }}</strong>
+        </div>
+      </div>
+
+      <p class="helper-text">
+        Tiempo total: {{ result.totalTimeSeconds }} s · Avance completado:
+        {{ result.completionPercentage | number: '1.0-2' }}%
+      </p>
+
+      <div class="page-actions">
+        <a class="btn btn-secondary" routerLink="/dashboard">Volver al dashboard</a>
+      </div>
+    </article>
+
+    <article class="page-card recommendation-card">
+      <div class="recommendation-head">
+        <div>
+          <span class="chip soft">Siguiente paso</span>
+          <h2>Recomendacion adaptativa</h2>
+        </div>
+        @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
+          <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
+        }
+      </div>
+
+      @if (recommendationLoading) {
+        <p class="page-subtitle">Generando recomendacion segun tu intento...</p>
+      } @else if (recommendation) {
+        <div class="recommendation-grid">
+          <div class="metric-card">
+            <span>Accion recomendada</span>
+            <strong>{{ recommendation.predictedAction }}</strong>
+          </div>
+          <div class="metric-card">
+            <span>Dificultad sugerida</span>
+            <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
+          </div>
+          <div class="metric-card">
+            <span>Evaluacion sugerida</span>
+            <strong>{{ recommendation.recommendedAssessmentTitle || 'Sin evaluacion directa' }}</strong>
+          </div>
+        </div>
+
+        <p class="page-subtitle">{{ recommendationHint() }}</p>
+
+        @if (recommendation.recommendedAssessmentId) {
+          <div class="page-actions">
+            <a
+              class="btn btn-primary"
+              [routerLink]="['/evaluations', recommendation.recommendedAssessmentId]"
+            >
+              Ir a evaluacion sugerida
+            </a>
+          </div>
+        }
+      } @else if (recommendationEmpty) {
+        <p class="page-subtitle">No hay una recomendacion disponible para este intento.</p>
+      } @else {
+        <p class="status-text error">{{ recommendationError }}</p>
+      }
+    </article>
+
+    <div class="question-list">
+      @for (answer of result.answers; track answer.questionId) {
+        <article class="page-card answer-card">
+          <div class="answer-head">
+            <span class="chip soft">{{ answer.dimensionName }}</span>
+            <span
+              class="chip"
+              [class.correct]="answer.isCorrect === true"
+              [class.incorrect]="answer.isCorrect === false"
+              [class.pending]="answer.isCorrect === null"
+            >
+              {{
+                answer.isCorrect === true
+                  ? 'Correcta'
+                  : answer.isCorrect === false
+                    ? 'Incorrecta'
+                    : 'Sin responder'
+              }}
+            </span>
+          </div>
+          <h2>{{ answer.stem }}</h2>
+          <p class="helper-text">
+            Puntaje: {{ answer.scoreObtained | number: '1.0-2' }} · Tiempo:
+            {{ answer.answerTimeSeconds }} s
+          </p>
+        </article>
+      }
+    </div>
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se encontró el resultado.' }}</p>
+    <a class="btn btn-link" routerLink="/dashboard">Volver al dashboard</a>
+  </article>
+}

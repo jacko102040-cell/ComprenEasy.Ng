@@ -1,0 +1,41 @@
+<section class="list-shell">
+  <article class="page-card">
+    <span class="chip soft">Evaluaciones activas</span>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-subtitle">
+      Selecciona una evaluación disponible para revisar sus preguntas antes de iniciar tu intento.
+    </p>
+  </article>
+
+  @if (loading) {
+    <article class="page-card">
+      <p class="page-subtitle">Cargando evaluaciones...</p>
+    </article>
+  } @else if (errorMessage) {
+    <article class="page-card">
+      <p class="status-text error">{{ errorMessage }}</p>
+    </article>
+  } @else {
+    <div class="grid-cards cols-2">
+      @for (assessment of assessments; track assessment.assessmentId) {
+        <article class="page-card assessment-card">
+          <div class="card-head">
+            <span class="chip soft">{{ assessment.assessmentType }}</span>
+            <span class="helper-text">{{ assessment.questionCount }} preguntas</span>
+          </div>
+          <h2>{{ assessment.title }}</h2>
+          <p>{{ assessment.description || 'Sin descripción adicional.' }}</p>
+          <a class="btn btn-primary" [routerLink]="['/evaluations', assessment.assessmentId]">
+            Ver detalle
+          </a>
+        </article>
+      }
+    </div>
+
+    @if (!assessments.length) {
+      <article class="page-card">
+        <p class="page-subtitle">No hay evaluaciones activas por el momento.</p>
+      </article>
+    }
+  }
+</section>

@@ -1,0 +1,213 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando detalle del estudiante...</p>
+  </article>
+} @else if (student) {
+  <section class="detail-shell">
+    <article class="page-card summary-card">
+      <div class="summary-head">
+        <div>
+          <span class="chip soft">Panel docente</span>
+          <h1 class="page-title">{{ student.fullName }}</h1>
+          <p class="page-subtitle">
+            {{ student.username }} · {{ student.grade }}ro · {{ student.section || 'Sin seccion' }}
+          </p>
+        </div>
+        <a class="btn btn-secondary" routerLink="/teacher/students">Volver a estudiantes</a>
+      </div>
+
+      <div class="grid-cards cols-3 metrics-grid">
+        <div class="metric-card">
+          <span>Activo</span>
+          <strong>{{ student.isActive ? 'Si' : 'No' }}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Habilitado para prueba</span>
+          <strong>{{ student.isEnabledForTest ? 'Si' : 'No' }}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Ultima actividad</span>
+          <strong>
+            {{
+              student.progressSummary.lastActivityAt
+                ? (student.progressSummary.lastActivityAt | date: 'short')
+                : 'Sin actividad'
+            }}
+          </strong>
+        </div>
+        <div class="metric-card">
+          <span>Evaluaciones completadas</span>
+          <strong>{{ student.progressSummary.completedEvaluationAttempts }}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Sesiones de lectura completadas</span>
+          <strong>{{ student.progressSummary.completedReadingSessions }}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Ultima recomendacion</span>
+          <strong>{{ student.progressSummary.latestRecommendationAction || 'Sin recomendacion' }}</strong>
+        </div>
+      </div>
+
+      <p class="status-text error">{{ errorMessage }}</p>
+    </article>
+
+    <article class="page-card action-card">
+      <div class="action-head">
+        <div>
+          <h2>Reinicio simple de contrasena</h2>
+          <p class="page-subtitle">Genera una contrasena temporal para compartirla con el estudiante.</p>
+        </div>
+        <button class="btn btn-primary" type="button" [disabled]="resettingPassword" (click)="resetPassword()">
+          {{ resettingPassword ? 'Reiniciando...' : 'Reiniciar contrasena' }}
+        </button>
+      </div>
+
+      @if (resetResult) {
+        <p class="page-subtitle">
+          Nueva contrasena temporal: <strong>{{ resetResult.temporaryPassword }}</strong>
+        </p>
+      }
+
+      <p class="status-text error">{{ resetErrorMessage }}</p>
+    </article>
+
+    <div class="grid-cards cols-2">
+      <article class="page-card">
+        <h2>Intentos de evaluacion</h2>
+
+        @if (student.evaluationAttempts.length) {
+          <div class="list-block">
+            @for (attempt of student.evaluationAttempts; track trackEvaluationAttempt($index, attempt)) {
+              <div class="list-item">
+                <div>
+                  <strong>{{ attempt.assessmentTitle }}</strong>
+                  <p>{{ attempt.assessmentType }} · {{ attempt.status }}</p>
+                </div>
+                <span>{{ attempt.totalScore !== null ? (attempt.totalScore | number: '1.0-2') + '%' : 'Sin puntaje' }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="page-subtitle">No hay intentos de evaluacion registrados.</p>
+        }
+      </article>
+
+      <article class="page-card">
+        <h2>Sesiones de lectura</h2>
+
+        @if (student.readingSessions.length) {
+          <div class="list-block">
+            @for (session of student.readingSessions; track trackReadingSession($index, session)) {
+              <div class="list-item">
+                <div>
+                  <strong>{{ session.readingTitle }}</strong>
+                  <p>{{ session.status }} · {{ session.totalTimeSeconds || 0 }} s</p>
+                </div>
+                <span>{{ session.completionPercentage !== null ? (session.completionPercentage | number: '1.0-2') + '%' : 'Sin avance' }}</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="page-subtitle">No hay sesiones de lectura registradas.</p>
+        }
+      </article>
+    </div>
+
+    <div class="grid-cards cols-2">
+      <article class="page-card">
+        <h2>Recomendaciones recientes</h2>
+
+        @if (student.recentRecommendations.length) {
+          <div class="list-block">
+            @for (recommendation of student.recentRecommendations; track recommendation.recommendationId) {
+              <div class="list-item">
+                <div>
+                  <strong>{{ recommendation.predictedAction }}</strong>
+                  <p>{{ recommendation.recommendedDifficultyLevelName }} · {{ recommendation.sourceAssessmentTitle }}</p>
+                </div>
+                <span>{{ recommendation.confidenceScore ?? 0 }}%</span>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="page-subtitle">No hay recomendaciones adaptativas registradas.</p>
+        }
+      </article>
+
+      <article class="page-card">
+        <h2>Agregar comentario</h2>
+
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="commentTagId">Etiqueta</label>
+            <select
+              id="commentTagId"
+              [(ngModel)]="selectedTagId"
+            >
+              @for (tag of student.availableCommentTags; track trackTag($index, tag)) {
+                <option [ngValue]="tag.commentTagId">{{ tag.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="attemptId">Intento relacionado</label>
+            <select id="attemptId" [(ngModel)]="selectedAttemptId">
+              <option [ngValue]="null">Comentario general</option>
+              @for (option of attemptOptions(); track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="commentText">Comentario</label>
+            <textarea
+              id="commentText"
+              rows="5"
+              [(ngModel)]="commentText"
+              placeholder="Escribe una observacion breve y util para el seguimiento del estudiante."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn btn-primary" type="button" [disabled]="savingComment" (click)="saveComment()">
+            {{ savingComment ? 'Guardando...' : 'Guardar comentario' }}
+          </button>
+        </div>
+
+        <p class="status-text error">{{ commentErrorMessage }}</p>
+        <p class="status-text success">{{ commentSuccessMessage }}</p>
+      </article>
+    </div>
+
+    <article class="page-card">
+      <h2>Comentarios del docente</h2>
+
+      @if (student.comments.length) {
+        <div class="comment-list">
+          @for (comment of student.comments; track comment.teacherCommentId) {
+            <div class="comment-item">
+              <div class="comment-head">
+                <span class="chip soft">{{ comment.commentTagName }}</span>
+                <span class="helper-text">{{ comment.createdAt | date: 'short' }}</span>
+              </div>
+              <strong>{{ comment.teacherName }}</strong>
+              <p>{{ comment.commentText }}</p>
+              <small>Intento relacionado: {{ comment.attemptId || 'General' }}</small>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="page-subtitle">Todavia no hay comentarios docentes para este estudiante.</p>
+      }
+    </article>
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se encontro el estudiante.' }}</p>
+    <a class="btn btn-link" routerLink="/teacher/students">Volver a estudiantes</a>
+  </article>
+}

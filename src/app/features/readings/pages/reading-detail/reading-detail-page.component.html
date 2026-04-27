@@ -1,0 +1,63 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando detalle de la lectura...</p>
+  </article>
+} @else if (reading) {
+  <section class="reading-detail-shell">
+    <article class="page-card reading-hero">
+      <div class="hero-copy">
+        <span class="chip soft">{{ reading.difficultyLevelName }}</span>
+        <h1 class="page-title">{{ reading.title }}</h1>
+        <p class="page-subtitle">
+          {{ reading.summary || 'Lectura preparada para avanzar por sus fases de comprension.' }}
+        </p>
+
+        <div class="reading-info">
+          <span>{{ reading.estimatedMinutes ?? 0 }} min aprox.</span>
+          <span>{{ phases.length }} fases activas</span>
+        </div>
+
+        <div class="page-actions">
+          <button class="btn btn-primary" type="button" [disabled]="starting" (click)="startSession()">
+            {{ starting ? 'Iniciando...' : 'Iniciar lectura guiada' }}
+          </button>
+          <a class="btn btn-secondary" routerLink="/readings">Volver a lecturas</a>
+        </div>
+
+        <p class="status-text error">{{ errorMessage }}</p>
+      </div>
+
+      @if (reading.imageUrl) {
+        <img class="hero-image" [src]="reading.imageUrl" [alt]="reading.title" />
+      }
+    </article>
+
+    <div class="grid-cards cols-2">
+      <article class="page-card">
+        <h2>Fases configuradas</h2>
+
+        <div class="phase-list">
+          @for (phase of phases; track phase.phaseId) {
+            <div class="phase-item">
+              <div>
+                <strong>{{ phase.displayOrder }}. {{ phase.displayName }}</strong>
+                <p>{{ phase.guidanceText || 'Sin guia adicional para esta fase.' }}</p>
+              </div>
+              <span class="chip soft">{{ phase.isRequired ? 'Obligatoria' : 'Opcional' }}</span>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="page-card">
+        <h2>Contenido base</h2>
+        <pre class="reading-content">{{ reading.content }}</pre>
+      </article>
+    </div>
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se encontro la lectura.' }}</p>
+    <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
+  </article>
+}

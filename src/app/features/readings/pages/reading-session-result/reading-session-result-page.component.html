@@ -1,0 +1,157 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando resultado de la sesion...</p>
+  </article>
+} @else if (session) {
+  <section class="result-shell">
+    <article class="page-card result-hero">
+      <span class="chip soft">Sesion de lectura</span>
+      <h1 class="page-title">{{ session.readingTitle }}</h1>
+      <p class="page-subtitle">
+        @if (session.sessionStatus === 'Completed') {
+          Resumen final del recorrido PQ4R completado.
+        } @else {
+          La sesion aun no esta finalizada. Puedes volver para continuarla.
+        }
+      </p>
+
+      <div class="grid-cards cols-3 result-stats">
+        <div class="stat-box">
+          <span>Estado</span>
+          <strong>{{ session.sessionStatus }}</strong>
+        </div>
+        <div class="stat-box">
+          <span>Fases completadas</span>
+          <strong>{{ completedPhasesCount() }}/{{ session.phases.length }}</strong>
+        </div>
+        <div class="stat-box">
+          <span>Tiempo total</span>
+          <strong>{{ session.totalTimeSeconds }} s</strong>
+        </div>
+      </div>
+
+      <div class="page-actions">
+        @if (session.sessionStatus === 'Completed') {
+          <a class="btn btn-primary" [routerLink]="['/readings', session.readingId]">Volver a la lectura</a>
+        } @else {
+          <a class="btn btn-primary" [routerLink]="['/reading-sessions', session.attemptId]">Continuar sesion</a>
+        }
+        <a class="btn btn-secondary" routerLink="/readings">Ir a lecturas</a>
+      </div>
+    </article>
+
+    <article class="page-card recommendation-card">
+      <div class="recommendation-head">
+        <div>
+          <span class="chip soft">Siguiente actividad</span>
+          <h2>Recomendacion adaptativa</h2>
+        </div>
+        @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
+          <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
+        }
+      </div>
+
+      @if (recommendationLoading) {
+        <p class="page-subtitle">Generando recomendacion despues de tu sesion de lectura...</p>
+      } @else if (recommendation) {
+        <div class="grid-cards cols-3 result-stats">
+          <div class="stat-box">
+            <span>Accion sugerida</span>
+            <strong>{{ recommendation.predictedAction }}</strong>
+          </div>
+          <div class="stat-box">
+            <span>Dificultad sugerida</span>
+            <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
+          </div>
+          <div class="stat-box">
+            <span>Actividad sugerida</span>
+            <strong>{{ recommendation.recommendedAssessmentTitle || 'Sin actividad directa' }}</strong>
+          </div>
+        </div>
+
+        <p class="page-subtitle">{{ recommendationHint() }}</p>
+
+        @if (recommendation.recommendedAssessmentId) {
+          <div class="page-actions">
+            <a
+              class="btn btn-primary"
+              [routerLink]="['/evaluations', recommendation.recommendedAssessmentId]"
+            >
+              Abrir actividad sugerida
+            </a>
+          </div>
+        }
+      } @else if (recommendationEmpty) {
+        <p class="page-subtitle">No hay una recomendacion disponible para esta sesion.</p>
+      } @else {
+        <p class="status-text error">{{ recommendationError }}</p>
+      }
+    </article>
+
+    <div class="grid-cards cols-2">
+      <article class="page-card">
+        <h2>Resumen de avance</h2>
+        <p class="page-subtitle">
+          Fases obligatorias completadas: {{ completedRequiredPhasesCount() }}/{{ requiredPhasesCount() }}
+        </p>
+        <p class="page-subtitle">Progreso registrado: {{ session.completionPercentage }}%</p>
+      </article>
+
+      <article class="page-card">
+        <h2>Puntajes de comprension</h2>
+
+        <div class="grid-cards cols-3 score-grid">
+          <div class="stat-box">
+            <span>Puntaje total</span>
+            <strong>{{ session.totalScore }}%</strong>
+          </div>
+          <div class="stat-box">
+            <span>Literal</span>
+            <strong>{{ session.literalScore }}%</strong>
+          </div>
+          <div class="stat-box">
+            <span>Inferencial</span>
+            <strong>{{ session.inferentialScore }}%</strong>
+          </div>
+          <div class="stat-box">
+            <span>Critico</span>
+            <strong>{{ session.criticalScore }}%</strong>
+          </div>
+          <div class="stat-box">
+            <span>Aciertos</span>
+            <strong>{{ session.totalCorrect }}</strong>
+          </div>
+          <div class="stat-box">
+            <span>Errores</span>
+            <strong>{{ session.totalErrors }}</strong>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <article class="page-card">
+      <h2>Fases registradas</h2>
+
+      <div class="phase-summary-list">
+        @for (phase of session.phases; track phase.phaseId) {
+          <div class="phase-summary-item">
+            <div>
+              <strong>{{ phase.sequenceOrder }}. {{ phase.displayName }}</strong>
+              <p>
+                {{ phase.isRequired ? 'Obligatoria' : 'Opcional' }} ·
+                {{ phase.answeredQuestions }}/{{ phase.totalQuestions }} preguntas ·
+                {{ phase.timeSpentSeconds }} s
+              </p>
+            </div>
+            <span class="chip soft">{{ phase.status }}</span>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se encontro la sesion.' }}</p>
+    <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
+  </article>
+}

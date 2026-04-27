@@ -1,0 +1,168 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando sesion de lectura...</p>
+  </article>
+} @else if (session) {
+  <section class="reading-session-shell">
+    <article class="page-card session-hero">
+      <div class="hero-header">
+        <div>
+          <span class="chip soft">Intento #{{ session.attemptNumber }}</span>
+          <h1 class="page-title">{{ session.readingTitle }}</h1>
+          <p class="page-subtitle">
+            Recorre las fases activas en orden. Guarda avance cuando lo necesites y completa cada fase al terminar.
+          </p>
+        </div>
+
+        <div class="hero-stats">
+          <div>
+            <span>Estado</span>
+            <strong>{{ session.sessionStatus }}</strong>
+          </div>
+          <div>
+            <span>Tiempo total</span>
+            <strong>{{ session.totalTimeSeconds }} s</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" [style.width]="progressWidth()"></div>
+      </div>
+      <p class="helper-text">Progreso general: {{ session.completionPercentage }}%</p>
+
+      <div class="page-actions">
+        <button class="btn btn-secondary" type="button" [disabled]="busy" (click)="saveProgress()">
+          Guardar avance
+        </button>
+        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="completePhase()">
+          Completar fase actual
+        </button>
+        <button class="btn btn-primary" type="button" [disabled]="busy || !canFinishSession()" (click)="finishSession()">
+          Finalizar sesion
+        </button>
+      </div>
+
+      <p class="status-text error">{{ errorMessage }}</p>
+      <p class="status-text success">{{ successMessage }}</p>
+    </article>
+
+    <div class="grid-cards cols-2">
+      <article class="page-card">
+        <h2>Ruta de fases</h2>
+
+        <div class="phase-rail">
+          @for (phase of session.phases; track phase.phaseId) {
+            <div class="phase-step" [class.current]="session.currentPhaseId === phase.phaseId">
+              <div [ngClass]="['phase-badge', phaseStatusClass(phase.status)]">
+                {{ phase.sequenceOrder }}
+              </div>
+              <div class="phase-copy">
+                <div class="phase-row">
+                  <strong>{{ phase.displayName }}</strong>
+                  <span class="chip soft">{{ phase.status }}</span>
+                </div>
+                <p>{{ feedbackForPhase(phase) }}</p>
+                @if (phase.totalQuestions) {
+                  <small>
+                    {{ answeredQuestionsForPhase(phase) }}/{{ phase.totalQuestions }} preguntas respondidas
+                  </small>
+                }
+                <small>{{ phase.timeSpentSeconds }} s acumulados</small>
+              </div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="page-card current-phase-card">
+        @if (currentPhase(); as phase) {
+          <span class="chip soft">Fase actual</span>
+          <h2>{{ phase.displayName }}</h2>
+          <p class="page-subtitle">{{ feedbackForPhase(phase) }}</p>
+
+          <div class="field-group">
+            <label for="progressNote">Nota de avance</label>
+            <textarea
+              id="progressNote"
+              rows="7"
+              [ngModel]="currentNote()"
+              (ngModelChange)="onNoteChange($event)"
+              placeholder="Escribe una nota breve sobre lo que estas trabajando en esta fase."
+            ></textarea>
+          </div>
+
+          <div class="phase-summary">
+            <span>Estado: {{ phase.status }}</span>
+            <span>Tiempo acumulado: {{ phase.timeSpentSeconds }} s</span>
+            <span>{{ phase.isRequired ? 'Fase obligatoria' : 'Fase opcional' }}</span>
+          </div>
+
+          @if (phaseRequirementMessage(phase)) {
+            <p class="helper-text requirement-note" [class.warning]="isPhaseBelowMinimum(phase)">
+              {{ phaseRequirementMessage(phase) }}
+            </p>
+          }
+
+          @if (phase.totalQuestions) {
+            <div class="question-shell">
+              <div class="question-summary">
+                <span class="chip soft">Preguntas</span>
+                <span class="helper-text">
+                  {{ answeredQuestionsForPhase(phase) }}/{{ phase.totalQuestions }} respondidas
+                </span>
+              </div>
+
+              <div class="question-list">
+                @for (question of currentQuestions(); track question.questionId) {
+                  <article class="question-card">
+                    <div class="question-head">
+                      <span class="chip soft">{{ question.dimensionName }}</span>
+                      <span class="chip" [ngClass]="questionStateClass(question)">
+                        {{ questionStateLabel(question) }}
+                      </span>
+                    </div>
+
+                    <h3>{{ question.displayOrder }}. {{ question.stem }}</h3>
+                    <p class="helper-text">
+                      {{ question.points }} pts · {{ questionTime(question) }} s
+                    </p>
+
+                    <div class="options-list">
+                      @for (option of question.options; track option.optionId) {
+                        <label class="option-item">
+                          <input
+                            type="radio"
+                            [name]="'reading-question-' + question.questionId"
+                            [checked]="isSelected(question.questionId, option.optionId)"
+                            (change)="selectOption(question.questionId, option.optionId)"
+                          />
+                          <span>{{ option.optionText }}</span>
+                        </label>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+            </div>
+          }
+        } @else {
+          <h2>Sin fase activa</h2>
+          <p class="page-subtitle">Esta sesion ya no tiene fases pendientes por mostrar.</p>
+        }
+      </article>
+    </div>
+
+    @if (reading) {
+      <article class="page-card">
+        <h2>Texto de apoyo</h2>
+        <pre class="reading-content">{{ reading.content }}</pre>
+      </article>
+    }
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se encontro la sesion de lectura.' }}</p>
+    <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
+  </article>
+}

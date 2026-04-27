@@ -1,0 +1,58 @@
+.result-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.result-hero {
+  display: grid;
+  gap: 1rem;
+}
+
+.recommendation-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.recommendation-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.result-stats .stat-box {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(127, 23, 52, 0.06);
+}
+
+.stat-box span,
+.phase-summary-item p {
+  color: var(--color-gray-500);
+}
+
+.stat-box strong,
+.page-card h2,
+.phase-summary-item strong {
+  color: var(--color-maroon-900);
+}
+
+.phase-summary-list {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.phase-summary-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(240, 236, 238, 0.62);
+}
+
+.phase-summary-item p {
+  margin: 0.35rem 0 0;
+}

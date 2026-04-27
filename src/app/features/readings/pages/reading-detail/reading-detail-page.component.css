@@ -1,0 +1,70 @@
+.reading-detail-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.reading-hero {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.hero-copy {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-image {
+  width: 100%;
+  max-height: 18rem;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+}
+
+.reading-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: var(--color-gray-500);
+}
+
+.phase-list {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.phase-item {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(240, 236, 238, 0.62);
+}
+
+.phase-item strong,
+.page-card h2 {
+  color: var(--color-maroon-900);
+}
+
+.phase-item p {
+  margin: 0.35rem 0 0;
+  color: var(--color-gray-700);
+  line-height: 1.55;
+}
+
+.reading-content {
+  margin: 1rem 0 0;
+  white-space: pre-wrap;
+  font: inherit;
+  line-height: 1.75;
+  color: var(--color-gray-700);
+}
+
+@media (min-width: 920px) {
+  .reading-hero {
+    grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 0.9fr);
+  }
+}

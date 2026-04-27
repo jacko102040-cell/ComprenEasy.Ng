@@ -1,0 +1,63 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando detalle de la evaluación...</p>
+  </article>
+} @else if (assessment) {
+  <section class="detail-shell">
+    <article class="page-card">
+      <span class="chip soft">{{ assessment.assessmentType }}</span>
+      <h1 class="page-title">{{ assessment.title }}</h1>
+      <p class="page-subtitle">
+        {{ assessment.description || 'Responde cada pregunta con calma y revisa tus opciones antes de enviar.' }}
+      </p>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="startAttempt()">
+          {{ attemptId ? 'Intento activo' : 'Comenzar evaluación' }}
+        </button>
+        <button class="btn btn-secondary" type="button" [disabled]="busy" (click)="saveProgress()">
+          Guardar avance
+        </button>
+        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="submitAttempt()">
+          {{ busy ? 'Enviando...' : 'Finalizar intento' }}
+        </button>
+      </div>
+
+      <p class="helper-text">Respondidas en pantalla: {{ answeredCount() }}/{{ assessment.questions.length }}</p>
+      <p class="status-text error">{{ errorMessage }}</p>
+      <p class="status-text success">{{ successMessage }}</p>
+    </article>
+
+    <div class="question-list">
+      @for (question of assessment.questions; track question.questionId) {
+        <article class="page-card question-card">
+          <div class="question-head">
+            <span class="chip soft">Pregunta {{ question.displayOrder }}</span>
+            <span class="helper-text">{{ question.dimensionName }} · {{ question.points }} pts</span>
+          </div>
+
+          <h2>{{ question.stem }}</h2>
+
+          <div class="options-list">
+            @for (option of question.options; track option.optionId) {
+              <label class="option-item">
+                <input
+                  type="radio"
+                  [name]="'question-' + question.questionId"
+                  [checked]="isSelected(question.questionId, option.optionId)"
+                  (change)="selectOption(question.questionId, option.optionId)"
+                />
+                <span>{{ option.optionText }}</span>
+              </label>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se encontró la evaluación.' }}</p>
+    <a class="btn btn-link" routerLink="/dashboard">Volver al dashboard</a>
+  </article>
+}

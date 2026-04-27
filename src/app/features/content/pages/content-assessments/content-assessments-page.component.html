@@ -1,0 +1,148 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando gestion de evaluaciones...</p>
+  </article>
+} @else {
+  <section class="content-shell">
+    <article class="page-card sidebar-card">
+      <div class="sidebar-head">
+        <div>
+          <span class="chip soft">Interno</span>
+          <h1 class="page-title compact">Evaluaciones</h1>
+        </div>
+        <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva</button>
+      </div>
+
+      <a class="btn btn-link" routerLink="/teacher/content">Volver al indice</a>
+
+      <div class="list-shell">
+        @for (assessment of assessments; track assessment.assessmentId) {
+          <button
+            class="list-item"
+            type="button"
+            [class.active]="selectedAssessmentId === assessment.assessmentId"
+            (click)="selectAssessment(assessment.assessmentId)"
+          >
+            <strong>{{ assessment.title }}</strong>
+            <small>{{ assessment.assessmentType }} · {{ assessment.questionCount }} preguntas</small>
+            <small>{{ assessment.isActive ? 'Activa' : 'Archivada' }}</small>
+          </button>
+        }
+      </div>
+    </article>
+
+    <article class="page-card editor-card">
+      <div class="field-grid">
+        <div class="field-group">
+          <label>Titulo</label>
+          <input [(ngModel)]="form.title" />
+        </div>
+
+        <div class="field-group">
+          <label>Tipo</label>
+          <select [(ngModel)]="form.assessmentType">
+            <option value="Pretest">Pretest</option>
+            <option value="Posttest">Posttest</option>
+            <option value="ReadingPractice">ReadingPractice</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Lectura asociada</label>
+          <select [(ngModel)]="form.readingId" [disabled]="form.assessmentType !== 'ReadingPractice'">
+            <option [ngValue]="null">Sin lectura</option>
+            @for (item of lookups?.readings ?? []; track item.id) {
+              <option [ngValue]="item.id">{{ item.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label>Dificultad</label>
+          <select [(ngModel)]="form.difficultyLevelId">
+            <option [ngValue]="null">Sin dificultad</option>
+            @for (item of lookups?.difficultyLevels ?? []; track item.id) {
+              <option [ngValue]="item.id">{{ item.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group full-width">
+          <label>Descripcion</label>
+          <textarea rows="3" [(ngModel)]="form.description"></textarea>
+        </div>
+
+        <label class="toggle-row">
+          <input type="checkbox" [(ngModel)]="form.isActive" />
+          <span>Evaluacion activa</span>
+        </label>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head">
+          <h3>Preguntas asociadas</h3>
+          <button class="btn btn-secondary" type="button" (click)="addQuestionLink()">Agregar</button>
+        </div>
+
+        <div class="question-links">
+          @for (link of form.questions; track $index) {
+            <article class="phase-card">
+              <div class="field-grid">
+                <div class="field-group">
+                  <label>Pregunta</label>
+                  <select [(ngModel)]="link.questionId" (ngModelChange)="syncQuestionLookup(link)">
+                    @for (item of lookups?.questions ?? []; track item.questionId) {
+                      <option [ngValue]="item.questionId">{{ item.stem }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label>Fase</label>
+                  <select [(ngModel)]="link.phaseId" [disabled]="form.assessmentType !== 'ReadingPractice'">
+                    <option [ngValue]="null">Sin fase</option>
+                    @for (item of lookups?.phases ?? []; track item.phaseId) {
+                      <option [ngValue]="item.phaseId">{{ item.displayName }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label>Orden</label>
+                  <input type="number" [(ngModel)]="link.displayOrder" />
+                </div>
+
+                <div class="field-group">
+                  <label>Puntos</label>
+                  <input type="number" [(ngModel)]="link.points" />
+                </div>
+
+                <label class="toggle-row">
+                  <input type="checkbox" [(ngModel)]="link.isActive" />
+                  <span>Activa</span>
+                </label>
+              </div>
+
+              <div class="phase-header">
+                <small>{{ link.dimensionName || 'Dimension pendiente' }}</small>
+                <button class="btn btn-link" type="button" (click)="removeQuestionLink($index)">Quitar</button>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" type="button" [disabled]="saving" (click)="save()">Guardar</button>
+        @if (selectedAssessmentId) {
+          <button class="btn btn-secondary" type="button" [disabled]="saving" (click)="archive()">
+            Archivar
+          </button>
+        }
+      </div>
+
+      <p class="status-text error">{{ errorMessage }}</p>
+      <p class="status-text success">{{ successMessage }}</p>
+    </article>
+  </section>
+}

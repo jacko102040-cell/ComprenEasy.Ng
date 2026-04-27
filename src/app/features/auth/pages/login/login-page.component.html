@@ -1,0 +1,40 @@
+<section class="auth-grid">
+  <article class="page-card hero-card">
+    <span class="chip soft">Acceso seguro con cookies</span>
+    <h1 class="page-title">Bienvenido a tu espacio de lectura adaptativa</h1>
+    <p class="page-subtitle">
+      Inicia sesión para ver tu progreso, rendir pretests o continuar con tu siguiente evaluación.
+    </p>
+    <ul class="hero-points">
+      <li>Flujo simple para estudiantes</li>
+      <li>Evaluaciones de pretest y postest</li>
+      <li>Resultados claros por dimensión</li>
+    </ul>
+  </article>
+
+  <article class="page-card form-card">
+    <h2>Iniciar sesión</h2>
+    <p class="page-subtitle">Usa tu usuario y contraseña registrados.</p>
+
+    <form [formGroup]="form" class="field-grid" (ngSubmit)="submit()">
+      <div class="field-group">
+        <label for="username">Usuario</label>
+        <input id="username" type="text" formControlName="username" placeholder="ej. maria01" />
+      </div>
+
+      <div class="field-group">
+        <label for="password">Contraseña</label>
+        <input id="password" type="password" formControlName="password" placeholder="********" />
+      </div>
+
+      <p class="status-text error">{{ errorMessage }}</p>
+
+      <div class="page-actions">
+        <button class="btn btn-primary" type="submit" [disabled]="loading">
+          {{ loading ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+        <a class="btn btn-link" routerLink="/register">Crear cuenta de estudiante</a>
+      </div>
+    </form>
+  </article>
+</section>

@@ -1,0 +1,130 @@
+@if (loading) {
+  <article class="page-card">
+    <p class="page-subtitle">Cargando comparacion final...</p>
+  </article>
+} @else if (comparison) {
+  <section class="comparison-shell">
+    <article class="page-card hero-card">
+      <span class="chip soft">Cierre academico</span>
+      <h1 class="page-title">Comparacion pretest vs posttest</h1>
+      <p class="page-subtitle">
+        Revisa de forma clara como evoluciono tu comprension lectora entre ambas evaluaciones.
+      </p>
+
+      <div class="page-actions">
+        <a class="btn btn-secondary" routerLink="/dashboard">Volver al dashboard</a>
+      </div>
+    </article>
+
+    @if (!comparison.isAvailable) {
+      <article class="page-card">
+        <h2>Aun no disponible</h2>
+        <p class="page-subtitle">{{ comparison.message }}</p>
+
+        @if (comparison.pretestFinishedAt || comparison.posttestFinishedAt) {
+          <div class="grid-cards cols-2 partial-grid">
+            <article class="metric-card">
+              <span>Pretest mas reciente</span>
+              <strong>
+                {{
+                  comparison.pretestFinishedAt
+                    ? (comparison.pretestFinishedAt | date: 'short')
+                    : 'Pendiente'
+                }}
+              </strong>
+              @if (comparison.pretestTotalScore !== null) {
+                <small>{{ comparison.pretestTotalScore | number: '1.0-2' }}%</small>
+              }
+            </article>
+
+            <article class="metric-card">
+              <span>Posttest mas reciente</span>
+              <strong>
+                {{
+                  comparison.posttestFinishedAt
+                    ? (comparison.posttestFinishedAt | date: 'short')
+                    : 'Pendiente'
+                }}
+              </strong>
+              @if (comparison.posttestTotalScore !== null) {
+                <small>{{ comparison.posttestTotalScore | number: '1.0-2' }}%</small>
+              }
+            </article>
+          </div>
+        }
+
+        <div class="page-actions">
+          <a class="btn btn-primary" routerLink="/posttests">Ver postests</a>
+        </div>
+      </article>
+    } @else {
+      <article class="page-card overview-card">
+        <div class="overview-head">
+          <div>
+            <span class="chip soft">Resumen general</span>
+            <h2>Resultado global</h2>
+          </div>
+          <div class="dates-box">
+            <span>Pretest: {{ comparison.pretestFinishedAt | date: 'short' }}</span>
+            <span>Posttest: {{ comparison.posttestFinishedAt | date: 'short' }}</span>
+          </div>
+        </div>
+
+        <div class="grid-cards cols-3 metrics-grid">
+          <article class="metric-card">
+            <span>Pretest total</span>
+            <strong>{{ comparison.pretestTotalScore | number: '1.0-2' }}%</strong>
+          </article>
+          <article class="metric-card">
+            <span>Posttest total</span>
+            <strong>{{ comparison.posttestTotalScore | number: '1.0-2' }}%</strong>
+          </article>
+          <article class="metric-card highlight" [class.positive]="improvementTone(comparison.improvementTotalScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementTotalScore) === 'negative'">
+            <span>Mejora total</span>
+            <strong>{{ comparison.improvementTotalScore! | number: '1.0-2' }} pts</strong>
+          </article>
+        </div>
+      </article>
+
+      <div class="grid-cards cols-3 dimension-grid">
+        <article class="page-card dimension-card">
+          <span class="chip soft">Literal</span>
+          <div class="dimension-values">
+            <p>Pretest <strong>{{ comparison.pretestLiteralScore | number: '1.0-2' }}%</strong></p>
+            <p>Posttest <strong>{{ comparison.posttestLiteralScore | number: '1.0-2' }}%</strong></p>
+            <p class="improvement" [class.positive]="improvementTone(comparison.improvementLiteralScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementLiteralScore) === 'negative'">
+              Mejora {{ comparison.improvementLiteralScore! | number: '1.0-2' }} pts
+            </p>
+          </div>
+        </article>
+
+        <article class="page-card dimension-card">
+          <span class="chip soft">Inferencial</span>
+          <div class="dimension-values">
+            <p>Pretest <strong>{{ comparison.pretestInferentialScore | number: '1.0-2' }}%</strong></p>
+            <p>Posttest <strong>{{ comparison.posttestInferentialScore | number: '1.0-2' }}%</strong></p>
+            <p class="improvement" [class.positive]="improvementTone(comparison.improvementInferentialScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementInferentialScore) === 'negative'">
+              Mejora {{ comparison.improvementInferentialScore! | number: '1.0-2' }} pts
+            </p>
+          </div>
+        </article>
+
+        <article class="page-card dimension-card">
+          <span class="chip soft">Critica</span>
+          <div class="dimension-values">
+            <p>Pretest <strong>{{ comparison.pretestCriticalScore | number: '1.0-2' }}%</strong></p>
+            <p>Posttest <strong>{{ comparison.posttestCriticalScore | number: '1.0-2' }}%</strong></p>
+            <p class="improvement" [class.positive]="improvementTone(comparison.improvementCriticalScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementCriticalScore) === 'negative'">
+              Mejora {{ comparison.improvementCriticalScore! | number: '1.0-2' }} pts
+            </p>
+          </div>
+        </article>
+      </div>
+    }
+  </section>
+} @else {
+  <article class="page-card">
+    <p class="status-text error">{{ errorMessage || 'No se pudo obtener la comparacion final.' }}</p>
+    <a class="btn btn-link" routerLink="/dashboard">Volver al dashboard</a>
+  </article>
+}

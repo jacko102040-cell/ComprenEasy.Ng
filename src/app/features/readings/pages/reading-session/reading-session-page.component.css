@@ -1,0 +1,213 @@
+.reading-session-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.session-hero,
+.current-phase-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-header,
+.phase-row,
+.phase-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  min-width: min(20rem, 100%);
+}
+
+.hero-stats div {
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(127, 23, 52, 0.06);
+}
+
+.hero-stats span,
+.phase-summary,
+.phase-step p,
+.phase-step small {
+  color: var(--color-gray-500);
+}
+
+.hero-stats strong,
+.page-card h2,
+.phase-row strong {
+  color: var(--color-maroon-900);
+}
+
+.requirement-note {
+  margin: 0;
+}
+
+.requirement-note.warning {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.progress-track {
+  position: relative;
+  width: 100%;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: rgba(129, 117, 123, 0.18);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--color-maroon-700), #d26584);
+}
+
+.phase-rail {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.phase-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(240, 236, 238, 0.62);
+  border: 1px solid rgba(129, 117, 123, 0.14);
+}
+
+.phase-step.current {
+  border-color: rgba(127, 23, 52, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(127, 23, 52, 0.12);
+}
+
+.phase-badge {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  font-weight: 700;
+  background: rgba(129, 117, 123, 0.16);
+  color: var(--color-gray-700);
+}
+
+.phase-badge.completed {
+  background: rgba(33, 122, 87, 0.18);
+  color: var(--color-success);
+}
+
+.phase-badge.inprogress {
+  background: rgba(127, 23, 52, 0.16);
+  color: var(--color-maroon-700);
+}
+
+.phase-badge.pending {
+  background: rgba(129, 117, 123, 0.16);
+  color: var(--color-gray-700);
+}
+
+.phase-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.phase-copy p,
+.phase-copy small {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.question-shell,
+.question-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.question-summary,
+.question-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+
+.question-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(240, 236, 238, 0.58);
+  border: 1px solid rgba(129, 117, 123, 0.16);
+}
+
+.question-card h3 {
+  margin: 0;
+  color: var(--color-maroon-900);
+  line-height: 1.5;
+}
+
+.options-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(129, 117, 123, 0.16);
+}
+
+.chip.correct {
+  background: rgba(33, 122, 87, 0.12);
+  color: var(--color-success);
+}
+
+.chip.incorrect {
+  background: rgba(176, 48, 82, 0.12);
+  color: var(--color-danger);
+}
+
+.chip.selected {
+  background: rgba(127, 23, 52, 0.12);
+  color: var(--color-maroon-700);
+}
+
+.chip.pending {
+  background: rgba(129, 117, 123, 0.12);
+  color: var(--color-gray-700);
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 11rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-sm);
+  padding: 0.95rem 1rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+textarea:focus {
+  outline: 2px solid rgba(159, 39, 72, 0.2);
+  border-color: var(--color-maroon-500);
+}
+
+.reading-content {
+  margin: 1rem 0 0;
+  white-space: pre-wrap;
+  font: inherit;
+  line-height: 1.75;
+}
