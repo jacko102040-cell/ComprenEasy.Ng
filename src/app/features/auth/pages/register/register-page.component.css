@@ -17,6 +17,21 @@
   grid-column: 1 / -1;
 }
 
+.error-hint {
+  color: var(--color-danger);
+}
+
+.action-note {
+  margin-top: 0.35rem;
+}
+
+.validation-banner {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(176, 48, 82, 0.08);
+  border: 1px solid rgba(176, 48, 82, 0.18);
+}
+
 @media (min-width: 760px) {
   .double-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -24,12 +24,20 @@ export class RegisterPageComponent {
   });
 
   protected loading = false;
+  protected submitted = false;
   protected errorMessage = '';
   protected successMessage = '';
 
   protected submit(): void {
+    this.submitted = true;
+
     if (this.form.invalid || this.loading) {
       this.form.markAllAsTouched();
+
+      if (this.form.invalid) {
+        this.errorMessage = this.validationSummary();
+      }
+
       return;
     }
 
@@ -50,6 +58,7 @@ export class RegisterPageComponent {
       .subscribe({
         next: () => {
           this.loading = false;
+          this.submitted = false;
           this.successMessage = 'Cuenta creada correctamente. Ahora puedes iniciar sesión.';
           this.form.reset({
             fullName: '',
@@ -68,5 +77,35 @@ export class RegisterPageComponent {
           this.errorMessage = error?.error?.message ?? 'No se pudo completar el registro.';
         }
       });
+  }
+
+  protected validationSummary(): string {
+    const missingFields: string[] = [];
+    const fullName = this.form.controls.fullName;
+    const username = this.form.controls.username;
+    const password = this.form.controls.password;
+
+    if (fullName.invalid) {
+      missingFields.push('nombre completo');
+    }
+
+    if (username.invalid) {
+      missingFields.push('usuario');
+    }
+
+    if (password.invalid) {
+      missingFields.push('contraseña de al menos 8 caracteres');
+    }
+
+    if (missingFields.length === 0) {
+      return 'Completa los campos requeridos antes de registrar.';
+    }
+
+    if (missingFields.length === 1) {
+      return `Falta completar ${missingFields[0]} para registrar la cuenta.`;
+    }
+
+    const lastField = missingFields.pop();
+    return `Faltan ${missingFields.join(', ')} y ${lastField} para registrar la cuenta.`;
   }
 }

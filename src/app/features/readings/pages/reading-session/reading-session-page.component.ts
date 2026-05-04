@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ReadingService } from '../../../../core/services/reading.service';
 import {
   PhaseProgress,
-  ReadingPhaseQuestion,
   ReadingDetail,
+  ReadingPhaseQuestion,
   ReadingSessionProgress,
   SaveReadingPhaseAnswerItem,
   SaveReadingPhaseProgressRequest
@@ -25,7 +25,7 @@ interface ReadingSessionDraftState {
   templateUrl: './reading-session-page.component.html',
   styleUrl: './reading-session-page.component.css'
 })
-export class ReadingSessionPageComponent {
+export class ReadingSessionPageComponent implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -33,6 +33,8 @@ export class ReadingSessionPageComponent {
 
   private readonly phaseAnchors: Record<number, number> = {};
   private readonly questionAnchors: Record<number, number> = {};
+  private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+  private autoSaveRequestId = 0;
   private draftLoaded = false;
 
   protected session: ReadingSessionProgress | null = null;
@@ -41,6 +43,8 @@ export class ReadingSessionPageComponent {
   protected busy = false;
   protected errorMessage = '';
   protected successMessage = '';
+  protected autoSaveState: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
+  protected autoSaveMessage = '';
   protected phaseNotes: Record<number, string> = {};
   protected selectedAnswers: Record<number, number> = {};
   protected answerTimeSeconds: Record<number, number> = {};
@@ -48,6 +52,10 @@ export class ReadingSessionPageComponent {
   constructor() {
     const attemptId = Number(this.route.snapshot.paramMap.get('attemptId'));
     this.loadSession(attemptId);
+  }
+
+  ngOnDestroy(): void {
+    this.cancelAutoSave();
   }
 
   protected currentPhase(): PhaseProgress | null {
@@ -76,6 +84,12 @@ export class ReadingSessionPageComponent {
   }
 
   protected selectOption(questionId: number, optionId: number): void {
+    const currentPhase = this.currentPhase();
+
+    if (!currentPhase || currentPhase.status === 'Completed') {
+      return;
+    }
+
     const now = Date.now();
     this.captureQuestionElapsedTime(questionId, now, true);
     this.selectedAnswers = {
@@ -83,6 +97,7 @@ export class ReadingSessionPageComponent {
       [questionId]: optionId
     };
     this.persistDraft();
+    this.scheduleAutoSave(currentPhase.phaseId);
   }
 
   protected isSelected(questionId: number, optionId: number): boolean {
@@ -171,6 +186,7 @@ export class ReadingSessionPageComponent {
       return;
     }
 
+    this.cancelAutoSave();
     this.busy = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -197,6 +213,7 @@ export class ReadingSessionPageComponent {
       return;
     }
 
+    this.cancelAutoSave();
     this.busy = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -226,6 +243,7 @@ export class ReadingSessionPageComponent {
       return;
     }
 
+    this.cancelAutoSave();
     this.busy = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -244,7 +262,29 @@ export class ReadingSessionPageComponent {
   }
 
   protected phaseStatusClass(status: string): string {
-    return status.toLowerCase();
+    return status.toLowerCase().replace(/[^a-z]/g, '');
+  }
+
+  protected translatedStatus(status: string | null | undefined): string {
+    switch (status) {
+      case 'InProgress':
+        return 'En progreso';
+      case 'Pending':
+        return 'Pendiente';
+      case 'Completed':
+        return 'Completada';
+      default:
+        return status ?? 'Sin estado';
+    }
+  }
+
+  protected formatSeconds(seconds: number | null | undefined): string {
+    return `${seconds ?? 0} s`;
+  }
+
+  protected currentPhaseLabel(): string {
+    const phase = this.currentPhase();
+    return phase ? `${this.phaseOrder(phase)}. ${phase.displayName}` : 'Sin fase activa';
   }
 
   protected canFinishSession(): boolean {
@@ -314,6 +354,59 @@ export class ReadingSessionPageComponent {
         this.reading = reading;
       }
     });
+  }
+
+  private scheduleAutoSave(phaseId: number): void {
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+    }
+
+    const requestId = ++this.autoSaveRequestId;
+    this.autoSaveState = 'saving';
+    this.autoSaveMessage = 'Guardando...';
+    this.autoSaveTimer = setTimeout(() => {
+      this.autoSaveTimer = null;
+      this.autoSaveProgress(phaseId, requestId);
+    }, 650);
+  }
+
+  private autoSaveProgress(phaseId: number, requestId: number): void {
+    const phase = this.session?.phases.find((item) => item.phaseId === phaseId);
+
+    if (!this.session || !phase || phase.status === 'Completed') {
+      return;
+    }
+
+    const payload = this.buildPhasePayload(phaseId, false);
+
+    this.readingService.savePhaseProgress(this.session.attemptId, phaseId, payload).subscribe({
+      next: (session) => {
+        if (requestId !== this.autoSaveRequestId) {
+          return;
+        }
+
+        this.syncSession(session);
+        this.autoSaveState = 'saved';
+        this.autoSaveMessage = 'Guardado automáticamente';
+      },
+      error: () => {
+        if (requestId !== this.autoSaveRequestId) {
+          return;
+        }
+
+        this.autoSaveState = 'error';
+        this.autoSaveMessage = 'No se pudo guardar automáticamente';
+      }
+    });
+  }
+
+  private cancelAutoSave(): void {
+    if (this.autoSaveTimer) {
+      clearTimeout(this.autoSaveTimer);
+      this.autoSaveTimer = null;
+    }
+
+    this.autoSaveRequestId++;
   }
 
   private syncSession(session: ReadingSessionProgress): void {
