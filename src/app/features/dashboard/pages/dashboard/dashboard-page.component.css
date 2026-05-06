@@ -221,4 +221,8 @@
   .learning-map {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
+  .learning-map.reading-only {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }

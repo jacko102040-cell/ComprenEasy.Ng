@@ -29,6 +29,10 @@ export interface AssessmentDetail {
   title: string;
   description: string | null;
   difficultyLevelId: number | null;
+  readingTitle?: string | null;
+  supportText?: string | null;
+  readingContent?: string | null;
+  content?: string | null;
   questions: AssessmentQuestion[];
 }
 

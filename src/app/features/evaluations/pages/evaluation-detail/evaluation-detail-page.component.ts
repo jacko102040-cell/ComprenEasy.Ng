@@ -204,6 +204,16 @@ export class EvaluationDetailPageComponent {
     return `Debes responder todas las preguntas antes de finalizar. Faltan ${remaining} pregunta${remaining === 1 ? '' : 's'}.`;
   }
 
+  protected supportText(): string | null {
+    const text =
+      this.assessment?.readingContent ??
+      this.assessment?.supportText ??
+      this.assessment?.content ??
+      this.assessment?.description;
+
+    return text?.trim() ? text : null;
+  }
+
   private ensureAttempt(nextStep: () => void): void {
     if (this.attemptId) {
       nextStep();

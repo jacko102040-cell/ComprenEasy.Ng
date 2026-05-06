@@ -8,7 +8,7 @@
       <span class="chip soft">{{ assessment.assessmentType }}</span>
       <h1 class="page-title">{{ assessment.title }}</h1>
       <p class="page-subtitle">
-        {{ assessment.description || 'Responde cada pregunta con calma y revisa tus opciones antes de enviar.' }}
+        Responde cada pregunta con calma y revisa tus opciones antes de enviar.
       </p>
 
       <div class="visual-meter">
@@ -34,6 +34,16 @@
       <p class="status-text error">{{ errorMessage }}</p>
       <p class="status-text success">{{ successMessage }}</p>
     </article>
+
+    @if (supportText(); as text) {
+      <article class="page-card support-text-card">
+        <div class="question-head">
+          <span class="chip soft">{{ assessment.readingTitle || 'Texto de apoyo' }}</span>
+          <span class="helper-text">Lectura previa a las preguntas</span>
+        </div>
+        <pre class="support-text-content">{{ text }}</pre>
+      </article>
+    }
 
     <div class="question-list">
       @for (question of assessment.questions; track question.questionId) {

@@ -16,6 +16,22 @@
   gap: 1rem;
 }
 
+.support-text-card {
+  display: grid;
+  gap: 0.9rem;
+  border-color: rgba(127, 23, 52, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.62));
+}
+
+.support-text-content {
+  margin: 0;
+  white-space: pre-wrap;
+  font: inherit;
+  line-height: 1.75;
+  color: var(--color-gray-900);
+}
+
 .question-card {
   display: grid;
   gap: 1rem;

@@ -4,7 +4,7 @@
       <span class="chip soft">Hola, {{ user.fullName }}</span>
       <h1 class="page-title">Tu panel de aprendizaje</h1>
       <p class="page-subtitle">
-        Desde aquí puedes acceder a lecturas PQ4R, pretests y posttests sin salir del mismo flujo.
+        Desde aqui puedes continuar tus lecturas PQ4R, reforzar comprension y seguir tu progreso.
       </p>
 
       <div class="grid-cards cols-3 stats-grid">
@@ -17,7 +17,7 @@
           <strong>{{ user.grade ?? 'No registrado' }}</strong>
         </div>
         <div class="stat-card">
-          <span>Sección</span>
+          <span>Seccion</span>
           <strong>{{ user.section || 'No registrada' }}</strong>
         </div>
       </div>
@@ -25,19 +25,17 @@
 
     <article class="page-card next-step-card">
       <div>
-        <span class="chip warning">Siguiente paso</span>
+        <span class="chip warning">Siguiente actividad</span>
         <h2>{{ nextActivityLabel() }}</h2>
         <p class="page-subtitle">
-          {{ summary?.recommendedMessage || 'Continúa tu ruta de aprendizaje desde el punto recomendado.' }}
+          {{ summary?.recommendedMessage || 'Continua tu proceso lector desde la lectura o actividad sugerida.' }}
         </p>
       </div>
 
       <div class="next-step-side">
         <div class="reading-progress-box">
           <span>Lecturas completadas</span>
-          <strong>
-            {{ summary?.completedReadingSessions ?? 0 }}/{{ summary?.minimumReadingSessionsRequired ?? 0 }}
-          </strong>
+          <strong>{{ completedReadingsLabel() }}</strong>
           <div class="visual-meter">
             <div class="visual-meter-fill" [style.width.%]="readingProgressPercent()"></div>
           </div>
@@ -57,22 +55,18 @@
         </div>
       </div>
 
-      <div class="learning-map">
-        <div class="map-step" [ngClass]="flowStepClass('Pretest')">
-          <span>1</span>
-          <strong>Pretest</strong>
-        </div>
+      <div class="learning-map reading-only">
         <div class="map-step" [ngClass]="flowStepClass('Readings')">
-          <span>2</span>
+          <span>1</span>
           <strong>Lecturas PQ4R</strong>
         </div>
-        <div class="map-step" [ngClass]="flowStepClass('Posttest')">
-          <span>3</span>
-          <strong>Posttest</strong>
+        <div class="map-step" [ngClass]="flowStepClass('Reinforcement')">
+          <span>2</span>
+          <strong>Refuerzo guiado</strong>
         </div>
-        <div class="map-step" [ngClass]="flowStepClass('Completed')">
-          <span>4</span>
-          <strong>Comparación final</strong>
+        <div class="map-step" [ngClass]="flowStepClass('Progress')">
+          <span>3</span>
+          <strong>Progreso de comprension</strong>
         </div>
       </div>
     </article>
@@ -81,7 +75,7 @@
       <div class="recommendation-head">
         <div>
           <span class="chip soft">Motor adaptativo</span>
-          <h2>Tu recomendación más reciente</h2>
+          <h2>Tu recomendacion mas reciente</h2>
         </div>
         @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
           <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
@@ -89,11 +83,11 @@
       </div>
 
       @if (recommendationLoading) {
-        <p class="page-subtitle">Analizando tu recomendación más reciente...</p>
+        <p class="page-subtitle">Analizando tu recomendacion mas reciente...</p>
       } @else if (recommendation) {
         <div class="recommendation-grid">
           <div class="recommendation-metric">
-            <span>Acción sugerida</span>
+            <span>Accion sugerida</span>
             <strong>{{ recommendation.predictedAction }}</strong>
           </div>
           <div class="recommendation-metric">
@@ -110,10 +104,7 @@
 
         <div class="page-actions">
           @if (hasRecommendationPrimaryRoute()) {
-            <a
-              class="btn btn-primary"
-              [routerLink]="recommendationPrimaryRoute()"
-            >
+            <a class="btn btn-primary" [routerLink]="recommendationPrimaryRoute()">
               Ver actividad sugerida
             </a>
           }
@@ -121,7 +112,7 @@
         </div>
       } @else if (recommendationEmpty) {
         <p class="page-subtitle">
-          Aún no hay una recomendación disponible. Completa una evaluación o una sesión de lectura para generarla.
+          Aun no hay una recomendacion disponible. Completa una sesion de lectura para generarla.
         </p>
         <div class="page-actions">
           <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
@@ -134,8 +125,8 @@
     <article class="page-card flow-card">
       <div class="recommendation-head">
         <div>
-          <span class="chip soft">Ruta del estudiante</span>
-          <h2>Estado de tu flujo principal</h2>
+          <span class="chip soft">Progreso lector</span>
+          <h2>Estado de tu intervencion</h2>
         </div>
       </div>
 
@@ -150,27 +141,26 @@
 
         <div class="grid-cards cols-3 flow-grid">
           <article class="flow-step-card">
-            <span>Pretest</span>
-            <strong>{{ pretestStatus() }}</strong>
-            <p>{{ pretestHint() }}</p>
+            <span>Lecturas completadas</span>
+            <strong>{{ completedReadingsLabel() }}</strong>
+            <p>{{ latestReadingHint() }}</p>
           </article>
 
           <article class="flow-step-card">
-            <span>Lecturas</span>
-            <strong>{{ readingsStatus() }}</strong>
-            <p>{{ readingsHint() }}</p>
+            <span>Estado actual</span>
+            <strong>{{ readingProgressStatus() }}</strong>
+            <p>{{ readingProgressHint() }}</p>
           </article>
 
           <article class="flow-step-card">
-            <span>Posttest</span>
-            <strong>{{ posttestStatus() }}</strong>
-            <p>{{ posttestHint() }}</p>
+            <span>Intervencion</span>
+            <strong>{{ interventionStateLabel() }}</strong>
+            <p>La plataforma sigue enfocada en lectura guiada, practica por fases y refuerzo adaptativo.</p>
           </article>
         </div>
 
         <div class="page-actions">
           <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
-          <a class="btn btn-secondary" routerLink="/pre-post-comparison">Ver comparación final</a>
         </div>
       }
     </article>
@@ -183,21 +173,9 @@
       </article>
 
       <article class="page-card menu-card">
-        <h2>Pretests</h2>
-        <p>Explora las evaluaciones diagnósticas activas y comienza tu intento.</p>
-        <a class="btn btn-primary" routerLink="/pretests">Ver pretests</a>
-      </article>
-
-      <article class="page-card menu-card">
-        <h2>Posttests</h2>
-        <p>Revisa las evaluaciones finales disponibles para medir tu avance lector.</p>
-        <a class="btn btn-primary" routerLink="/posttests">Ver posttests</a>
-      </article>
-
-      <article class="page-card menu-card">
-        <h2>Comparación final</h2>
-        <p>Consulta tu avance entre el pretest y el posttest más recientes.</p>
-        <a class="btn btn-primary" routerLink="/pre-post-comparison">Ver comparación</a>
+        <h2>Refuerzo adaptativo</h2>
+        <p>Accede a la actividad sugerida mas reciente segun tu progreso lector.</p>
+        <a class="btn btn-primary" [routerLink]="recommendationPrimaryRoute()">Ver sugerencia</a>
       </article>
     </div>
   </section>

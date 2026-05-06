@@ -59,15 +59,15 @@
       } @else if (recommendation) {
         <div class="grid-cards cols-3 result-stats">
           <div class="stat-box">
-            <span>Acción sugerida</span>
+            <span>Acción sugerida </span>
             <strong>{{ recommendation.predictedAction }}</strong>
           </div>
           <div class="stat-box">
-            <span>Dificultad sugerida</span>
+            <span>Dificultad sugerida </span>
             <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
           </div>
           <div class="stat-box">
-            <span>Actividad sugerida</span>
+            <span>Actividad sugerida </span>
             <strong>{{ recommendationActivityLabel() }}</strong>
           </div>
         </div>
@@ -100,27 +100,27 @@
 
         <div class="grid-cards cols-3 score-grid">
           <div class="stat-box metric-emphasis">
-            <span>Puntaje total</span>
+            <span>Puntaje total </span>
             <strong>{{ scoreLabel(session.totalScore) }}</strong>
           </div>
           <div class="stat-box">
-            <span>Literal</span>
+            <span>Literal </span>
             <strong>{{ scoreLabel(session.literalScore) }}</strong>
           </div>
           <div class="stat-box">
-            <span>Inferencial</span>
+            <span>Inferencial </span>
             <strong>{{ scoreLabel(session.inferentialScore) }}</strong>
           </div>
           <div class="stat-box">
-            <span>Crítico</span>
+            <span>Crítico </span>
             <strong>{{ scoreLabel(session.criticalScore) }}</strong>
           </div>
           <div class="stat-box success-card">
-            <span>Aciertos</span>
+            <span>Aciertos </span>
             <strong>{{ countLabel(session.totalCorrect) }}</strong>
           </div>
           <div class="stat-box danger-card">
-            <span>Errores</span>
+            <span>Errores </span>
             <strong>{{ countLabel(session.totalErrors) }}</strong>
           </div>
         </div>
