@@ -1,41 +1,92 @@
-<section class="auth-grid">
-  <article class="page-card hero-card">
-    <span class="chip soft">Lectura adaptativa</span>
-    <h1 class="page-title">Bienvenido a tu espacio de refuerzo lector</h1>
-    <p class="page-subtitle">
-      Inicia sesion para continuar con lecturas PQ4R, preguntas por fase, progreso por dimensiones y recomendaciones adaptativas.
-    </p>
-    <ul class="hero-points">
-      <li>Lecturas guiadas y actividades PQ4R</li>
-      <li>Progreso claro por dimensiones lectoras</li>
-      <li>Recomendaciones adaptativas para seguir avanzando</li>
-    </ul>
-  </article>
+<div class="login-wrapper">
+  <div class="login-grid">
+    <!-- Sección Izquierda: Marca e Información -->
+    <section class="info-section">
+      <div class="info-content">
+        <!-- Logo y Nombre del Colegio -->
+        <div class="brand-container">
+          <div class="logo-wrapper">
+            <img src="assets/img/logocolegio.png" alt="Logo Colegio San Agustín" class="school-logo">
+          </div>
+          <div class="brand-text">
+            <h1 class="college-label">COLEGIO</h1>
+            <h2 class="college-name">SAN AGUSTÍN</h2>
+          </div>
+        </div>
 
-  <article class="page-card form-card">
-    <span class="chip soft">Acceso seguro</span>
-    <h2>Iniciar sesion</h2>
-    <p class="page-subtitle">Usa tu usuario y contrasena registrados.</p>
+        <div class="participant-chip">
+          Institución Educativa Particular Nacional
+        </div>
 
-    <form [formGroup]="form" class="field-grid" (ngSubmit)="submit()">
-      <div class="field-group">
-        <label for="username">Usuario</label>
-        <input id="username" type="text" formControlName="username" placeholder="ej. maria01" autocomplete="username" />
+        <p class="description">
+          <span class="highlight">CompreEasy</span> fortalece la comprensión lectora mediante inteligencia artificial y la estrategia <span class="highlight">PQ4R</span>.
+        </p>
+
+        <!-- Gráfico de Flujo PQ4R -->
+        <div class="pq4r-container">
+          <div class="pq4r-steps">
+            <div class="pq4r-step" *ngFor="let step of pq4rSteps; let i = index">
+              <div class="step-icon-wrapper">
+                <i class="step-icon" [class]="step.icon"></i>
+              </div>
+              <span class="step-name">{{ step.name }}</span>
+              <div class="connecting-line" *ngIf="i < pq4rSteps.length - 1"></div>
+            </div>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="field-group">
-        <label for="password">Contrasena</label>
-        <input id="password" type="password" formControlName="password" placeholder="Tu contrasena" autocomplete="current-password" />
-      </div>
+    <!-- Sección Derecha: Formulario de Login -->
+    <section class="form-section">
+      <article class="login-card">
+        <div class="card-body">
+          <div class="card-header">
+            <span class="app-tag">CompreEasy</span>
+            <h3 class="card-title">Iniciar sesión</h3>
+            <p class="card-subtitle">Continúa tu ruta personalizada de comprensión lectora.</p>
+          </div>
 
-      <p class="status-text error">{{ errorMessage }}</p>
+          <form [formGroup]="form" class="login-form" (ngSubmit)="submit()">
+            <div class="field-group">
+              <label for="username">Usuario</label>
+              <input
+                id="username"
+                type="text"
+                formControlName="username"
+                placeholder="ej. estudiante01"
+                autocomplete="username"
+              />
+            </div>
 
-      <div class="page-actions">
-        <button class="btn btn-primary primary-action" type="submit" [disabled]="loading">
-          {{ loading ? 'Ingresando...' : 'Ingresar' }}
-        </button>
-        <a class="btn btn-link" routerLink="/register">Crear cuenta de estudiante</a>
-      </div>
-    </form>
-  </article>
-</section>
+            <div class="field-group">
+              <label for="password">Contraseña</label>
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                placeholder="Tu contraseña"
+                autocomplete="current-password"
+              />
+            </div>
+
+            <p class="error-text" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+            <div class="form-actions">
+              <button class="btn-submit" type="submit" [disabled]="loading">
+                {{ loading ? 'Ingresando...' : 'Ingresar al sistema' }}
+              </button>
+              <button type="button" class="btn-link" routerLink="/register">
+                Crear cuenta de estudiante
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-footer">
+          <p>Accede para continuar tus sesiones guiadas y revisar tu progreso lector.</p>
+        </div>
+      </article>
+    </section>
+  </div>
+</div>

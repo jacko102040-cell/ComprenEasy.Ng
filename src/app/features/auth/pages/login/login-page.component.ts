@@ -23,6 +23,15 @@ export class LoginPageComponent {
   protected loading = false;
   protected errorMessage = '';
 
+  protected pq4rSteps = [
+    { id: 'preview', name: 'Preview', icon: 'ph ph-eye' },
+    { id: 'question', name: 'Question', icon: 'ph ph-question' },
+    { id: 'read', name: 'Read', icon: 'ph ph-book-open' },
+    { id: 'reflect', name: 'Reflect', icon: 'ph ph-brain' },
+    { id: 'recite', name: 'Recite', icon: 'ph ph-microphone' },
+    { id: 'review', name: 'Review', icon: 'ph ph-arrows-counter-clockwise' },
+  ];
+
   constructor() {
     this.authService.loadCurrentUser().subscribe((user) => {
       if (user) {

@@ -1,5 +1,7 @@
 <div class="app-shell">
-  <app-header />
+  @if (isAuthenticated()) {
+    <app-header />
+  }
   <main class="app-main">
     <router-outlet />
   </main>
