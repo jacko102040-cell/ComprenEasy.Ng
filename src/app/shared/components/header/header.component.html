@@ -23,7 +23,9 @@
             Dashboard
           </a>
           <a routerLink="/readings" routerLinkActive="active">Lecturas PQ4R</a>
-          <a routerLink="/posttests" routerLinkActive="active">Posttest</a>
+          @if (canShowPosttestLink()) {
+            <a routerLink="/posttests" routerLinkActive="active">Posttest</a>
+          }
         }
       </nav>
 

@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { catchError, of } from 'rxjs';
+import { AcademicFlowSummary } from '../../../core/models/academic-flow.models';
+import { AcademicFlowService } from '../../../core/services/academic-flow.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -12,7 +15,18 @@ import { AuthService } from '../../../core/services/auth.service';
 export class HeaderComponent {
   protected readonly authService = inject(AuthService);
 
+  private readonly academicFlowService = inject(AcademicFlowService);
   private readonly router = inject(Router);
+  protected academicSummary: AcademicFlowSummary | null = null;
+
+  constructor() {
+    this.academicFlowService
+      .getCurrentSummary()
+      .pipe(catchError(() => of<AcademicFlowSummary | null>(null)))
+      .subscribe((summary) => {
+        this.academicSummary = summary;
+      });
+  }
 
   protected initials(fullName: string): string {
     return fullName
@@ -30,5 +44,9 @@ export class HeaderComponent {
         void this.router.navigate(['/login']);
       }
     });
+  }
+
+  protected canShowPosttestLink(): boolean {
+    return this.authService.currentUser()?.role === 'Student' && !!this.academicSummary?.canAccessPosttest;
   }
 }

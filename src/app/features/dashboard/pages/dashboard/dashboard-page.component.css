@@ -134,7 +134,7 @@
 
 .dashboard-cards {
   display: grid;
-  grid-template-columns: 1fr 0.94fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   align-items: stretch;
 }
@@ -316,6 +316,76 @@ svg {
   gap: 0.65rem;
 }
 
+.posttest-card {
+  gap: 0.8rem;
+}
+
+.posttest-card.available {
+  background: linear-gradient(180deg, rgba(255, 249, 238, 0.98), rgba(255, 253, 248, 0.96));
+}
+
+.posttest-card.pending {
+  background: rgba(250, 247, 241, 0.96);
+}
+
+.posttest-card.completed {
+  background: linear-gradient(180deg, rgba(242, 248, 241, 0.98), rgba(255, 253, 248, 0.96));
+}
+
+.posttest-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.posttest-badges span {
+  padding: 0.24rem 0.42rem;
+  border-radius: 999px;
+  background: rgba(107, 23, 20, 0.08);
+  color: #4a1b17;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.posttest-copy {
+  margin: 0;
+  color: #342421;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.posttest-panel {
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(107, 23, 20, 0.08);
+}
+
+.posttest-panel strong,
+.posttest-panel p {
+  display: block;
+  margin: 0;
+}
+
+.posttest-panel strong {
+  color: #251816;
+  font-size: 0.92rem;
+}
+
+.posttest-panel p {
+  margin-top: 0.35rem;
+  color: #5f5650;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.posttest-pending-note {
+  margin-top: auto;
+  color: #6a5d55;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .intervention-badges {
   display: flex;
   flex-wrap: wrap;
@@ -390,10 +460,6 @@ svg {
 }
 
 @media (max-width: 1040px) {
-  .dashboard-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .intervention-card {
     grid-column: 1 / -1;
   }

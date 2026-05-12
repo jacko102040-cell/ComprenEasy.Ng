@@ -18,13 +18,15 @@ export class EvaluationListPageComponent {
   protected assessments: ActiveAssessment[] = [];
   protected loading = true;
   protected errorMessage = '';
+  protected isPosttestView = false;
 
   constructor() {
     const assessmentType = this.route.snapshot.data['assessmentType'] as string;
     this.title = this.route.snapshot.data['title'] as string;
+    this.isPosttestView = assessmentType === 'Posttest';
 
     const request =
-      assessmentType === 'Posttest'
+      this.isPosttestView
         ? this.evaluationService.getActivePosttests()
         : this.evaluationService.getActivePretests();
 

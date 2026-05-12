@@ -85,6 +85,10 @@ export class DashboardPageComponent {
   }
 
   protected nextActivityLabel(): string {
+    if (this.isPosttestEnabled()) {
+      return 'Realizar evaluacion final';
+    }
+
     if (this.summary?.completedReadingSessions) {
       return 'Continuar lectura sugerida';
     }
@@ -93,7 +97,19 @@ export class DashboardPageComponent {
   }
 
   protected nextActivityRoute(): string | unknown[] {
+    if (this.isPosttestEnabled()) {
+      return '/posttests';
+    }
+
     return this.normalizeStudentRoute(this.summary?.recommendedRoute) ?? '/readings';
+  }
+
+  protected nextActivityDescription(): string {
+    if (this.isPosttestEnabled()) {
+      return 'Cierra tu proceso de refuerzo lector con la comprobacion final posterior al trabajo con lecturas.';
+    }
+
+    return '[Seed Flow] Los ecos del bosque';
   }
 
   protected recommendationActivityLabel(): string {
@@ -169,7 +185,7 @@ export class DashboardPageComponent {
       : 'Intervencion en curso';
   }
 
-  protected flowStepClass(stage: 'Readings' | 'Reinforcement' | 'Progress'): string {
+  protected flowStepClass(stage: 'Readings' | 'Reinforcement' | 'Posttest'): string {
     if (!this.summary) {
       return 'pending';
     }
@@ -182,7 +198,68 @@ export class DashboardPageComponent {
       return this.summary.hasCompletedMinimumReadingIntervention ? 'done' : 'current';
     }
 
-    return this.summary.hasCompletedMinimumReadingIntervention ? 'current' : 'pending';
+    if (this.summary.hasCompletedPosttest) {
+      return 'done';
+    }
+
+    return this.summary.canAccessPosttest ? 'current' : 'pending';
+  }
+
+  protected isPosttestEnabled(): boolean {
+    return !!this.summary?.canAccessPosttest && !this.summary?.hasCompletedPosttest;
+  }
+
+  protected posttestCardState(): 'available' | 'pending' | 'completed' {
+    if (this.summary?.hasCompletedPosttest) {
+      return 'completed';
+    }
+
+    return this.summary?.canAccessPosttest ? 'available' : 'pending';
+  }
+
+  protected posttestStatusLabel(): string {
+    switch (this.posttestCardState()) {
+      case 'available':
+        return 'Habilitado';
+      case 'completed':
+        return 'Completado';
+      default:
+        return 'Pendiente';
+    }
+  }
+
+  protected posttestTitle(): string {
+    switch (this.posttestCardState()) {
+      case 'available':
+        return 'Evaluacion final disponible';
+      case 'completed':
+        return 'Evaluacion final completada';
+      default:
+        return 'Evaluacion final pendiente';
+    }
+  }
+
+  protected posttestDescription(): string {
+    switch (this.posttestCardState()) {
+      case 'available':
+        return 'Ya puedes cerrar el proceso de refuerzo lector con el posttest y comprobar tu avance despues del trabajo con lecturas.';
+      case 'completed':
+        return 'Ya registraste el posttest como cierre del proceso de refuerzo lector.';
+      default:
+        return 'El posttest aparecera al completar el refuerzo lector requerido por tu progreso academico.';
+    }
+  }
+
+  protected posttestActionLabel(): string {
+    return this.summary?.hasCompletedPosttest ? 'Ver dashboard' : 'Ir al posttest';
+  }
+
+  protected posttestActionRoute(): string {
+    return this.summary?.hasCompletedPosttest ? '/dashboard' : '/posttests';
+  }
+
+  protected showPosttestAction(): boolean {
+    return this.posttestCardState() === 'available';
   }
 
   private normalizeStudentRoute(route: string | null | undefined): string | null {
@@ -190,6 +267,6 @@ export class DashboardPageComponent {
       return null;
     }
 
-    return ['/pretests', '/posttests', '/pre-post-comparison'].includes(route) ? '/readings' : route;
+    return ['/pretests', '/pre-post-comparison'].includes(route) ? '/readings' : route;
   }
 }

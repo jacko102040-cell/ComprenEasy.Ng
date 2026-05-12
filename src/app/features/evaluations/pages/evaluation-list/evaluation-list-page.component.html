@@ -3,7 +3,11 @@
     <span class="chip soft">Evaluaciones activas</span>
     <h1 class="page-title">{{ title }}</h1>
     <p class="page-subtitle">
-      Selecciona una evaluación disponible para revisar sus preguntas antes de iniciar tu intento.
+      {{
+        isPosttestView
+          ? 'Esta evaluacion final cierra el proceso de refuerzo lector y comprueba tu avance despues del trabajo con lecturas.'
+          : 'Selecciona una evaluacion disponible para revisar sus preguntas antes de iniciar tu intento.'
+      }}
     </p>
   </article>
 
@@ -24,7 +28,14 @@
             <span class="helper-text">{{ assessment.questionCount }} preguntas</span>
           </div>
           <h2>{{ assessment.title }}</h2>
-          <p>{{ assessment.description || 'Sin descripción adicional.' }}</p>
+          <p>
+            {{
+              assessment.description ||
+                (isPosttestView
+                  ? 'Evaluacion final disponible para comprobar el cierre del refuerzo lector.'
+                  : 'Sin descripcion adicional.')
+            }}
+          </p>
           <a class="btn btn-primary" [routerLink]="['/evaluations', assessment.assessmentId]">
             Ver detalle
           </a>

@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
+import { AcademicFlowSummary } from '../models/academic-flow.models';
 import { AuthService } from '../services/auth.service';
 import { AcademicFlowService } from '../services/academic-flow.service';
 
@@ -10,6 +11,9 @@ export const authGuard: CanActivateFn = (route) => {
   const router = inject(Router);
   const allowedRoles = route.data['roles'] as string[] | undefined;
   const allowedAcademicStages = route.data['allowedAcademicStages'] as string[] | undefined;
+  const requiredAcademicAccessFlag = route.data['requiredAcademicAccessFlag'] as
+    | keyof AcademicFlowSummary
+    | undefined;
 
   return authService.loadCurrentUser().pipe(
     switchMap((user) => {
@@ -21,13 +25,17 @@ export const authGuard: CanActivateFn = (route) => {
         return of(router.createUrlTree([user.role === 'Teacher' ? '/teacher/students' : '/dashboard']));
       }
 
-      if (user.role !== 'Student' || !allowedAcademicStages?.length) {
+      if (user.role !== 'Student' || (!allowedAcademicStages?.length && !requiredAcademicAccessFlag)) {
         return of(true);
       }
 
       return academicFlowService.getCurrentSummary().pipe(
         map((summary) => {
-          if (allowedAcademicStages.includes(summary.currentStage)) {
+          if (requiredAcademicAccessFlag && summary[requiredAcademicAccessFlag] === true) {
+            return true;
+          }
+
+          if (allowedAcademicStages?.includes(summary.currentStage)) {
             return true;
           }
 

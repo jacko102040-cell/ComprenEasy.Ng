@@ -1,63 +1,129 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando detalle de la lectura...</p>
-  </article>
-} @else if (reading) {
-  <section class="reading-detail-shell">
-    <article class="page-card reading-hero">
-      <div class="hero-copy">
-        <span class="chip soft">{{ reading.difficultyLevelName }}</span>
-        <h1 class="page-title">{{ reading.title }}</h1>
-        <p class="page-subtitle">
-          {{ reading.summary || 'Lectura preparada para avanzar por sus fases de comprensión.' }}
-        </p>
-
-        <div class="reading-info">
-          <span>{{ reading.estimatedMinutes ?? 0 }} min aprox.</span>
-          <span>{{ phases.length }} fases activas</span>
-        </div>
-
-        <div class="page-actions">
-          <button class="btn btn-primary primary-action" type="button" [disabled]="starting" (click)="startSession()">
-            {{ starting ? 'Iniciando...' : 'Iniciar lectura guiada' }}
-          </button>
-          <a class="btn btn-secondary" routerLink="/readings">Volver a lecturas</a>
-        </div>
-
-        <p class="status-text error">{{ errorMessage }}</p>
-      </div>
-
-      @if (reading.imageUrl) {
-        <img class="hero-image" [src]="reading.imageUrl" [alt]="reading.title" />
-      }
+  <section class="reading-detail-page">
+    <article class="state-card">
+      <p>Cargando detalle de la lectura...</p>
     </article>
+  </section>
+} @else if (reading) {
+  <section class="reading-detail-page">
+    <div class="reading-detail-shell">
+      <article class="reading-hero" [style.background-image]="'url(' + readingBackground() + ')'">
+        <div class="hero-overlay" aria-hidden="true"></div>
 
-    <div class="grid-cards cols-2">
-      <article class="page-card">
-        <h2>Fases configuradas</h2>
+        <div class="hero-meta">
+          <span>{{ estimatedMinutes() }} min aprox.</span>
+          <span aria-hidden="true">&middot;</span>
+          <span>{{ activePhaseCount() }} fases activas</span>
+        </div>
 
-        <div class="phase-list">
-          @for (phase of phases; track phase.phaseId) {
-            <div class="phase-item">
-              <div>
-                <strong>{{ phase.displayOrder }}. {{ phase.displayName }}</strong>
-                <p>{{ phase.guidanceText || 'Sin guía adicional para esta fase.' }}</p>
-              </div>
-              <span class="chip soft">{{ phase.isRequired ? 'Obligatoria' : 'Opcional' }}</span>
-            </div>
+        <div class="hero-copy">
+          <div class="title-row">
+            <h1>{{ reading.title }}</h1>
+            <span class="difficulty-pill">{{ difficultyLabel() }}</span>
+          </div>
+
+          <p>{{ readingSummary() }}</p>
+
+          <div class="hero-actions">
+            <button class="primary-button" type="button" [disabled]="starting" (click)="startSession()">
+              {{ starting ? 'Iniciando...' : 'Iniciar lectura guiada' }}
+            </button>
+            <a class="secondary-button" routerLink="/readings">Volver a lecturas</a>
+          </div>
+
+          @if (errorMessage) {
+            <p class="status-text error">{{ errorMessage }}</p>
           }
         </div>
       </article>
 
-      <article class="page-card">
-        <h2>Contenido base</h2>
-        <pre class="reading-content">{{ reading.content }}</pre>
-      </article>
+      <div class="detail-grid">
+        <article class="strategy-panel">
+          <header class="section-heading">
+            <span class="heading-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="m21 21-4.8-4.8" />
+                <circle cx="10.7" cy="10.7" r="6.7" />
+                <path d="M8.5 10.5h4.4M10.7 8.3v4.4" />
+              </svg>
+            </span>
+            <h2>Estrategia PQ4R</h2>
+          </header>
+
+          <div class="phase-list">
+            @for (phase of displayedPhases(); track phase.code; let index = $index) {
+              <div class="phase-card" [ngClass]="phase.tone">
+                <div class="phase-main">
+                  <span class="phase-icon" [ngClass]="phase.icon" aria-hidden="true"></span>
+                  <div>
+                    <h3>{{ index + 1 }}. {{ phase.title }}</h3>
+                    <p>{{ phase.guidance }}</p>
+                  </div>
+                </div>
+
+                <div class="phase-meta">
+                  <span class="phase-time">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="12" cy="12" r="8" />
+                      <path d="M12 7.8V12l2.8 2.1" />
+                    </svg>
+                    {{ phase.minutes }} min
+                  </span>
+                  <span class="required-pill">Obligatoria</span>
+                </div>
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="content-panel">
+          <header class="content-heading">
+            <h2>Contenido base</h2>
+            <span class="preview-pill">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
+                <path d="M12 7.9v12.6" />
+              </svg>
+              Preview
+            </span>
+          </header>
+
+          <div class="content-preview">
+            <p>{{ reading.content }}</p>
+          </div>
+        </article>
+
+        <aside class="stats-panel">
+          <h2>Estadisticas Rapidas</h2>
+
+          <div class="stat-list">
+            <div class="stat-item">
+              <span class="stat-icon document" aria-hidden="true"></span>
+              <strong>{{ wordCount() }} palabras</strong>
+            </div>
+
+            <div class="stat-item">
+              <span class="stat-icon vocabulary" aria-hidden="true"></span>
+              <div>
+                <strong>Nivel de vocabulario:</strong>
+                <p>Medio</p>
+              </div>
+            </div>
+
+            <div class="stat-item">
+              <span class="stat-icon ai" aria-hidden="true"></span>
+              <strong>IA sugerida: Si</strong>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </section>
 } @else {
-  <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontró la lectura.' }}</p>
-    <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
-  </article>
+  <section class="reading-detail-page">
+    <article class="state-card error">
+      <p>{{ errorMessage || 'No se encontro la lectura.' }}</p>
+      <a class="secondary-button" routerLink="/readings">Volver a lecturas</a>
+    </article>
+  </section>
 }

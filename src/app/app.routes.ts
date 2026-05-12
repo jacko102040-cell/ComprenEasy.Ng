@@ -51,9 +51,10 @@ export const routes: Routes = [
       ),
     data: {
       roles: ['Student'],
+      requiredAcademicAccessFlag: 'canAccessPosttest',
       allowedAcademicStages: ['Posttest'],
       assessmentType: 'Posttest',
-      title: 'Posttests disponibles'
+      title: 'Posttest disponible'
     }
   },
   {
