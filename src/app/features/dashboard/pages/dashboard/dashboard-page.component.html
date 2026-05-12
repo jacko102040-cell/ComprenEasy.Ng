@@ -1,182 +1,149 @@
 @if (authService.currentUser(); as user) {
-  <section class="dashboard-grid">
-    <article class="page-card intro-card">
-      <span class="chip soft">Hola, {{ user.fullName }}</span>
-      <h1 class="page-title">Tu panel de aprendizaje</h1>
-      <p class="page-subtitle">
-        Desde aqui puedes continuar tus lecturas PQ4R, reforzar comprension y seguir tu progreso.
-      </p>
-
-      <div class="grid-cards cols-3 stats-grid">
-        <div class="stat-card">
-          <span>Rol</span>
-          <strong>{{ user.role }}</strong>
-        </div>
-        <div class="stat-card">
-          <span>Grado</span>
-          <strong>{{ user.grade ?? 'No registrado' }}</strong>
-        </div>
-        <div class="stat-card">
-          <span>Seccion</span>
-          <strong>{{ user.section || 'No registrada' }}</strong>
-        </div>
-      </div>
-    </article>
-
-    <article class="page-card next-step-card">
-      <div>
-        <span class="chip warning">Siguiente actividad</span>
-        <h2>{{ nextActivityLabel() }}</h2>
-        <p class="page-subtitle">
-          {{ summary?.recommendedMessage || 'Continua tu proceso lector desde la lectura o actividad sugerida.' }}
-        </p>
-      </div>
-
-      <div class="next-step-side">
-        <div class="reading-progress-box">
-          <span>Lecturas completadas</span>
-          <strong>{{ completedReadingsLabel() }}</strong>
-          <div class="visual-meter">
-            <div class="visual-meter-fill" [style.width.%]="readingProgressPercent()"></div>
-          </div>
-        </div>
-
-        <a class="btn btn-primary primary-action" [routerLink]="nextActivityRoute()">
-          {{ nextActivityLabel() }}
-        </a>
-      </div>
-    </article>
-
-    <article class="page-card learning-map-card">
-      <div class="recommendation-head">
-        <div>
-          <span class="chip soft">Ruta de aprendizaje</span>
-          <h2>Tu recorrido lector</h2>
-        </div>
-      </div>
-
-      <div class="learning-map reading-only">
-        <div class="map-step" [ngClass]="flowStepClass('Readings')">
-          <span>1</span>
-          <strong>Lecturas PQ4R</strong>
-        </div>
-        <div class="map-step" [ngClass]="flowStepClass('Reinforcement')">
-          <span>2</span>
-          <strong>Refuerzo guiado</strong>
-        </div>
-        <div class="map-step" [ngClass]="flowStepClass('Progress')">
-          <span>3</span>
-          <strong>Progreso de comprension</strong>
-        </div>
-      </div>
-    </article>
-
-    <article class="page-card recommendation-card">
-      <div class="recommendation-head">
-        <div>
-          <span class="chip soft">Motor adaptativo</span>
-          <h2>Tu recomendacion mas reciente</h2>
-        </div>
-        @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
-          <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
-        }
-      </div>
-
-      @if (recommendationLoading) {
-        <p class="page-subtitle">Analizando tu recomendacion mas reciente...</p>
-      } @else if (recommendation) {
-        <div class="recommendation-grid">
-          <div class="recommendation-metric">
-            <span>Accion sugerida</span>
-            <strong>{{ recommendation.predictedAction }}</strong>
-          </div>
-          <div class="recommendation-metric">
-            <span>Dificultad sugerida</span>
-            <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
-          </div>
-          <div class="recommendation-metric">
-            <span>Actividad sugerida</span>
-            <strong>{{ recommendationActivityLabel() }}</strong>
-          </div>
-        </div>
-
-        <p class="page-subtitle">{{ recommendationHint() }}</p>
-
-        <div class="page-actions">
-          @if (hasRecommendationPrimaryRoute()) {
-            <a class="btn btn-primary" [routerLink]="recommendationPrimaryRoute()">
-              Ver actividad sugerida
-            </a>
-          }
-          <a class="btn btn-secondary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
-        </div>
-      } @else if (recommendationEmpty) {
-        <p class="page-subtitle">
-          Aun no hay una recomendacion disponible. Completa una sesion de lectura para generarla.
-        </p>
-        <div class="page-actions">
-          <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
-        </div>
-      } @else {
-        <p class="status-text error">{{ recommendationError }}</p>
-      }
-    </article>
-
-    <article class="page-card flow-card">
-      <div class="recommendation-head">
-        <div>
-          <span class="chip soft">Progreso lector</span>
-          <h2>Estado de tu intervencion</h2>
-        </div>
-      </div>
-
-      @if (flowLoading) {
-        <p class="page-subtitle">Revisando tu progreso actual...</p>
-      } @else if (flowError) {
-        <p class="status-text error">{{ flowError }}</p>
-      } @else {
-        @if (summary?.recommendedMessage) {
-          <p class="page-subtitle">{{ summary?.recommendedMessage }}</p>
-        }
-
-        <div class="grid-cards cols-3 flow-grid">
-          <article class="flow-step-card">
-            <span>Lecturas completadas</span>
-            <strong>{{ completedReadingsLabel() }}</strong>
-            <p>{{ latestReadingHint() }}</p>
-          </article>
-
-          <article class="flow-step-card">
-            <span>Estado actual</span>
-            <strong>{{ readingProgressStatus() }}</strong>
-            <p>{{ readingProgressHint() }}</p>
-          </article>
-
-          <article class="flow-step-card">
-            <span>Intervencion</span>
-            <strong>{{ interventionStateLabel() }}</strong>
-            <p>La plataforma sigue enfocada en lectura guiada, practica por fases y refuerzo adaptativo.</p>
-          </article>
-        </div>
-
-        <div class="page-actions">
-          <a class="btn btn-primary" [routerLink]="nextActivityRoute()">{{ nextActivityLabel() }}</a>
-        </div>
-      }
-    </article>
-
-    <div class="grid-cards cols-2">
-      <article class="page-card menu-card">
-        <h2>Lecturas PQ4R</h2>
-        <p>Ingresa a lecturas activas y avanza fase por fase con el flujo guiado.</p>
-        <a class="btn btn-primary" routerLink="/readings">Ver lecturas</a>
+  <section class="student-dashboard">
+    <div class="dashboard-shell">
+      <article class="greeting-card">
+        <h1>Hola, {{ firstName(user.fullName) }}. Tu panel de aprendizaje</h1>
       </article>
 
-      <article class="page-card menu-card">
-        <h2>Refuerzo adaptativo</h2>
-        <p>Accede a la actividad sugerida mas reciente segun tu progreso lector.</p>
-        <a class="btn btn-primary" [routerLink]="recommendationPrimaryRoute()">Ver sugerencia</a>
+      <article class="next-activity-card">
+        <div class="next-copy">
+          <span>Siguiente Actividad</span>
+          <h2>{{ nextActivityLabel() }}</h2>
+          <p>[Seed Flow] Los ecos del bosque</p>
+        </div>
+
+        <div class="next-progress">
+          <p>Lecturas completadas: {{ completedReadingsLabel() }}</p>
+          <div class="gold-meter" aria-hidden="true">
+            <span [style.width.%]="readingProgressPercent()"></span>
+          </div>
+          <a class="gold-action" [routerLink]="nextActivityRoute()">Continuar lectura</a>
+        </div>
       </article>
+
+      <div class="dashboard-cards">
+        <article class="dashboard-card path-card">
+          <header class="card-title-row">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 4.5h12v15H6z" />
+              <path d="M9 8h6M9 11h6M9 14h3" />
+            </svg>
+            <h2>Tu recorrido lector</h2>
+          </header>
+
+          <div class="path-flow" aria-label="Recorrido lector">
+            <span class="path-line" aria-hidden="true"></span>
+
+            <div class="path-step" [ngClass]="flowStepClass('Readings')">
+              <span class="path-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
+                  <path d="M12 7.9v12.6" />
+                </svg>
+              </span>
+              <p>1. Lecturas PQ4R</p>
+            </div>
+
+            <div class="path-step" [ngClass]="flowStepClass('Reinforcement')">
+              <span class="path-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v4M12 17v4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M3 12h4M17 12h4M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
+                </svg>
+              </span>
+              <p>2. Refuerzo guiado</p>
+            </div>
+
+            <div class="path-step" [ngClass]="flowStepClass('Progress')">
+              <span class="path-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 19V5M4 19h16" />
+                  <path d="M8 16v-4M12 16V8M16 16v-7" />
+                  <path d="M8 9c4.2 0 7.4-1.4 10-4" />
+                </svg>
+              </span>
+              <p>3. Progreso de comprensión</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="dashboard-card recommendation-card">
+          <header class="recommendation-header">
+            <h2>Tu recomendación<br />más reciente</h2>
+            <span>{{ recommendation?.confidenceScore ?? 85 }}% confianza</span>
+          </header>
+
+          <div class="recommendation-metrics">
+            <div class="recommendation-metric">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" />
+                <path d="m14 7 3 3" />
+              </svg>
+              <span>Acción:</span>
+              <strong>{{ recommendation?.predictedAction ?? 'Reforzar' }}</strong>
+            </div>
+
+            <div class="recommendation-metric">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 19V9M12 19V5M19 19v-7" />
+              </svg>
+              <span>Dificultad:</span>
+              <strong>{{ recommendation?.recommendedDifficultyLevelName ?? 'Media' }}</strong>
+            </div>
+
+            <div class="recommendation-metric">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
+                <path d="M12 7.9v12.6" />
+              </svg>
+              <span>Actividad:</span>
+              <strong>{{ recommendation ? recommendationActivityLabel() : 'Reading' }}</strong>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <a class="maroon-button" [routerLink]="recommendationPrimaryRoute()">Ver actividad sugerida</a>
+            <a class="outline-button" [routerLink]="nextActivityRoute()">Continuar lectura sugerida</a>
+          </div>
+        </article>
+
+        <article class="dashboard-card intervention-card">
+          <h2>Estado de intervención</h2>
+
+          <div class="intervention-badges">
+            <span>Lecturas completadas ({{ completedReadingsLabel() }})</span>
+            <span>Estado: {{ readingProgressStatus() }}</span>
+            <span>{{ interventionStateLabel() }}</span>
+          </div>
+
+          <p class="intervention-copy">
+            Continúa con el refuerzo lector en "[Seed Flow] Los ecos del bosque".
+          </p>
+
+          <div class="intervention-grid">
+            <article>
+              <span>Lecturas completadas</span>
+              <strong>{{ completedReadingsLabel() }}</strong>
+              <p>{{ latestReadingHint() }}</p>
+            </article>
+
+            <article>
+              <span>Estado actual:</span>
+              <strong>{{ readingProgressStatus() }}</strong>
+              <p>{{ readingProgressHint() }}</p>
+            </article>
+
+            <article>
+              <span>Intervención:</span>
+              <strong>{{ interventionStateLabel() }}</strong>
+              <p>La plataforma sigue enfocada en lectura guiada, práctica por fases y refuerzo adaptativo.</p>
+            </article>
+          </div>
+
+          <a class="maroon-button intervention-action" [routerLink]="nextActivityRoute()">
+            Continuar lectura sugerida
+          </a>
+        </article>
+      </div>
     </div>
   </section>
 }

@@ -29,4 +29,30 @@ export class ReadingListPageComponent {
       }
     });
   }
+
+  protected difficultyClass(reading: ActiveReading): string {
+    const difficulty = reading.difficultyLevelName.toLowerCase();
+
+    if (difficulty.includes('avanz')) {
+      return 'advanced';
+    }
+
+    if (difficulty.includes('inter')) {
+      return 'intermediate';
+    }
+
+    return 'basic';
+  }
+
+  protected readingSummary(reading: ActiveReading): string {
+    return reading.summary || 'Lectura lista para trabajar comprensión con un recorrido guiado PQ4R.';
+  }
+
+  protected estimatedMinutes(reading: ActiveReading): number {
+    return reading.estimatedMinutes ?? 10;
+  }
+
+  protected phaseCount(reading: ActiveReading): number {
+    return reading.activePhaseCount || 6;
+  }
 }

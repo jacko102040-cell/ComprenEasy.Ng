@@ -23,10 +23,54 @@ export class RegisterPageComponent {
     section: ['']
   });
 
+  protected readonly gradeOptions = [1, 2];
+  protected readonly pq4rSteps = [
+    {
+      id: 'preview',
+      name: 'Preview',
+      description: 'Explora el texto antes de leer.'
+    },
+    {
+      id: 'question',
+      name: 'Question',
+      description: 'Convierte ideas en preguntas.'
+    },
+    {
+      id: 'read',
+      name: 'Read',
+      description: 'Lee con propósito y atención.'
+    },
+    {
+      id: 'reflect',
+      name: 'Reflect',
+      description: 'Relaciona y analiza lo leído.'
+    },
+    {
+      id: 'recite',
+      name: 'Recite',
+      description: 'Explica con tus palabras.'
+    },
+    {
+      id: 'review',
+      name: 'Review',
+      description: 'Repasa y consolida tu avance.'
+    }
+  ];
+  protected readonly valuePropositions = [
+    { id: 'adaptability', label: 'Adaptabilidad IA' },
+    { id: 'methodology', label: 'Metodología Científica' },
+    { id: 'results', label: 'Resultados Medibles' }
+  ];
+
   protected loading = false;
   protected submitted = false;
+  protected showPassword = false;
   protected errorMessage = '';
   protected successMessage = '';
+
+  protected togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   protected submit(): void {
     this.submitted = true;
@@ -64,7 +108,7 @@ export class RegisterPageComponent {
             fullName: '',
             username: '',
             password: '',
-            grade: 1,
+            grade: null,
             section: ''
           });
 

@@ -14,6 +14,16 @@ export class HeaderComponent {
 
   private readonly router = inject(Router);
 
+  protected initials(fullName: string): string {
+    return fullName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase();
+  }
+
   protected logout(): void {
     this.authService.logout().subscribe({
       next: () => {

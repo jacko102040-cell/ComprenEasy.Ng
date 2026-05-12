@@ -1,47 +1,54 @@
-@if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando lecturas activas...</p>
-  </article>
-} @else {
-  <section class="reading-list-shell">
-    <article class="page-card hero-card">
-      <span class="chip soft">PQ4R</span>
-      <h1 class="page-title">Lecturas activas</h1>
-      <p class="page-subtitle">
-        Elige una lectura disponible y avanza por sus fases guiadas según la configuración actual.
-      </p>
-      <p class="status-text error">{{ errorMessage }}</p>
+<section class="readings-page">
+  <div class="readings-shell">
+    <article class="readings-hero">
+      <div class="hero-title-row">
+        <h1>Lecturas PQ4R</h1>
+        <span>PQ4R</span>
+      </div>
+      <p>Explora y selecciona tu próxima lectura para fortalecer tu comprensión.</p>
     </article>
 
-    @if (readings.length) {
-      <div class="grid-cards cols-2">
+    @if (loading) {
+      <article class="state-card">
+        <p>Cargando lecturas activas...</p>
+      </article>
+    } @else if (errorMessage) {
+      <article class="state-card error">
+        <p>{{ errorMessage }}</p>
+      </article>
+    } @else if (readings.length) {
+      <div class="reading-grid">
         @for (reading of readings; track reading.readingId) {
-          <article class="page-card reading-card">
-            <div class="card-head">
-              <span class="chip soft">{{ reading.difficultyLevelName }}</span>
-              <span class="helper-text">{{ reading.activePhaseCount }} fases activas</span>
+          <article class="reading-card">
+            <header class="reading-card-head">
+              <span class="difficulty-badge" [ngClass]="difficultyClass(reading)">
+                {{ reading.difficultyLevelName }}
+              </span>
+              <span class="phase-count">{{ phaseCount(reading) }} fases activas</span>
+            </header>
+
+            <div class="reading-content">
+              <h2>{{ reading.title }}</h2>
+              <p>{{ readingSummary(reading) }}</p>
             </div>
 
-            <h2>{{ reading.title }}</h2>
-            <p>
-              {{ reading.summary || 'Lectura lista para trabajar con un recorrido guiado de comprensión.' }}
-            </p>
+            <footer class="reading-footer">
+              <div class="reading-meta">
+                <span>{{ estimatedMinutes(reading) }} min aprox.</span>
+                <span>ID {{ reading.readingId }}</span>
+              </div>
 
-            <div class="reading-meta">
-              <span>{{ reading.estimatedMinutes ?? 0 }} min aprox.</span>
-              <span>ID {{ reading.readingId }}</span>
-            </div>
-
-            <a class="btn btn-primary" [routerLink]="['/readings', reading.readingId]">
-              Ver detalle
-            </a>
+              <a class="detail-button" [routerLink]="['/readings', reading.readingId]">
+                Ver detalle
+              </a>
+            </footer>
           </article>
         }
       </div>
     } @else {
-      <article class="page-card">
-        <p class="page-subtitle">No hay lecturas activas en este momento.</p>
+      <article class="state-card">
+        <p>No hay lecturas activas en este momento.</p>
       </article>
     }
-  </section>
-}
+  </div>
+</section>

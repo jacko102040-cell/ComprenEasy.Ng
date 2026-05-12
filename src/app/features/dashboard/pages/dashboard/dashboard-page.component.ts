@@ -80,6 +80,10 @@ export class DashboardPageComponent {
     }
   }
 
+  protected firstName(fullName: string): string {
+    return fullName.split(' ').filter(Boolean)[0] ?? fullName;
+  }
+
   protected nextActivityLabel(): string {
     if (this.summary?.completedReadingSessions) {
       return 'Continuar lectura sugerida';

@@ -1,74 +1,224 @@
-<section class="register-shell">
-  <article class="page-card register-card">
-    <span class="chip soft">Registro de estudiante</span>
-    <h1 class="page-title">Crea tu cuenta para comenzar</h1>
-    <p class="page-subtitle">
-      Regístrate una sola vez y luego podrás ingresar a tus evaluaciones, lecturas y resultados.
-    </p>
-    <p class="helper-text">
-      Necesitas nombre, usuario y contraseña de al menos 8 caracteres para enviar el registro.
-    </p>
-    <p class="helper-text action-note">
-      El botón se habilita cuando esos campos están completos y son válidos.
-    </p>
-
-    <form [formGroup]="form" class="field-grid double-grid" (ngSubmit)="submit()">
-      @if (submitted && form.invalid) {
-        <p class="status-text error full-span validation-banner" role="alert">
-          {{ validationSummary() }}
-        </p>
-      }
-
-      <div class="field-group full-span">
-        <label for="fullName">Nombre completo</label>
-        <input id="fullName" type="text" formControlName="fullName" autocomplete="name" />
-        @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
-          <small class="helper-text error-hint">Ingresa tu nombre completo.</small>
-        }
+<main class="student-register-page">
+  <section class="register-layout" aria-label="Registro de estudiante ComprenEasy">
+    <aside class="brand-panel" aria-label="Información de ComprenEasy">
+      <div class="brand-logo" aria-label="ComprenEasy">
+        <img src="assets/img/compreneasy-logo.png" alt="Logo de ComprenEasy" class="brand-logo-image" />
       </div>
 
-      <div class="field-group">
-        <label for="username">Usuario</label>
-        <input id="username" type="text" formControlName="username" autocomplete="username" />
-        @if (form.controls.username.touched && form.controls.username.invalid) {
-          <small class="helper-text error-hint">El usuario debe tener al menos 3 caracteres.</small>
-        }
-      </div>
+      <h2 class="brand-headline">Potenciando tu comprensión lectora con IA.</h2>
 
-      <div class="field-group">
-        <label for="password">Contraseña</label>
-        <input id="password" type="password" formControlName="password" autocomplete="new-password" />
-        @if (form.controls.password.touched && form.controls.password.invalid) {
-          <small class="helper-text error-hint">La contraseña debe tener al menos 8 caracteres.</small>
-        }
-      </div>
+      <article class="pq4r-card" aria-label="Flujo de lectura PQ4R">
+        <header class="pq4r-header">
+          <span>Estrategia de lectura</span>
+          <h2>PQ4R</h2>
+        </header>
+        <div class="pq4r-flow">
+          <span class="flow-line flow-line-top" aria-hidden="true"></span>
+          <span class="flow-line flow-line-bottom" aria-hidden="true"></span>
+          <span class="flow-line flow-line-turn" aria-hidden="true"></span>
 
-      <div class="field-group">
-        <label for="grade">Grado</label>
-        <select id="grade" formControlName="grade">
-          <option [ngValue]="1">1</option>
-          <option [ngValue]="2">2</option>
-          <option [ngValue]="3">3</option>
-          <option [ngValue]="4">4</option>
-          <option [ngValue]="5">5</option>
-          <option [ngValue]="6">6</option>
-        </select>
-      </div>
+          @for (step of pq4rSteps; track step.id) {
+            <div class="pq4r-step" [class]="'step-' + step.id">
+              <div class="step-badge">
+                @switch (step.id) {
+                  @case ('preview') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m21 21-4.7-4.7M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+                    </svg>
+                  }
+                  @case ('question') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M9.2 9a3.3 3.3 0 1 1 5.7 2.2c-1 .9-2.1 1.4-2.1 3.1M12 18.7h.01" />
+                    </svg>
+                  }
+                  @case ('read') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
+                      <path d="M12 7.9v12.6" />
+                    </svg>
+                  }
+                  @case ('reflect') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8.2 15.2c-1.8.2-3.2-.8-3.2-2.5 0-1.5 1-2.4 2.1-2.7.1-2.1 1.8-3.7 4-3.7 1.7 0 3.2 1 3.8 2.5 2.2 0 4 1.6 4 3.8s-1.7 3.8-4 3.8h-1.3l-3.3 2.3v-2.3H8.2Z" />
+                    </svg>
+                  }
+                  @case ('recite') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M12 14.5a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5.5a3 3 0 0 0 3 3Z" />
+                      <path d="M5.8 11.5a6.2 6.2 0 0 0 12.4 0M12 17.7V21M9 21h6" />
+                    </svg>
+                  }
+                  @case ('review') {
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 11a8 8 0 0 0-13.7-5.7L4 7.6M4 4v3.6h3.6" />
+                      <path d="M4 13a8 8 0 0 0 13.7 5.7L20 16.4M20 20v-3.6h-3.6" />
+                    </svg>
+                  }
+                }
+              </div>
+              <h2>{{ step.name }}</h2>
+              <p>{{ step.description }}</p>
+            </div>
+          }
+        </div>
+      </article>
 
-      <div class="field-group">
-        <label for="section">Sección</label>
-        <input id="section" type="text" formControlName="section" placeholder="Opcional" />
-      </div>
+      <section class="value-proposition" aria-label="Propuesta de valor">
+        <h2>Propuesta de valor</h2>
+        <div class="value-grid">
+          @for (item of valuePropositions; track item.id) {
+            <article class="value-item" [class]="'value-' + item.id">
+              <div class="value-icon">
+                @switch (item.id) {
+                  @case ('adaptability') {
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                      <path d="M24 49c-8 0-14-6-14-14 0-5 3-10 7-12-.2-7 5-13 12-13 5 0 9 3 11 7 8 1 14 7 14 15 0 9-7 16-16 16H24Z" />
+                      <path d="M27 19v25M18 31h18M22 23l5 5 6-7M21 41l6-5 6 7" />
+                      <path d="M46 15v8M42 19h8M48 41v8M44 45h8" />
+                    </svg>
+                  }
+                  @case ('methodology') {
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                      <path d="M18 51h28M25 16h14M29 16v11L18 49c-1 2 .4 4 2.7 4h22.6c2.3 0 3.7-2 2.7-4L35 27V16" />
+                      <path d="M23 40h18M34 7h2M27 10h2M42 12h2" />
+                      <path d="M38 25c5-4 10-6 16-6v24c-6 0-11 2-16 6" />
+                    </svg>
+                  }
+                  @case ('results') {
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                      <path d="M10 54h46M16 50V34M30 50V24M44 50V14" />
+                      <path d="M14 25c13 0 24-5 35-16M46 9h8v8" />
+                    </svg>
+                  }
+                }
+              </div>
+              <p>{{ item.label }}</p>
+            </article>
+          }
+        </div>
+      </section>
+    </aside>
 
-      <p class="status-text error full-span">{{ errorMessage }}</p>
-      <p class="status-text success full-span">{{ successMessage }}</p>
+    <section class="form-panel" aria-label="Formulario de registro">
+      <article class="register-card">
+        <header class="register-header">
+          <span class="student-badge">Registro de estudiante</span>
+          <h1>Crea tu cuenta para comenzar</h1>
+          <p>
+            Regístrate una sola vez y luego podrás ingresar a tus evaluaciones, lecturas y resultados.
+            Necesitas nombre, usuario y contraseña de al menos 8 caracteres para enviar el registro.
+            El botón se habilita cuando esos campos están completos y son válidos.
+          </p>
+        </header>
 
-      <div class="page-actions full-span">
-        <button class="btn btn-primary primary-action" type="submit" [disabled]="loading || form.invalid">
-          {{ loading ? 'Creando cuenta...' : 'Registrarme' }}
-        </button>
-        <a class="btn btn-link" routerLink="/login">Ya tengo cuenta</a>
-      </div>
-    </form>
-  </article>
-</section>
+        <form [formGroup]="form" class="register-form" (ngSubmit)="submit()">
+          @if (submitted && form.invalid) {
+            <p class="status-text error validation-banner" role="alert">
+              {{ validationSummary() }}
+            </p>
+          }
+
+          <div class="field-group full-row">
+            <label for="fullName">Nombre completo</label>
+            <input
+              id="fullName"
+              type="text"
+              formControlName="fullName"
+              placeholder="Introduce tu nombre y apellido"
+              autocomplete="name"
+            />
+            @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+              <small>Ingresa tu nombre completo.</small>
+            }
+          </div>
+
+          <div class="field-group">
+            <label for="username">Usuario</label>
+            <input
+              id="username"
+              type="text"
+              formControlName="username"
+              placeholder="Ej. estudiante123"
+              autocomplete="username"
+            />
+            @if (form.controls.username.touched && form.controls.username.invalid) {
+              <small>El usuario debe tener al menos 3 caracteres.</small>
+            }
+          </div>
+
+          <div class="field-group">
+            <label for="password">Contraseña</label>
+            <div class="password-field">
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Mínimo 8 caracteres"
+                autocomplete="new-password"
+              />
+              <button
+                class="password-toggle"
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                @if (showPassword) {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                  </svg>
+                } @else {
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 3l18 18" />
+                    <path d="M10.7 5.2c.4-.1.8-.2 1.3-.2 6 0 9.5 7 9.5 7a15.6 15.6 0 0 1-3.3 4" />
+                    <path d="M6.6 6.7C4 8.4 2.5 12 2.5 12s3.5 7 9.5 7c1.7 0 3.1-.5 4.4-1.2" />
+                    <path d="M10 10.3a3 3 0 0 0 3.7 3.7" />
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (form.controls.password.touched && form.controls.password.invalid) {
+              <small>La contraseña debe tener al menos 8 caracteres.</small>
+            }
+          </div>
+
+          <div class="field-group">
+            <label for="grade">Grado</label>
+            <select id="grade" formControlName="grade">
+              <option [ngValue]="null">Selecciona tu grado</option>
+              @for (grade of gradeOptions; track grade) {
+                <option [ngValue]="grade">{{ grade }}° Grado</option>
+              }
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="section">Sección <span>(Opcional)</span></label>
+            <input
+              id="section"
+              type="text"
+              formControlName="section"
+              placeholder="Ej. A, B, C"
+              autocomplete="off"
+            />
+          </div>
+
+          @if (errorMessage) {
+            <p class="status-text error full-row">{{ errorMessage }}</p>
+          }
+
+          @if (successMessage) {
+            <p class="status-text success full-row">{{ successMessage }}</p>
+          }
+
+          <div class="form-actions full-row">
+            <button class="submit-button" type="submit" [disabled]="loading || form.invalid">
+              {{ loading ? 'Creando cuenta...' : 'Registrarme' }}
+            </button>
+            <a routerLink="/login">Ya tengo cuenta</a>
+          </div>
+        </form>
+      </article>
+    </section>
+  </section>
+</main>

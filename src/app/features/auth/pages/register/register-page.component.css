@@ -1,39 +1,570 @@
-.register-shell {
+.student-register-page {
+  min-height: 100vh;
+  color: #2b1d1a;
+  background:
+    radial-gradient(circle at 9% 16%, rgba(255, 255, 255, 0.95) 0 14%, transparent 31%),
+    radial-gradient(circle at 86% 10%, rgba(231, 216, 197, 0.38), transparent 28%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.34) 0 50%, rgba(233, 221, 205, 0.3) 50% 100%),
+    #f3ede2;
   display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 4.5rem);
+  position: relative;
+}
+
+.student-register-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(107, 23, 20, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(107, 23, 20, 0.018) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, black, transparent 82%);
+}
+
+.register-layout {
+  width: min(100%, 1240px);
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.92fr) minmax(30rem, 1fr);
+  gap: clamp(2rem, 7vw, 7rem);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.brand-panel,
+.form-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand-panel {
+  gap: clamp(1.55rem, 4vw, 2.1rem);
+}
+
+.form-panel {
+  justify-content: center;
+}
+
+.brand-logo {
+  width: min(20rem, 84vw);
+  display: flex;
+  justify-content: center;
+}
+
+.brand-logo-image {
+  width: 100%;
+  max-width: 16.8rem;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 16px 28px rgba(132, 72, 18, 0.22));
+}
+
+.brand-headline {
+  max-width: 30rem;
+  margin: 0;
+  color: #21100e;
+  font-size: clamp(1.75rem, 3.2vw, 2.35rem);
+  line-height: 1.16;
+  font-weight: 900;
+  text-align: center;
+}
+
+.pq4r-card {
+  width: min(100%, 30.5rem);
+  min-height: 17.9rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 16px 32px rgba(41, 27, 18, 0.14);
+  padding: 1.25rem 1.35rem 1.2rem;
+  position: relative;
+}
+
+.pq4r-header {
+  text-align: center;
+}
+
+.pq4r-header span {
+  display: inline-flex;
+  color: #6b1714;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pq4r-header h2 {
+  margin: 0.1rem 0 0;
+  color: #21100e;
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.pq4r-flow {
+  width: min(100%, 26rem);
+  height: 13.6rem;
+  margin: 0.85rem auto 0;
+  position: relative;
+}
+
+.flow-line {
+  position: absolute;
+  z-index: 0;
+  background: rgba(226, 217, 206, 0.98);
+  pointer-events: none;
+}
+
+.flow-line-top,
+.flow-line-bottom {
+  left: 16%;
+  right: 16%;
+  height: 0.62rem;
+  border-radius: 999px;
+}
+
+.flow-line-top {
+  top: 1.02rem;
+}
+
+.flow-line-bottom {
+  top: 8.42rem;
+}
+
+.flow-line-turn {
+  width: 3.65rem;
+  height: 7.4rem;
+  top: 1.02rem;
+  left: calc(84% - 0.2rem);
+  border: 0.62rem solid rgba(226, 217, 206, 0.98);
+  border-left: 0;
+  border-radius: 0 4rem 4rem 0;
+  background: transparent;
+}
+
+.pq4r-step {
+  width: 6.25rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.step-preview {
+  position: absolute;
+  top: 0;
+  left: 16%;
+  transform: translateX(-50%);
+}
+
+.step-question {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.step-read {
+  position: absolute;
+  top: 0;
+  left: 84%;
+  transform: translateX(-50%);
+}
+
+.step-reflect {
+  position: absolute;
+  top: 7.4rem;
+  left: 16%;
+  transform: translateX(-50%);
+}
+
+.step-recite {
+  position: absolute;
+  top: 7.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.step-review {
+  position: absolute;
+  top: 7.4rem;
+  left: 84%;
+  transform: translateX(-50%);
+}
+
+.step-badge {
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 999px;
+  background: #f3eee8;
+  color: #321614;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.35rem;
+  box-shadow: 0 8px 18px rgba(52, 35, 23, 0.1);
+  transition:
+    background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    transform 0.3s ease;
+}
+
+.step-badge svg,
+.password-toggle svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.pq4r-step:hover .step-badge {
+  background-color: #801313;
+  color: #fff;
+  box-shadow: 0 12px 25px rgba(128, 19, 19, 0.25);
+  transform: scale(1.05);
+}
+
+.pq4r-step:hover .step-badge svg {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.pq4r-step h2 {
+  margin: 0.42rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #211716;
+}
+
+.pq4r-step p {
+  margin: 0.35rem 0 0;
+  max-width: 5.45rem;
+  font-size: 0.47rem;
+  line-height: 1.2;
+  color: #706965;
+}
+
+.value-proposition {
+  width: min(100%, 30rem);
+  text-align: center;
+}
+
+.value-proposition h2 {
+  margin: 0 0 1.35rem;
+  color: #21100e;
+  font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 3vw, 2rem);
+}
+
+.value-item {
+  display: grid;
+  justify-items: center;
+  gap: 0.65rem;
+}
+
+.value-icon {
+  width: 4rem;
+  height: 4rem;
+  color: #21100e;
+  display: grid;
+  place-items: center;
+}
+
+.value-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.value-item p {
+  margin: 0;
+  color: #21100e;
+  font-size: clamp(0.92rem, 2vw, 1.08rem);
+  line-height: 1.15;
 }
 
 .register-card {
-  padding: 1.8rem;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(247, 231, 237, 0.78));
-  border-color: rgba(127, 23, 52, 0.16);
+  width: min(100%, 31.3rem);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(120, 92, 70, 0.12);
+  border-radius: 0.78rem;
+  box-shadow: 0 21px 42px rgba(57, 38, 25, 0.15);
+  padding: clamp(2rem, 4.5vw, 3.2rem);
 }
 
-.double-grid {
-  margin-top: 1.5rem;
+.register-header {
+  text-align: center;
+  margin-bottom: 1.8rem;
 }
 
-.full-span {
+.student-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.55rem;
+  padding: 0.2rem 0.8rem;
+  border-radius: 999px;
+  background: #6b1714;
+  color: #fff;
+  font-size: 0.73rem;
+  font-weight: 800;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.register-header h1 {
+  margin: 1rem 0 0.7rem;
+  color: #4d1312;
+  font-size: clamp(1.65rem, 3.5vw, 2.1rem);
+  line-height: 1.08;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.register-header p {
+  max-width: 27.5rem;
+  margin: 0 auto;
+  color: #251b19;
+  font-size: 0.85rem;
+  line-height: 1.42;
+}
+
+.register-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.05rem 1rem;
+}
+
+.full-row {
   grid-column: 1 / -1;
 }
 
-.error-hint {
-  color: var(--color-danger);
+.field-group {
+  display: grid;
+  gap: 0.4rem;
 }
 
-.action-note {
-  margin-top: 0.35rem;
+.field-group label {
+  color: #1f1715;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.field-group label span {
+  font-weight: 500;
+}
+
+.field-group input,
+.field-group select {
+  width: 100%;
+  height: 2.75rem;
+  border: 1px solid #d8cbb8;
+  border-radius: 0.6rem;
+  background: #fdfbf7;
+  color: #2b1d1a;
+  padding: 0 0.78rem;
+  font-size: 0.84rem;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.field-group input::placeholder {
+  color: #807773;
+}
+
+.field-group select {
+  appearance: auto;
+  color: #625652;
+}
+
+.field-group input:focus,
+.field-group select:focus {
+  outline: none;
+  border-color: #6b1714;
+  box-shadow: 0 0 0 3px rgba(107, 23, 20, 0.13);
+  background: #fff;
+}
+
+.field-group small {
+  color: #b03052;
+  font-size: 0.72rem;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 2.65rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.68rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 999px;
+  color: #756a66;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+
+.password-toggle:hover {
+  color: #6b1714;
+  background: rgba(107, 23, 20, 0.06);
 }
 
 .validation-banner {
-  padding: 0.85rem 1rem;
-  border-radius: var(--radius-sm);
-  background: rgba(176, 48, 82, 0.08);
+  min-height: auto;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.75rem;
   border: 1px solid rgba(176, 48, 82, 0.18);
+  background: rgba(176, 48, 82, 0.07);
 }
 
-@media (min-width: 760px) {
-  .double-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.status-text {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.status-text.error {
+  color: #b03052;
+}
+
+.status-text.success {
+  color: #217a57;
+}
+
+.form-actions {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.55rem;
+  text-align: center;
+}
+
+.submit-button {
+  width: 100%;
+  height: 2.85rem;
+  border: 0;
+  border-radius: 0.52rem;
+  color: #fff;
+  background: linear-gradient(180deg, #a5201c, #771715);
+  box-shadow: 0 8px 20px rgba(107, 23, 20, 0.22);
+  font-weight: 900;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(107, 23, 20, 0.28);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.submit-button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.form-actions a {
+  justify-self: center;
+  color: #2f1714;
+  font-size: 0.83rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 1020px) {
+  .student-register-page {
+    overflow: auto;
+  }
+
+  .register-layout {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+  }
+
+  .brand-panel {
+    gap: 1.6rem;
+  }
+
+  .pq4r-card {
+    width: min(100%, 34rem);
+  }
+}
+
+@media (max-width: 620px) {
+  .student-register-page {
+    padding: 1rem;
+  }
+
+  .brand-headline {
+    max-width: 21rem;
+  }
+
+  .pq4r-card {
+    width: min(100%, 34rem);
+  }
+
+  .pq4r-flow {
+    width: min(100%, 24rem);
+  }
+
+  .pq4r-step {
+    width: 5.4rem;
+  }
+
+  .pq4r-step p {
+    display: none;
+  }
+
+  .value-grid {
+    gap: 0.7rem;
+  }
+
+  .value-icon {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+
+  .register-card {
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+
+  .register-form {
+    grid-template-columns: 1fr;
   }
 }

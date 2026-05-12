@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap');
-
 .login-wrapper {
   min-height: 100vh;
   background-color: #FDFBF7;
@@ -69,7 +67,7 @@
 
 .brand-text {
   text-align: left;
-  font-family: 'Playfair Display', serif;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .college-label {
@@ -257,27 +255,48 @@
 .login-card {
   width: 100%;
   max-width: 28rem;
-  background-color: white;
+  background-color: #efede9;
   border-radius: 2.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
 .card-body {
-  padding: 2.5rem;
+  background-color: white;
+  border-radius: 2.5rem 2.5rem 1.2rem 1.2rem;
+  padding: 0.85rem 1.75rem 1rem;
 }
 
 @media (min-width: 768px) {
-  .card-body { padding: 3.5rem; }
+  .card-body { padding: 1rem 2rem 1.1rem; }
 }
 
 .card-header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 0.35rem;
   text-align: center;
 }
 
 @media (min-width: 768px) {
   .card-header { text-align: left; }
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  margin-left: 0;
+  padding-right: 0.75rem;
+  min-height: 5.2rem;
+  overflow: visible;
+}
+
+@media (min-width: 768px) {
+  .app-brand {
+    justify-content: flex-end;
+    padding-right: 1.45rem;
+  }
 }
 
 .app-tag {
@@ -288,17 +307,28 @@
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   border: 1px solid rgba(128, 19, 19, 0.1);
 }
 
+.app-tag-logo {
+  width: 11.2rem;
+  height: 5.2rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 6px 10px rgba(128, 19, 19, 0.15));
+  margin-left: 0.15rem;
+}
+
 .card-title {
-  margin-top: 1.25rem;
+  margin-top: 0.1rem;
   font-size: 2.25rem;
   font-weight: 800;
   color: #111827;
   letter-spacing: -0.03em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .card-subtitle {
