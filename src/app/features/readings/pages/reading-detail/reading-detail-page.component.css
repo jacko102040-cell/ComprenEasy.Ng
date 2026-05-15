@@ -270,35 +270,20 @@
   color: #b48725;
 }
 
-.phase-icon::before,
-.stat-icon::before {
-  display: block;
-  font-weight: 900;
-  line-height: 1;
+.phase-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.phase-icon.book-open::before {
-  content: "P";
-}
-
-.phase-icon.question::before {
-  content: "?";
-}
-
-.phase-icon.book::before {
-  content: "R";
-}
-
-.phase-icon.spark::before {
-  content: "F";
-}
-
-.phase-icon.chat::before {
-  content: "C";
-}
-
-.phase-icon.edit::before {
-  content: "V";
+.phase-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .phase-main h3 {
@@ -436,16 +421,20 @@
   color: #b48725;
 }
 
-.stat-icon.document::before {
-  content: "W";
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.stat-icon.vocabulary::before {
-  content: "N";
-}
-
-.stat-icon.ai::before {
-  content: "IA";
+.stat-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .state-card {

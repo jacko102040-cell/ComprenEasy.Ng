@@ -1,57 +1,223 @@
-@if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando estudiantes...</p>
-  </article>
-} @else {
-  <section class="teacher-shell">
-    <article class="page-card hero-card">
-      <span class="chip soft">Panel docente</span>
-      <h1 class="page-title">Estudiantes</h1>
-      <p class="page-subtitle">
-        Revisa progreso, intentos, sesiones y comentarios desde un panel único de seguimiento.
-      </p>
-      <p class="status-text error">{{ errorMessage }}</p>
-    </article>
+<section class="teacher-page">
+  <div class="teacher-shell">
+    <header class="teacher-heading">
+      <span class="teacher-badge">Panel docente</span>
+      <h1>Seguimiento de estudiantes</h1>
+      <p>Revisa progreso, sesiones, puntajes y recomendaciones desde un panel único de seguimiento.</p>
+      @if (errorMessage) {
+        <p class="status-text error">{{ errorMessage }}</p>
+      }
+    </header>
 
-    @if (students.length) {
-      <div class="grid-cards cols-2">
-        @for (student of students; track student.studentId) {
-          <article class="page-card student-card">
-            <div class="student-head">
-              <div>
-                <h2>{{ student.fullName }}</h2>
-                <p>{{ student.username }}</p>
-              </div>
-              <span class="chip soft">{{ student.grade }}ro | {{ student.section || 'Sin sección' }}</span>
-            </div>
-
-            <div class="student-metrics">
-              <span>Activo: {{ student.isActive ? 'Sí' : 'No' }}</span>
-              <span>Habilitado: {{ student.isEnabledForTest ? 'Sí' : 'No' }}</span>
-              <span>
-                Último puntaje:
-                {{ student.latestScore !== null ? (student.latestScore | number: '1.0-2') + '%' : 'Sin datos' }}
-              </span>
-            </div>
-
-            <p class="helper-text">
-              Última actividad:
-              {{ student.lastActivityAt ? (student.lastActivityAt | date: 'short') : 'Sin actividad registrada' }}
-            </p>
-            <p class="helper-text">
-              Recomendación reciente: {{ student.latestRecommendationAction || 'Sin recomendación' }}
-            </p>
-
-            <a class="btn btn-primary" [routerLink]="['/teacher/students', student.studentId]">
-              Ver detalle
-            </a>
-          </article>
+    @if (loading) {
+      <section class="metrics-grid" aria-label="Cargando métricas">
+        @for (item of [1, 2, 3, 4, 5]; track item) {
+          <article class="metric-card skeleton-card"></article>
         }
-      </div>
+      </section>
+
+      <section class="student-list" aria-label="Cargando estudiantes">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <article class="student-row skeleton-row"></article>
+        }
+      </section>
     } @else {
-      <article class="page-card">
-        <p class="page-subtitle">No hay estudiantes registrados para mostrar.</p>
-      </article>
+      <section class="metrics-grid" aria-label="Métricas del panel docente">
+        <article class="metric-card">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 19c0-2.2 1.8-4 4-4s4 1.8 4 4" />
+              <circle cx="12" cy="9" r="3" />
+            </svg>
+          </span>
+          <p>Estudiantes activos</p>
+          <strong>{{ activeStudentsCount() }}</strong>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 19V5M5 19h14" />
+              <path d="M8 15l3-3 3 2 4-6" />
+            </svg>
+          </span>
+          <p>En progreso</p>
+          <strong>{{ studentsInProgressCount() }}</strong>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 19V5M8 17v-5M12 17V8M16 17v-7M20 17V6" />
+            </svg>
+          </span>
+          <p>Promedio lector</p>
+          <strong>{{ averageScoreLabel() }}</strong>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 4 6.5v5.2c0 4 3.2 7.6 8 9 4.8-1.4 8-5 8-9V6.5L12 3Z" />
+              <path d="M12 8v5M12 16h.01" />
+            </svg>
+          </span>
+          <p>Requieren refuerzo</p>
+          <strong>{{ reinforcementCount() }}</strong>
+        </article>
+
+        <article class="metric-card">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="8" />
+              <path d="M12 8v5l3 2" />
+            </svg>
+          </span>
+          <p>Sin actividad</p>
+          <strong>{{ noActivityCount() }}</strong>
+        </article>
+      </section>
+
+      <section class="filter-panel" aria-label="Filtros de estudiantes">
+        <label class="search-box">
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7" />
+              <path d="m16.5 16.5 3.5 3.5" />
+            </svg>
+          </span>
+          <input
+            type="search"
+            name="studentSearch"
+            placeholder="Buscar estudiante o usuario..."
+            [(ngModel)]="searchTerm"
+          />
+        </label>
+
+        <label>
+          <span>Grado</span>
+          <select name="gradeFilter" [(ngModel)]="selectedGrade">
+            <option value="Todos">Todos</option>
+            @for (grade of gradeOptions(); track grade) {
+              <option [value]="grade">{{ grade }}ro</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Sección</span>
+          <select name="sectionFilter" [(ngModel)]="selectedSection">
+            <option value="Todos">Todas</option>
+            @for (section of sectionOptions(); track section) {
+              <option [value]="section">{{ section }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>Estado</span>
+          <select name="statusFilter" [(ngModel)]="selectedStatus">
+            @for (status of statusFilters; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </label>
+
+        <button class="clear-button" type="button" (click)="clearFilters()">Limpiar filtros</button>
+      </section>
+
+      @if (students.length) {
+        @if (filteredStudents(); as visibleStudents) {
+          @if (visibleStudents.length) {
+            <section class="student-list" aria-label="Listado de estudiantes">
+              <div class="student-table-head" aria-hidden="true">
+                <span>Estudiante</span>
+                <span>Grado / sección</span>
+                <span>Estado</span>
+                <span>Recomendación</span>
+                <span>Última actividad</span>
+                <span>Último puntaje</span>
+                <span>Acción</span>
+              </div>
+
+              @for (student of visibleStudents; track student.studentId) {
+                <article class="student-row">
+                  <div class="student-cell student-profile" data-label="Estudiante">
+                    <span class="student-avatar" aria-hidden="true">{{ initials(student.fullName) }}</span>
+                    <div>
+                      <h2>{{ student.fullName }}</h2>
+                      <p>{{ student.username }}</p>
+                    </div>
+                  </div>
+
+                  <div class="student-cell" data-label="Grado / sección">
+                    <span class="pill grade-pill">{{ student.grade }}ro | {{ sectionLabel(student) }}</span>
+                  </div>
+
+                  <div class="student-cell" data-label="Estado">
+                    <span class="pill status-pill" [ngClass]="statusClass(student)">
+                      {{ statusLabel(student) }}
+                    </span>
+                  </div>
+
+                  <div class="student-cell" data-label="Recomendación">
+                    <span class="pill recommendation-pill" [ngClass]="recommendationClass(student)">
+                      {{ recommendationLabel(student) }}
+                    </span>
+                  </div>
+
+                  <div class="student-cell activity-cell" data-label="Última actividad">
+                    <span>
+                      {{
+                        student.lastActivityAt
+                          ? (student.lastActivityAt | date: 'short')
+                          : 'Sin actividad registrada'
+                      }}
+                    </span>
+                  </div>
+
+                  <div class="student-cell score-cell" data-label="Último puntaje">
+                    <div class="score-summary">
+                      <span>{{ scoreStateLabel(student) }}</span>
+                      <strong>
+                        {{
+                          student.latestScore !== null
+                            ? (student.latestScore | number: '1.0-2') + '%'
+                            : 'Sin datos'
+                        }}
+                      </strong>
+                    </div>
+                    <div class="score-track" [ngClass]="scoreClass(student)" aria-hidden="true">
+                      <i [style.width]="scoreWidth(student)"></i>
+                    </div>
+                  </div>
+
+                  <div class="student-cell action-cell" data-label="Acción">
+                    <a class="detail-button" [routerLink]="['/teacher/students', student.studentId]">
+                      Ver detalle
+                    </a>
+                  </div>
+                </article>
+              }
+            </section>
+          } @else {
+            <article class="empty-card">
+              <h2>No se encontraron estudiantes</h2>
+              <p>Ajusta los filtros o limpia la búsqueda para revisar nuevamente la lista.</p>
+              <button class="clear-button" type="button" (click)="clearFilters()">Limpiar filtros</button>
+            </article>
+          }
+        }
+      } @else {
+        <article class="empty-card">
+          <h2>Aún no hay estudiantes registrados</h2>
+          <p>
+            Cuando los estudiantes se registren, aparecerán aquí con su avance, puntajes y
+            recomendaciones.
+          </p>
+          <button class="clear-button primary" type="button" (click)="loadStudents()">Actualizar lista</button>
+        </article>
+      }
     }
-  </section>
-}
+  </div>
+</section>

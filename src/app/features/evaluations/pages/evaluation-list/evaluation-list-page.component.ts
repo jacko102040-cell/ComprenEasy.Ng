@@ -1,8 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { catchError, forkJoin, of } from 'rxjs';
+import { AcademicFlowSummary } from '../../../../core/models/academic-flow.models';
 import { EvaluationService } from '../../../../core/services/evaluation.service';
 import { ActiveAssessment } from '../../../../core/models/evaluation.models';
+import { ReadingProgressSummary } from '../../../../core/models/reading.models';
+import { AcademicFlowService } from '../../../../core/services/academic-flow.service';
+import { ReadingService } from '../../../../core/services/reading.service';
 
 @Component({
   selector: 'app-evaluation-list-page',
@@ -13,9 +18,13 @@ import { ActiveAssessment } from '../../../../core/models/evaluation.models';
 export class EvaluationListPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly evaluationService = inject(EvaluationService);
+  private readonly academicFlowService = inject(AcademicFlowService);
+  private readonly readingService = inject(ReadingService);
 
   protected title = '';
   protected assessments: ActiveAssessment[] = [];
+  protected flowSummary: AcademicFlowSummary | null = null;
+  protected readingProgress: ReadingProgressSummary | null = null;
   protected loading = true;
   protected errorMessage = '';
   protected isPosttestView = false;
@@ -25,12 +34,12 @@ export class EvaluationListPageComponent {
     this.title = this.route.snapshot.data['title'] as string;
     this.isPosttestView = assessmentType === 'Posttest';
 
-    const request =
-      this.isPosttestView
-        ? this.evaluationService.getActivePosttests()
-        : this.evaluationService.getActivePretests();
+    if (this.isPosttestView) {
+      this.loadPosttestView();
+      return;
+    }
 
-    request.subscribe({
+    this.evaluationService.getActivePretests().subscribe({
       next: (items) => {
         this.assessments = items;
         this.loading = false;
@@ -38,6 +47,59 @@ export class EvaluationListPageComponent {
       error: (error) => {
         this.loading = false;
         this.errorMessage = error?.error?.message ?? 'No se pudieron cargar las evaluaciones.';
+      }
+    });
+  }
+
+  protected posttestAssessment(): ActiveAssessment | null {
+    return this.assessments[0] ?? null;
+  }
+
+  protected posttestTitle(): string {
+    const assessment = this.posttestAssessment();
+
+    return assessment?.readingTitle?.trim() || assessment?.title || '[Seed Flow] Posttest Final';
+  }
+
+  protected canStartPosttest(): boolean {
+    return !!this.posttestAssessment() && (this.flowSummary?.canAccessPosttest ?? true);
+  }
+
+  protected posttestUnavailableMessage(): string {
+    if (!this.posttestAssessment()) {
+      return 'Completa tus lecturas PQ4R para habilitar el posttest final.';
+    }
+
+    return 'Completa las lecturas requeridas para habilitar la evaluacion final.';
+  }
+
+  protected scoreLabel(value: number | null | undefined): string {
+    return `${(value ?? 0).toFixed(1)}%`;
+  }
+
+  protected questionCount(): number {
+    return this.posttestAssessment()?.questionCount || 6;
+  }
+
+  private loadPosttestView(): void {
+    forkJoin({
+      assessments: this.evaluationService.getActivePosttests(),
+      flow: this.academicFlowService
+        .getCurrentSummary()
+        .pipe(catchError(() => of<AcademicFlowSummary | null>(null))),
+      progress: this.readingService
+        .getReadingProgress()
+        .pipe(catchError(() => of<ReadingProgressSummary | null>(null)))
+    }).subscribe({
+      next: ({ assessments, flow, progress }) => {
+        this.assessments = assessments;
+        this.flowSummary = flow;
+        this.readingProgress = progress;
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = error?.error?.message ?? 'No se pudo cargar el posttest final.';
       }
     });
   }

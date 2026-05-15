@@ -1,184 +1,172 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando sesión de lectura...</p>
-  </article>
-} @else if (session) {
-  <section class="reading-session-shell">
-    <article class="page-card session-header">
-      <div class="title-block">
-        <span class="chip soft">Intento #{{ session.attemptNumber }}</span>
-        <h1 class="page-title">{{ session.readingTitle }}</h1>
-        <p class="page-subtitle">Lee el texto de apoyo, responde las preguntas de la fase actual y avanza cuando cumplas el mínimo.</p>
-      </div>
-
-      <div class="session-metrics" aria-label="Resumen de sesión">
-        <div class="metric-card">
-          <span>Estado</span>
-          <strong>Estado: {{ translatedStatus(session.sessionStatus) }}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Tiempo total</span>
-          <strong>Tiempo total: {{ formatSeconds(session.totalTimeSeconds) }}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Fase actual</span>
-          <strong>{{ currentPhaseLabel() }}</strong>
-        </div>
-        <div class="metric-card progress-card">
-          <span>Progreso general</span>
-          <strong>{{ session.completionPercentage }}%</strong>
-          <div class="progress-track" aria-hidden="true">
-            <div class="progress-fill" [style.width]="progressWidth()"></div>
-          </div>
-        </div>
-      </div>
+  <section class="reading-session-page">
+    <article class="state-card">
+      <p>Cargando sesion de lectura...</p>
     </article>
-
+  </section>
+} @else if (session) {
+  <section class="reading-session-page">
     <nav class="phase-stepper" aria-label="Ruta de fases PQ4R">
+      <div class="stepper-line" aria-hidden="true"></div>
+
       @for (phase of session.phases; track phase.phaseId) {
-        <div
+        <button
           class="phase-step"
+          type="button"
           [class.current]="session.currentPhaseId === phase.phaseId"
           [ngClass]="phaseStatusClass(phase.status)"
+          [attr.aria-current]="session.currentPhaseId === phase.phaseId ? 'step' : null"
         >
-          <span class="phase-number">{{ phaseOrder(phase) }}</span>
-          <span class="phase-name">{{ phase.displayName }}</span>
-          <span class="phase-status">{{ translatedStatus(phase.status) }}</span>
-        </div>
+          <span>{{ phaseOrder(phase) }}. {{ phase.displayName }}</span>
+        </button>
       }
     </nav>
-
-    <div class="session-controls">
-      <div class="save-status" [ngClass]="autoSaveState" aria-live="polite">
-        @if (autoSaveMessage) {
-          {{ autoSaveMessage }}
-        } @else {
-          El avance se conserva en este navegador mientras trabajas.
-        }
-      </div>
-
-      <div class="page-actions">
-        <button class="btn btn-secondary" type="button" [disabled]="busy" (click)="saveProgress()">
-          Guardar avance
-        </button>
-        <button class="btn btn-primary primary-action" type="button" [disabled]="busy" (click)="completePhase()">
-          Completar fase actual
-        </button>
-        <button class="btn btn-primary" type="button" [disabled]="busy || !canFinishSession()" (click)="finishSession()">
-          Finalizar sesión
-        </button>
-      </div>
-    </div>
 
     @if (errorMessage) {
       <p class="status-text error alert-message">{{ errorMessage }}</p>
     }
-    @if (successMessage) {
-      <p class="status-text success alert-message">{{ successMessage }}</p>
+    @if (successMessage || autoSaveMessage) {
+      <p class="status-text success alert-message">
+        {{ successMessage || autoSaveMessage }}
+      </p>
     }
 
     <main class="session-workspace">
-      <article class="page-card reading-panel">
-        <div class="section-heading">
-          <span class="chip soft">Texto de apoyo</span>
-          <h2>Lectura principal</h2>
-        </div>
+      <article class="reading-scroll-card">
+        <span class="scroll-rail" aria-hidden="true"></span>
+
+        <header class="reading-preview-head">
+          <p>Vista previa del texto</p>
+          <h1>{{ reading?.title || session.readingTitle }}</h1>
+        </header>
 
         @if (reading) {
-          <pre class="reading-content">{{ reading.content }}</pre>
+          <div class="reading-copy">
+            <p>{{ reading.content }}</p>
+          </div>
         } @else {
-          <p class="page-subtitle">Cargando texto de apoyo...</p>
+          <p class="loading-copy">Cargando texto de apoyo...</p>
         }
       </article>
 
-      <article class="page-card current-phase-card">
+      <section class="activity-panel">
         @if (currentPhase(); as phase) {
-          <header class="phase-header">
-            <span class="chip soft">Fase actual: {{ phase.displayName }}</span>
-            <h2>{{ phase.displayName }}</h2>
-            <p>{{ feedbackForPhase(phase) }}</p>
+          <header class="phase-intro">
+            <p>Fase Actual: <strong>{{ phase.displayName }}</strong></p>
 
-            <div class="phase-summary">
-              <span>Estado: {{ translatedStatus(phase.status) }}</span>
-              <span>Tiempo acumulado: {{ formatSeconds(phase.timeSpentSeconds) }}</span>
-              <span>{{ phase.isRequired ? 'Fase obligatoria' : 'Fase opcional' }}</span>
+            <div class="phase-title-row">
+              <span class="phase-compass" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="8.6" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <path d="m15.8 8.2-2.1 5.5-5.5 2.1 2.1-5.5Z" />
+                  <path d="M12 1.9v2" />
+                  <path d="M12 20.1v2" />
+                </svg>
+              </span>
+
+              <div>
+                <h2>{{ phaseActivityTitle(phase) }}</h2>
+                <p>{{ phaseIntro(phase) }}</p>
+              </div>
             </div>
           </header>
 
-          @if (hasQuestions(phase)) {
-            <section class="question-shell">
-              <div class="question-toolbar">
-                <div>
-                  <span class="chip soft">Preguntas de la fase</span>
-                  <h3>{{ answeredQuestionsForPhase(phase) }}/{{ phase.totalQuestions }} respondidas</h3>
-                </div>
-                <span class="answered-pill">{{ phase.totalQuestions - answeredQuestionsForPhase(phase) }} pendientes</span>
-              </div>
+          <article class="question-card">
+            @if (currentQuestion(); as question) {
+              <header class="question-head">
+                <h3>{{ questionHeading(question) }}</h3>
+                <span>{{ questionProgressLabel() }} · {{ question.points }} pts</span>
+              </header>
 
-              @if (phaseRequirementMessage(phase)) {
-                <p class="requirement-note" [class.warning]="isPhaseBelowMinimum(phase)">
-                  {{ phaseRequirementMessage(phase) }}
-                </p>
-              }
+              <p class="question-stem">{{ question.stem }}</p>
 
-              <div class="question-list">
-                @for (question of currentQuestions(); track question.questionId) {
-                  <article class="question-card">
-                    <div class="question-head">
-                      <span class="chip soft">{{ question.dimensionName }}</span>
-                      <span class="chip" [ngClass]="questionStateClass(question)">
-                        {{ questionStateLabel(question) }}
-                      </span>
-                    </div>
-
-                    <h3>{{ question.displayOrder }}. {{ question.stem }}</h3>
-                    <p class="question-meta">{{ question.points }} pts · {{ questionTime(question) }} s</p>
-
-                    <div class="options-list">
-                      @for (option of question.options; track option.optionId) {
-                        <label class="option-item" [class.selected]="isSelected(question.questionId, option.optionId)">
-                          <input
-                            type="radio"
-                            [name]="'reading-question-' + question.questionId"
-                            [checked]="isSelected(question.questionId, option.optionId)"
-                            (change)="selectOption(question.questionId, option.optionId)"
-                          />
-                          <span class="option-text">{{ option.optionText }}</span>
-                        </label>
-                      }
-                    </div>
-                  </article>
+              <div class="options-grid">
+                @for (option of question.options; track option.optionId; let index = $index) {
+                  <label class="option-card" [class.selected]="isSelected(question.questionId, option.optionId)">
+                    <input
+                      type="radio"
+                      [name]="'reading-question-' + question.questionId"
+                      [checked]="isSelected(question.questionId, option.optionId)"
+                      (change)="selectOption(question.questionId, option.optionId)"
+                    />
+                    <span class="option-letter">{{ optionLetter(index) }}</span>
+                    <span class="option-text">{{ option.optionText }}</span>
+                  </label>
                 }
               </div>
-            </section>
-          } @else if (phase.totalQuestions > 0) {
-            <p class="page-subtitle">
-              Esta fase tiene {{ phase.totalQuestions }} preguntas registradas, pero no llegaron en el detalle de la sesión.
-            </p>
-          }
 
-          <aside class="phase-note-panel">
-            <div class="field-group">
-              <label for="progressNote">Nota de avance</label>
-              <textarea
-                id="progressNote"
-                rows="3"
-                [ngModel]="currentNote()"
-                (ngModelChange)="onNoteChange($event)"
-                placeholder="Anota una idea clave o una duda breve."
-              ></textarea>
-            </div>
-          </aside>
+              <div class="question-nav">
+                <button
+                  class="question-nav-button"
+                  type="button"
+                  [disabled]="!canGoToPreviousQuestion()"
+                  (click)="goToPreviousQuestion()"
+                >
+                  Anterior
+                </button>
+                <button
+                  class="question-nav-button next"
+                  type="button"
+                  [disabled]="!canGoToNextQuestion()"
+                  (click)="goToNextQuestion()"
+                >
+                  Siguiente
+                </button>
+              </div>
+
+              <div class="ai-tip">
+                <span aria-hidden="true">IA</span>
+                <p><strong>Tip de IA:</strong> {{ aiTip(phase) }}</p>
+              </div>
+            } @else {
+              <div class="empty-question">
+                <h3>Actividad sin pregunta visible</h3>
+                <p>Esta fase no tiene preguntas disponibles en la sesion actual.</p>
+              </div>
+            }
+
+            @if (phaseRequirementMessage(phase)) {
+              <p class="requirement-note" [class.warning]="isPhaseBelowMinimum(phase)">
+                {{ phaseRequirementMessage(phase) }}
+              </p>
+            }
+          </article>
         } @else {
-          <h2>Sin fase activa</h2>
-          <p class="page-subtitle">Esta sesión ya no tiene fases pendientes por mostrar.</p>
+          <article class="question-card empty-question">
+            <h2>Sin fase activa</h2>
+            <p>Esta sesion ya no tiene fases pendientes por mostrar.</p>
+          </article>
         }
-      </article>
+      </section>
     </main>
+
+    <footer class="session-footer">
+      <div class="session-time">
+        <span>Tiempo en sesion:</span>
+        <strong>{{ sessionElapsedLabel() }}</strong>
+      </div>
+
+      <div class="footer-actions">
+        <button
+          class="continue-button"
+          type="button"
+          [disabled]="busy || (!currentPhase() && !canFinishSession())"
+          (click)="canFinishSession() ? finishSession() : saveAndContinue()"
+        >
+          {{ canFinishSession() ? 'Finalizar sesion' : 'Guardar y Continuar' }}
+        </button>
+        <button class="pause-button" type="button" [disabled]="busy" (click)="pauseSession()">
+          Pausar
+        </button>
+      </div>
+    </footer>
   </section>
 } @else {
-  <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontró la sesión de lectura.' }}</p>
-    <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
-  </article>
+  <section class="reading-session-page">
+    <article class="state-card error">
+      <p>{{ errorMessage || 'No se encontro la sesion de lectura.' }}</p>
+      <a class="pause-button" routerLink="/readings">Volver a lecturas</a>
+    </article>
+  </section>
 }

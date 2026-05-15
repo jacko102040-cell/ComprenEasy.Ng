@@ -46,6 +46,26 @@ export class HeaderComponent {
     });
   }
 
+  protected isReadingsActive(): boolean {
+    return this.router.url.startsWith('/readings') || this.router.url.startsWith('/reading-sessions');
+  }
+
+  protected isReadingSession(): boolean {
+    return this.router.url.startsWith('/reading-sessions');
+  }
+
+  protected isProgressActive(): boolean {
+    return this.router.url.startsWith('/pre-post-comparison');
+  }
+
+  protected isPosttestActive(): boolean {
+    return this.router.url.startsWith('/posttests') || this.router.url.startsWith('/evaluations');
+  }
+
+  protected isMaterialsActive(): boolean {
+    return this.router.url.startsWith('/materials');
+  }
+
   protected canShowPosttestLink(): boolean {
     return this.authService.currentUser()?.role === 'Student' && !!this.academicSummary?.canAccessPosttest;
   }

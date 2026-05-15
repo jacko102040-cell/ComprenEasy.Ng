@@ -1,155 +1,151 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando resultado de la sesión...</p>
-  </article>
-} @else if (session) {
-  <section class="result-shell">
-    <article class="page-card result-hero">
-      <span class="chip soft">Sesión de lectura</span>
-      <h1 class="page-title">{{ session.readingTitle }}</h1>
-      <p class="page-subtitle">
-        @if (session.sessionStatus === 'Completed') {
-          Resumen final del recorrido PQ4R completado.
-        } @else {
-          La sesión aún no está finalizada. Puedes volver para continuarla.
-        }
-      </p>
-      <p class="result-note">
-        Buen cierre de lectura. Mira tus puntajes por dimensión y continúa con la recomendación adaptativa.
-      </p>
-
-      <div class="grid-cards cols-3 result-stats">
-        <div class="stat-box">
-          <span>Estado</span>
-          <strong>{{ session.sessionStatus }}</strong>
-        </div>
-        <div class="stat-box">
-          <span>Fases completadas</span>
-          <strong>{{ completedPhasesCount() }}/{{ session.phases.length }}</strong>
-        </div>
-        <div class="stat-box">
-          <span>Tiempo total</span>
-          <strong>{{ session.totalTimeSeconds }} s</strong>
-        </div>
-      </div>
-
-      <div class="page-actions">
-        @if (session.sessionStatus === 'Completed') {
-          <a class="btn btn-primary" [routerLink]="['/readings', session.readingId]">Volver a la lectura</a>
-        } @else {
-          <a class="btn btn-primary" [routerLink]="['/reading-sessions', session.attemptId]">Continuar sesión</a>
-        }
-        <a class="btn btn-secondary" routerLink="/readings">Ir a lecturas</a>
-      </div>
-    </article>
-
-    <article class="page-card recommendation-card">
-      <div class="recommendation-head">
-        <div>
-          <span class="chip soft">Siguiente actividad</span>
-          <h2>Recomendación adaptativa</h2>
-        </div>
-        @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
-          <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
-        }
-      </div>
-
-      @if (recommendationLoading) {
-        <p class="page-subtitle">Generando recomendación después de tu sesión de lectura...</p>
-      } @else if (recommendation) {
-        <div class="grid-cards cols-3 result-stats">
-          <div class="stat-box">
-            <span>Acción sugerida </span>
-            <strong>{{ recommendation.predictedAction }}</strong>
-          </div>
-          <div class="stat-box">
-            <span>Dificultad sugerida </span>
-            <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
-          </div>
-          <div class="stat-box">
-            <span>Actividad sugerida </span>
-            <strong>{{ recommendationActivityLabel() }}</strong>
-          </div>
-        </div>
-
-        <p class="page-subtitle">{{ recommendationHint() }}</p>
-
-        @if (recommendationPrimaryRoute(); as route) {
-          <div class="page-actions">
-            <a class="btn btn-primary primary-action" [routerLink]="route">Abrir actividad sugerida</a>
-          </div>
-        }
-      } @else if (recommendationEmpty) {
-        <p class="page-subtitle">No hay una recomendación disponible para esta sesión.</p>
-      } @else {
-        <p class="status-text error">{{ recommendationError }}</p>
-      }
-    </article>
-
-    <div class="grid-cards cols-2">
-      <article class="page-card">
-        <h2>Resumen de avance</h2>
-        <p class="page-subtitle">
-          Fases obligatorias completadas: {{ completedRequiredPhasesCount() }}/{{ requiredPhasesCount() }}
-        </p>
-        <p class="page-subtitle">Progreso registrado: {{ session.completionPercentage }}%</p>
-      </article>
-
-      <article class="page-card">
-        <h2>Puntajes de comprensión</h2>
-
-        <div class="grid-cards cols-3 score-grid">
-          <div class="stat-box metric-emphasis">
-            <span>Puntaje total </span>
-            <strong>{{ scoreLabel(session.totalScore) }}</strong>
-          </div>
-          <div class="stat-box">
-            <span>Literal </span>
-            <strong>{{ scoreLabel(session.literalScore) }}</strong>
-          </div>
-          <div class="stat-box">
-            <span>Inferencial </span>
-            <strong>{{ scoreLabel(session.inferentialScore) }}</strong>
-          </div>
-          <div class="stat-box">
-            <span>Crítico </span>
-            <strong>{{ scoreLabel(session.criticalScore) }}</strong>
-          </div>
-          <div class="stat-box success-card">
-            <span>Aciertos </span>
-            <strong>{{ countLabel(session.totalCorrect) }}</strong>
-          </div>
-          <div class="stat-box danger-card">
-            <span>Errores </span>
-            <strong>{{ countLabel(session.totalErrors) }}</strong>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <article class="page-card">
-      <h2>Fases registradas</h2>
-
-      <div class="phase-summary-list">
-        @for (phase of session.phases; track phase.phaseId) {
-          <div class="phase-summary-item">
-            <div>
-              <strong>{{ phaseOrder(phase.sequenceOrder, phase.displayOrder) }}. {{ phase.displayName }}</strong>
-              <p>
-                {{ phase.isRequired ? 'Obligatoria' : 'Opcional' }} |
-                {{ phase.answeredQuestions }}/{{ phase.totalQuestions }} preguntas |
-                {{ phase.timeSpentSeconds }} s
-              </p>
-            </div>
-            <span class="chip soft">{{ phase.status }}</span>
-          </div>
-        }
-      </div>
+  <section class="result-page">
+    <article class="state-card">
+      <p>Cargando resultado de la sesion...</p>
     </article>
   </section>
+} @else if (session) {
+  <section class="result-page">
+    <main class="result-layout">
+      <div class="result-main">
+        <article class="finish-hero" [style.background-image]="'url(' + readingBackground() + ')'">
+          <div class="hero-overlay" aria-hidden="true"></div>
+
+          <div class="hero-content">
+            <h1>Sesion Finalizada: {{ session.readingTitle }}</h1>
+            <p>
+              @if (session.sessionStatus === 'Completed') {
+                Excelente trabajo. Has completado las {{ completedPhasesCount() }} fases de la estrategia PQ4R.
+              } @else {
+                Esta sesion aun no esta finalizada. Puedes volver para continuarla.
+              }
+            </p>
+
+            <div class="hero-stats">
+              <div>
+                <span>Estado:</span>
+                <strong>{{ statusLabel(session.sessionStatus) }}</strong>
+              </div>
+              <div>
+                <span>Fases:</span>
+                <strong>{{ completedPhasesCount() }}/{{ session.phases.length }}</strong>
+              </div>
+              <div>
+                <span>Tiempo total:</span>
+                <strong>{{ formatDuration(session.totalTimeSeconds) }}</strong>
+              </div>
+            </div>
+
+            <div class="hero-actions">
+              <a class="secondary-action" routerLink="/readings">Volver a lecturas</a>
+              <button class="primary-action" type="button" (click)="openAdaptiveRecommendation()">
+                Recomendacion adaptativa
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <div class="summary-grid">
+          <article class="result-card progress-card">
+            <h2>1. Resumen de avance</h2>
+
+            <div class="progress-ring" [style.background]="progressRingBackground()">
+              <div>
+                <strong>{{ session.completionPercentage }}%</strong>
+              </div>
+            </div>
+
+            <div class="summary-list">
+              <p><span class="dot gold"></span>Fases obligatorias: <strong>{{ completedRequiredPhasesCount() }}/{{ requiredPhasesCount() }}</strong></p>
+              <p><span class="dot pale"></span>Preguntas respondidas: <strong>{{ answeredQuestionsCount() }}/{{ totalQuestionsCount() }}</strong></p>
+              <p><span class="dot maroon"></span>Actividades completadas: <strong>{{ completedActivitiesCount() }}/{{ session.phases.length }}</strong></p>
+            </div>
+          </article>
+
+          <article class="result-card score-card">
+            <h2>2. Puntajes de comprension</h2>
+
+            <div class="score-list">
+              @for (score of scoreItems(); track score.label) {
+                <div class="score-row">
+                  <div class="score-label">
+                    <span>{{ score.label }}</span>
+                    <strong>{{ score.value }}%</strong>
+                  </div>
+                  <div class="score-track" aria-hidden="true">
+                    <div class="score-fill" [style.width.%]="score.value"></div>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <p class="total-score">Puntaje total: <strong>{{ scoreLabel(session.totalScore) }}</strong></p>
+          </article>
+
+          <article class="result-card recommendation-card">
+            <h2>3. Recomendacion IA</h2>
+
+            @if (recommendationLoading) {
+              <p class="recommendation-muted">Generando recomendacion adaptativa...</p>
+            } @else if (recommendation) {
+              @if (recommendation.confidenceScore !== null) {
+                <span class="confidence-badge">{{ recommendation.confidenceScore }}% confianza</span>
+              }
+
+              <p class="recommendation-kicker">Proximo paso sugerido</p>
+              <strong class="recommendation-title">{{ recommendationTitle() }}</strong>
+              <button class="primary-action full" type="button" (click)="openAdaptiveRecommendation()">
+                Abrir actividad sugerida
+              </button>
+            } @else if (recommendationEmpty) {
+              <p class="recommendation-muted">No hay una recomendacion disponible para esta sesion.</p>
+            } @else {
+              <p class="status-text error">{{ recommendationError }}</p>
+            }
+          </article>
+        </div>
+      </div>
+
+      <aside class="phases-panel">
+        <h2>1. Fases registradas</h2>
+
+        <div class="phase-list">
+          @for (phase of session.phases; track phase.phaseId) {
+            <article class="phase-card">
+              <div class="phase-top">
+                <div>
+                  <h3>{{ phaseOrder(phase.sequenceOrder, phase.displayOrder) }}. {{ phase.displayName }}</h3>
+                  <p>
+                    {{ phase.answeredQuestions }}/{{ phase.totalQuestions }} preguntas
+                    <span aria-hidden="true">|</span>
+                    {{ phase.timeSpentSeconds }} s
+                    <span aria-hidden="true">|</span>
+                    {{ phaseAccuracyLabel(phase) }}
+                  </p>
+                </div>
+
+                <span class="phase-badge">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    <path d="m4.5 10 3.4 3.4 7.6-7.6" />
+                  </svg>
+                  {{ phase.status === 'Completed' ? 'Completada' : translatedStatus(phase.status) }}
+                </span>
+              </div>
+
+              <div class="phase-progress" aria-hidden="true">
+                <span [style.width.%]="phaseProgress(phase)"></span>
+              </div>
+            </article>
+          }
+        </div>
+      </aside>
+    </main>
+  </section>
 } @else {
-  <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontró la sesión.' }}</p>
-    <a class="btn btn-link" routerLink="/readings">Volver a lecturas</a>
-  </article>
+  <section class="result-page">
+    <article class="state-card">
+      <p class="status-text error">{{ errorMessage || 'No se encontro la sesion.' }}</p>
+      <a class="secondary-action" routerLink="/readings">Volver a lecturas</a>
+    </article>
+  </section>
 }

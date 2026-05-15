@@ -29,6 +29,17 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'materials',
+    canActivate: [authGuard],
+    data: {
+      roles: ['Student']
+    },
+    loadComponent: () =>
+      import('./features/materials/pages/materials-page/materials-page.component').then(
+        (m) => m.MaterialsPageComponent
+      )
+  },
+  {
     path: 'pretests',
     canActivate: [authGuard],
     loadComponent: () =>

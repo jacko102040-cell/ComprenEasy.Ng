@@ -2,11 +2,13 @@ import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AdaptiveRecommendation } from '../../../../core/models/adaptive-recommendation.models';
 import {
   CreateTeacherCommentRequest,
   ResetStudentPasswordResult,
   TeacherCommentTag,
   TeacherStudentAssessmentAttempt,
+  TeacherStudentComment,
   TeacherStudentDetail,
   TeacherStudentReadingSession
 } from '../../../../core/models/teacher-panel.models';
@@ -101,7 +103,7 @@ export class TeacherStudentDetailPageComponent {
 
     const evaluationOptions = this.student.evaluationAttempts.map((attempt) => ({
       value: attempt.attemptId,
-      label: `Evaluacion #${attempt.attemptId} · ${attempt.assessmentTitle}`
+      label: `Evaluación #${attempt.attemptId} · ${attempt.assessmentTitle}`
     }));
 
     const readingOptions = this.student.readingSessions.map((session) => ({
@@ -110,6 +112,142 @@ export class TeacherStudentDetailPageComponent {
     }));
 
     return [...evaluationOptions, ...readingOptions];
+  }
+
+  protected latestScore(): number | null {
+    return this.student?.progressSummary.latestCompletedScore ?? null;
+  }
+
+  protected latestScoreLabel(): string {
+    const score = this.latestScore();
+
+    return score === null ? 'Sin datos' : `${score.toFixed(2)}%`;
+  }
+
+  protected scoreStateLabel(score: number | null = this.latestScore()): string {
+    if (score === null) {
+      return 'Sin datos';
+    }
+
+    if (score < 40) {
+      return 'Reforzar';
+    }
+
+    if (score < 70) {
+      return 'En seguimiento';
+    }
+
+    return 'Avanza bien';
+  }
+
+  protected scoreStateClass(score: number | null = this.latestScore()): string {
+    if (score === null) {
+      return 'no-data';
+    }
+
+    if (score < 40) {
+      return 'low';
+    }
+
+    if (score < 70) {
+      return 'medium';
+    }
+
+    return 'high';
+  }
+
+  protected gaugeBackground(): string {
+    const score = Math.max(0, Math.min(this.latestScore() ?? 0, 100));
+
+    return `conic-gradient(${this.gaugeColor()} ${score * 3.6}deg, #eadfcd 0deg)`;
+  }
+
+  protected recommendationLabel(action: string | null | undefined): string {
+    const normalized = (action || '').toLowerCase();
+
+    if (!normalized) {
+      return 'Sin recomendación';
+    }
+
+    if (normalized.includes('reforz') || normalized.includes('reinforce')) {
+      return 'Reforzar';
+    }
+
+    if (normalized.includes('avanz') || normalized.includes('advance')) {
+      return 'Avanzar con apoyo';
+    }
+
+    if (normalized.includes('seguim') || normalized.includes('follow')) {
+      return 'En seguimiento';
+    }
+
+    return action || 'Sin recomendación';
+  }
+
+  protected statusLabel(status: string): string {
+    const normalized = status.toLowerCase();
+
+    if (normalized === 'completed') {
+      return 'Completado';
+    }
+
+    if (normalized === 'inprogress' || normalized === 'in_progress') {
+      return 'En progreso';
+    }
+
+    if (normalized === 'pending') {
+      return 'Pendiente';
+    }
+
+    if (normalized === 'notstarted' || normalized === 'not_started') {
+      return 'No iniciado';
+    }
+
+    return status || 'Sin datos';
+  }
+
+  protected statusClass(status: string): string {
+    const normalized = status.toLowerCase();
+
+    if (normalized === 'completed') {
+      return 'completed';
+    }
+
+    if (normalized === 'inprogress' || normalized === 'in_progress') {
+      return 'progress';
+    }
+
+    return 'pending';
+  }
+
+  protected secondsLabel(totalSeconds: number | null): string {
+    const seconds = totalSeconds ?? 0;
+
+    if (seconds < 60) {
+      return `${seconds} s`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainder = seconds % 60;
+
+    return remainder ? `${minutes} min ${remainder} s` : `${minutes} min`;
+  }
+
+  protected recommendationSource(recommendation: AdaptiveRecommendation): string {
+    return (
+      recommendation.recommendedAssessmentTitle ||
+      recommendation.sourceAssessmentTitle ||
+      recommendation.recommendedActivityType ||
+      'Actividad asociada no disponible'
+    );
+  }
+
+  protected relatedAttemptLabel(comment: TeacherStudentComment): string {
+    if (!comment.attemptId) {
+      return 'General';
+    }
+
+    return `Intento #${comment.attemptId}`;
   }
 
   protected trackTag(_: number, tag: TeacherCommentTag): number {
@@ -122,6 +260,24 @@ export class TeacherStudentDetailPageComponent {
 
   protected trackReadingSession(_: number, session: TeacherStudentReadingSession): number {
     return session.attemptId;
+  }
+
+  private gaugeColor(): string {
+    const score = this.latestScore();
+
+    if (score === null) {
+      return '#b9afa4';
+    }
+
+    if (score < 40) {
+      return '#8f1d19';
+    }
+
+    if (score < 70) {
+      return '#c59332';
+    }
+
+    return '#217a57';
   }
 
   private loadStudent(studentId: number, preserveMessages = false): void {

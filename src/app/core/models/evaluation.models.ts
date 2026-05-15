@@ -3,6 +3,7 @@ export interface ActiveAssessment {
   assessmentType: string;
   title: string;
   description: string | null;
+  readingTitle?: string | null;
   difficultyLevelId: number | null;
   questionCount: number;
 }
@@ -32,6 +33,11 @@ export interface AssessmentDetail {
   readingTitle?: string | null;
   supportText?: string | null;
   readingContent?: string | null;
+  readingText?: string | null;
+  supportContent?: string | null;
+  passage?: string | null;
+  sourceText?: string | null;
+  text?: string | null;
   content?: string | null;
   questions: AssessmentQuestion[];
 }

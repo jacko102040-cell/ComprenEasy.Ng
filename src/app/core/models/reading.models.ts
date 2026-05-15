@@ -91,6 +91,46 @@ export interface ReadingSessionProgress {
   phases: PhaseProgress[];
 }
 
+export interface ReadingProgressItem {
+  readingId: number;
+  title: string;
+  summary: string | null;
+  imageUrl: string | null;
+  difficultyLevelId: number;
+  difficultyLevelName: string;
+  estimatedMinutes: number | null;
+  attemptId: number | null;
+  attemptNumber: number | null;
+  status: 'Completed' | 'InProgress' | 'NotStarted' | string;
+  startedAt: string | null;
+  finishedAt: string | null;
+  completionPercentage: number;
+  totalScore: number | null;
+  literalScore: number | null;
+  inferentialScore: number | null;
+  criticalScore: number | null;
+  totalCorrect: number | null;
+  totalErrors: number | null;
+  totalQuestions: number;
+  answeredQuestions: number;
+  totalTimeSeconds: number;
+  resultRoute: string | null;
+  actionRoute: string | null;
+}
+
+export interface ReadingProgressSummary {
+  totalActiveReadings: number;
+  completedReadings: number;
+  inProgressReadings: number;
+  completionPercentage: number;
+  averageScore: number | null;
+  averageLiteralScore: number | null;
+  averageInferentialScore: number | null;
+  averageCriticalScore: number | null;
+  totalTimeSeconds: number;
+  readings: ReadingProgressItem[];
+}
+
 export interface SaveReadingPhaseAnswerItem {
   questionId: number;
   selectedOptionId: number;

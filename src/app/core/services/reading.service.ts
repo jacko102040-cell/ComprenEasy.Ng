@@ -6,6 +6,7 @@ import {
   ActiveReading,
   ReadingDetail,
   ReadingPhase,
+  ReadingProgressSummary,
   ReadingSessionProgress,
   SaveReadingPhaseProgressRequest
 } from '../models/reading.models';
@@ -55,6 +56,10 @@ export class ReadingService {
 
   getReadingSession(attemptId: number): Observable<ReadingSessionProgress> {
     return this.http.get<ReadingSessionProgress>(`${this.apiBaseUrl}/readings/sessions/${attemptId}`);
+  }
+
+  getReadingProgress(): Observable<ReadingProgressSummary> {
+    return this.http.get<ReadingProgressSummary>(`${this.apiBaseUrl}/readings/progress`);
   }
 
   finishReadingSession(attemptId: number): Observable<ReadingSessionProgress> {

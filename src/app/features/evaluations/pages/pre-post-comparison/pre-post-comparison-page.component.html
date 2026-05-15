@@ -1,138 +1,171 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando comparación final...</p>
-  </article>
-} @else if (comparison) {
-  <section class="comparison-shell">
-    <article class="page-card hero-card">
-      <span class="chip soft">Cierre académico</span>
-      <h1 class="page-title">Comparación pretest vs posttest</h1>
-      <p class="page-subtitle">
-        Revisa de forma clara cómo evolucionó tu comprensión lectora entre ambas evaluaciones.
-      </p>
-
-      <div class="page-actions">
-        <a class="btn btn-secondary" routerLink="/dashboard">Volver al dashboard</a>
-      </div>
-    </article>
-
-    @if (!comparison.isAvailable) {
-      <article class="page-card">
-        <h2>Aún no disponible</h2>
-        <p class="page-subtitle">{{ comparison.message }}</p>
-
-        @if (comparison.pretestFinishedAt || comparison.posttestFinishedAt) {
-          <div class="grid-cards cols-2 partial-grid">
-            <article class="metric-card">
-              <span>Pretest más reciente</span>
-              <strong>
-                {{
-                  comparison.pretestFinishedAt
-                    ? (comparison.pretestFinishedAt | date: 'short')
-                    : 'Pendiente'
-                }}
-              </strong>
-              @if (comparison.pretestTotalScore !== null) {
-                <small>{{ comparison.pretestTotalScore | number: '1.0-2' }}%</small>
-              }
-            </article>
-
-            <article class="metric-card">
-              <span>Posttest más reciente</span>
-              <strong>
-                {{
-                  comparison.posttestFinishedAt
-                    ? (comparison.posttestFinishedAt | date: 'short')
-                    : 'Pendiente'
-                }}
-              </strong>
-              @if (comparison.posttestTotalScore !== null) {
-                <small>{{ comparison.posttestTotalScore | number: '1.0-2' }}%</small>
-              }
-            </article>
-          </div>
+  <section class="progress-page">
+    <div class="progress-shell">
+      <div class="title-skeleton"></div>
+      <div class="summary-grid">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <article class="summary-card skeleton-card"></article>
         }
-
-        <div class="page-actions">
-          <a class="btn btn-primary primary-action" routerLink="/posttests">Ver posttests</a>
-        </div>
-      </article>
-    } @else {
-      <article class="page-card completion-card">
-        <span class="chip success">Proceso completado</span>
-        <h2>Tu ruta ya tiene cierre comparativo</h2>
-        <p>
-          Este resumen reúne tu punto de partida, el resultado final y la mejora por dimensión para orientar los siguientes refuerzos.
-        </p>
-      </article>
-
-      <article class="page-card overview-card">
-        <div class="overview-head">
-          <div>
-            <span class="chip soft">Resumen general</span>
-            <h2>Resultado global</h2>
-          </div>
-          <div class="dates-box">
-            <span>Pretest: {{ comparison.pretestFinishedAt | date: 'short' }}</span>
-            <span>Posttest: {{ comparison.posttestFinishedAt | date: 'short' }}</span>
-          </div>
-        </div>
-
-        <div class="grid-cards cols-3 metrics-grid">
-          <article class="metric-card">
-            <span>Pretest total</span>
-            <strong>{{ comparison.pretestTotalScore | number: '1.0-2' }}%</strong>
-          </article>
-          <article class="metric-card">
-            <span>Posttest total</span>
-            <strong>{{ comparison.posttestTotalScore | number: '1.0-2' }}%</strong>
-          </article>
-          <article class="metric-card highlight" [class.positive]="improvementTone(comparison.improvementTotalScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementTotalScore) === 'negative'" [class.neutral]="improvementTone(comparison.improvementTotalScore) === 'neutral'">
-            <span>Mejora total</span>
-            <strong>{{ comparison.improvementTotalScore! | number: '1.0-2' }} pts</strong>
-          </article>
-        </div>
-      </article>
-
-      <div class="grid-cards cols-3 dimension-grid">
-        <article class="page-card dimension-card">
-          <span class="chip soft">Literal</span>
-          <div class="dimension-values">
-            <p>Pretest <strong>{{ comparison.pretestLiteralScore | number: '1.0-2' }}%</strong></p>
-            <p>Posttest <strong>{{ comparison.posttestLiteralScore | number: '1.0-2' }}%</strong></p>
-            <p class="improvement" [class.positive]="improvementTone(comparison.improvementLiteralScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementLiteralScore) === 'negative'" [class.neutral]="improvementTone(comparison.improvementLiteralScore) === 'neutral'">
-              Mejora {{ comparison.improvementLiteralScore! | number: '1.0-2' }} pts
-            </p>
-          </div>
-        </article>
-
-        <article class="page-card dimension-card">
-          <span class="chip soft">Inferencial</span>
-          <div class="dimension-values">
-            <p>Pretest <strong>{{ comparison.pretestInferentialScore | number: '1.0-2' }}%</strong></p>
-            <p>Posttest <strong>{{ comparison.posttestInferentialScore | number: '1.0-2' }}%</strong></p>
-            <p class="improvement" [class.positive]="improvementTone(comparison.improvementInferentialScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementInferentialScore) === 'negative'" [class.neutral]="improvementTone(comparison.improvementInferentialScore) === 'neutral'">
-              Mejora {{ comparison.improvementInferentialScore! | number: '1.0-2' }} pts
-            </p>
-          </div>
-        </article>
-
-        <article class="page-card dimension-card">
-          <span class="chip soft">Crítica</span>
-          <div class="dimension-values">
-            <p>Pretest <strong>{{ comparison.pretestCriticalScore | number: '1.0-2' }}%</strong></p>
-            <p>Posttest <strong>{{ comparison.posttestCriticalScore | number: '1.0-2' }}%</strong></p>
-            <p class="improvement" [class.positive]="improvementTone(comparison.improvementCriticalScore) === 'positive'" [class.negative]="improvementTone(comparison.improvementCriticalScore) === 'negative'" [class.neutral]="improvementTone(comparison.improvementCriticalScore) === 'neutral'">
-              Mejora {{ comparison.improvementCriticalScore! | number: '1.0-2' }} pts
-            </p>
-          </div>
-        </article>
       </div>
-    }
+      <div class="readings-grid">
+        @for (item of [1, 2]; track item) {
+          <article class="reading-card skeleton-card"></article>
+        }
+      </div>
+    </div>
+  </section>
+} @else if (summary) {
+  <section class="progress-page">
+    <div class="progress-shell">
+      <header class="page-heading">
+        <h1>Progreso Lector</h1>
+        <p>Revisa tus lecturas completadas, puntajes por dimensi&oacute;n y evoluci&oacute;n en ComprenEasy.</p>
+      </header>
+
+      <section class="summary-grid" aria-label="Resumen del progreso lector">
+        <article class="summary-card completed-card">
+          <h2>Lecturas completadas</h2>
+          <div class="completion-ring" [style.background]="completionRingBackground()">
+            <span>{{ summary.completedReadings }}/{{ summary.totalActiveReadings }}</span>
+          </div>
+        </article>
+
+        <article class="summary-card average-card">
+          <h2>Promedio general</h2>
+          <div class="score-gauge" [style.background]="gaugeBackground(summary.averageScore)" aria-hidden="true"></div>
+          <strong>{{ scoreLabel(summary.averageScore) }}</strong>
+        </article>
+
+        <article class="summary-card dimensions-card">
+          <h2>Dimensiones</h2>
+          <div class="dimension-bars">
+            <div class="dimension-bar">
+              <span>{{ scoreLabel(summary.averageLiteralScore) }}</span>
+              <i [style.height]="dimensionBarHeight(summary.averageLiteralScore)"></i>
+              <small>Literal</small>
+            </div>
+            <div class="dimension-bar">
+              <span>{{ scoreLabel(summary.averageInferentialScore) }}</span>
+              <i [style.height]="dimensionBarHeight(summary.averageInferentialScore)"></i>
+              <small>Inferencial</small>
+            </div>
+            <div class="dimension-bar gold">
+              <span>{{ scoreLabel(summary.averageCriticalScore) }}</span>
+              <i [style.height]="dimensionBarHeight(summary.averageCriticalScore)"></i>
+              <small>Cr&iacute;tica</small>
+            </div>
+          </div>
+        </article>
+
+        <article class="summary-card time-card">
+          <h2>Tiempo invertido total</h2>
+          <strong>{{ totalMinutesLabel(summary.totalTimeSeconds) }}</strong>
+        </article>
+      </section>
+
+      @if (errorMessage) {
+        <article class="state-card error-state">
+          <p>{{ errorMessage }}</p>
+        </article>
+      }
+
+      @if (hasRegisteredReadings()) {
+        <section class="readings-grid" aria-label="Lecturas con progreso">
+          @for (reading of visibleReadings(); track reading.readingId) {
+            <article class="reading-card">
+              <div class="reading-cover">
+                <img [src]="getReadingImage(reading)" [alt]="reading.title" />
+                <div class="cover-overlay">
+                  <h2>{{ reading.title }}</h2>
+                </div>
+              </div>
+
+              <div class="reading-content">
+                <header class="reading-meta-head">
+                  <div class="tag-row">
+                    <span class="difficulty-tag" [ngClass]="difficultyClass(reading)">
+                      {{ reading.difficultyLevelName }}
+                    </span>
+                    <span class="status-tag" [ngClass]="statusChipClass(reading.status)">
+                      {{ statusLabel(reading.status) }}
+                    </span>
+                  </div>
+                  <span class="total-score">Puntaje total: {{ scoreLabel(reading.totalScore) }}</span>
+                </header>
+
+                <div class="reading-progress">
+                  <div>
+                    <span>Avance de la lectura</span>
+                    <strong>{{ roundedProgress(reading.completionPercentage) }}%</strong>
+                  </div>
+                  <div class="progress-track" aria-hidden="true">
+                    <i [style.width]="progressWidth(reading.completionPercentage)"></i>
+                  </div>
+                </div>
+
+                <div class="score-grid">
+                  <article>
+                    <span>Literal:</span>
+                    <strong>{{ scoreLabel(reading.literalScore) }}</strong>
+                  </article>
+                  <article>
+                    <span>Inferencial:</span>
+                    <strong>{{ scoreLabel(reading.inferentialScore) }}</strong>
+                  </article>
+                  <article>
+                    <span>Cr&iacute;tica-evaluativa:</span>
+                    <strong>{{ scoreLabel(reading.criticalScore) }}</strong>
+                  </article>
+                </div>
+
+                <dl class="detail-grid">
+                  <div>
+                    <dt>Aciertos y errores:</dt>
+                    <dd>{{ readingAccuracyLabel(reading) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Preguntas respondidas:</dt>
+                    <dd>{{ readingQuestionsLabel(reading) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Tiempo usado:</dt>
+                    <dd>{{ readingTimeLabel(reading) }}</dd>
+                  </div>
+                  <div>
+                    <dt>Intento:</dt>
+                    <dd>{{ reading.attemptNumber || 1 }}</dd>
+                  </div>
+                  @if (dateValue(reading); as date) {
+                    <div>
+                      <dt>{{ dateLabel(reading) }}:</dt>
+                      <dd>{{ date | date: 'short' }}</dd>
+                    </div>
+                  }
+                </dl>
+
+                @if (primaryRoute(reading); as route) {
+                  <a class="reading-action" [routerLink]="route">{{ actionLabel(reading) }}</a>
+                }
+              </div>
+            </article>
+          }
+        </section>
+      } @else {
+        <article class="state-card empty-state">
+          <h2>A&uacute;n no tienes lecturas registradas</h2>
+          <p>Completa tu primera lectura PQ4R para comenzar a ver tu progreso lector.</p>
+          <a routerLink="/readings">Ir a lecturas PQ4R</a>
+        </article>
+      }
+    </div>
   </section>
 } @else {
-  <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se pudo obtener la comparación final.' }}</p>
-    <a class="btn btn-link" routerLink="/dashboard">Volver al dashboard</a>
-  </article>
+  <section class="progress-page">
+    <div class="progress-shell">
+      <article class="state-card error-state">
+        <h2>No se pudo cargar el progreso</h2>
+        <p>{{ errorMessage || 'Intenta nuevamente en unos minutos.' }}</p>
+      </article>
+    </div>
+  </section>
 }

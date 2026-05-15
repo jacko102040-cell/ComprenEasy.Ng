@@ -7,11 +7,13 @@
           <path d="M6.5 10.3v4.6c1.6 1.4 3.4 2.1 5.5 2.1s3.9-.7 5.5-2.1v-4.6" />
         </svg>
       </span>
-      <strong>ComprenEasy</strong>
+      <strong><span>Compren</span><em>Easy</em></strong>
     </a>
 
-    <span class="header-divider" aria-hidden="true"></span>
-    <img src="assets/img/logocolegio.png" alt="Insignia institucional" class="school-shield" />
+    @if (!isReadingSession()) {
+      <span class="header-divider" aria-hidden="true"></span>
+      <img src="assets/img/logocolegio.png" alt="Insignia institucional" class="school-shield" />
+    }
 
     @if (authService.currentUser(); as user) {
       <nav class="nav-links" aria-label="Navegacion principal">
@@ -22,17 +24,21 @@
           <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
             Dashboard
           </a>
-          <a routerLink="/readings" routerLinkActive="active">Lecturas PQ4R</a>
+          <a routerLink="/readings" [class.active]="isReadingsActive()">Lecturas PQ4R</a>
+          <a routerLink="/pre-post-comparison" [class.active]="isProgressActive()">Progreso</a>
           @if (canShowPosttestLink()) {
-            <a routerLink="/posttests" routerLinkActive="active">Posttest</a>
+            <a routerLink="/posttests" [class.active]="isPosttestActive()">Posttest</a>
           }
+          <a routerLink="/materials" [class.active]="isMaterialsActive()">Materiales</a>
         }
       </nav>
 
       <div class="user-box">
         <span class="user-name">{{ user.fullName }}</span>
         <span class="user-avatar" aria-hidden="true">{{ initials(user.fullName) }}</span>
-        <button class="logout-button" type="button" (click)="logout()">Salir</button>
+        @if (!isReadingSession()) {
+          <button class="logout-button" type="button" (click)="logout()">Salir</button>
+        }
       </div>
     }
   </div>

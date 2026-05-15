@@ -1,80 +1,104 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando detalle de la evaluación...</p>
-  </article>
+  <section class="attempt-page">
+    <article class="attempt-topbar loading-card">
+      <div class="skeleton-line title"></div>
+      <div class="skeleton-line"></div>
+      <div class="skeleton-line short"></div>
+    </article>
+  </section>
 } @else if (assessment) {
-  <section class="detail-shell">
-    <article class="page-card evaluation-hero">
-      <span class="chip soft">{{ assessment.assessmentType }}</span>
-      <h1 class="page-title">{{ assessment.title }}</h1>
-      <p class="page-subtitle">
-        Responde cada pregunta con calma y revisa tus opciones antes de enviar.
-      </p>
+  <section class="attempt-page">
+    <article class="attempt-topbar">
+      <h1>{{ assessment.title }}</h1>
 
-      <div class="visual-meter">
-        <div class="visual-meter-fill" [style.width.%]="(answeredCount() / assessment.questions.length) * 100"></div>
-      </div>
-      <p class="helper-text">Respondidas en pantalla: {{ answeredCount() }}/{{ assessment.questions.length }}</p>
-
-      <div class="page-actions">
-        <button class="btn btn-primary" type="button" [disabled]="busy" (click)="startAttempt()">
-          {{ attemptId ? 'Intento activo' : 'Comenzar evaluación' }}
-        </button>
-        <button class="btn btn-secondary" type="button" [disabled]="busy" (click)="saveProgress()">
-          Guardar avance
-        </button>
-        <button class="btn btn-primary primary-action" type="button" [disabled]="busy || !canSubmitAttempt()" (click)="submitAttempt()">
-          {{ busy ? 'Enviando...' : 'Finalizar intento' }}
-        </button>
+      <div class="attempt-progress">
+        <div class="progress-track" aria-hidden="true">
+          <span [style.width.%]="attemptProgress()"></span>
+        </div>
+        <p>Pregunta {{ currentQuestionNumber() }} de {{ totalQuestions() }}</p>
       </div>
 
-      @if (!canSubmitAttempt()) {
-        <p class="helper-text">{{ incompleteAttemptMessage() }}</p>
-      }
-      <p class="status-text error">{{ errorMessage }}</p>
-      <p class="status-text success">{{ successMessage }}</p>
+      <p class="timer">Tiempo restante: <strong>{{ timeRemainingLabel() }}</strong></p>
     </article>
 
-    @if (supportText(); as text) {
-      <article class="page-card support-text-card">
-        <div class="question-head">
-          <span class="chip soft">{{ assessment.readingTitle || 'Texto de apoyo' }}</span>
-          <span class="helper-text">Lectura previa a las preguntas</span>
+    <main class="attempt-layout">
+      <aside class="support-paper">
+        <span class="scroll-rail" aria-hidden="true"></span>
+        <div class="paper-content">
+          <h2>Texto de apoyo</h2>
+          <pre>{{ displaySupportText() }}</pre>
         </div>
-        <pre class="support-text-content">{{ text }}</pre>
-      </article>
-    }
+      </aside>
 
-    <div class="question-list">
-      @for (question of assessment.questions; track question.questionId) {
-        <article class="page-card question-card">
-          <div class="question-head">
-            <span class="chip soft">Pregunta {{ question.displayOrder }}</span>
-            <span class="helper-text">{{ question.dimensionName }} | {{ question.points }} pts</span>
-          </div>
+      <section class="questions-pane">
+        @if (currentQuestion(); as question) {
+          <article class="question-card">
+            <header class="question-head">
+              <h2>Pregunta {{ currentQuestionNumber() }}</h2>
+              <span>{{ question.dimensionName }} | {{ question.points }} pts</span>
+            </header>
 
-          <h2>{{ question.stem }}</h2>
+            <p class="question-stem">{{ question.stem }}</p>
 
-          <div class="options-list">
-            @for (option of question.options; track option.optionId) {
-              <label class="option-item" [class.selected]="isSelected(question.questionId, option.optionId)">
-                <input
-                  type="radio"
-                  [name]="'question-' + question.questionId"
-                  [checked]="isSelected(question.questionId, option.optionId)"
-                  (change)="selectOption(question.questionId, option.optionId)"
-                />
-                <span>{{ option.optionText }}</span>
-              </label>
-            }
-          </div>
-        </article>
+            <div class="options-grid">
+              @for (option of question.options; track option.optionId; let optionIndex = $index) {
+                <label class="option-card" [class.selected]="isSelected(question.questionId, option.optionId)">
+                  <input
+                    type="radio"
+                    [name]="'question-' + question.questionId"
+                    [checked]="isSelected(question.questionId, option.optionId)"
+                    (change)="selectOption(question.questionId, option.optionId)"
+                  />
+                  <span class="option-letter">{{ optionLetter(optionIndex) }}.</span>
+                  <span class="option-text">{{ option.optionText }}</span>
+                </label>
+              }
+            </div>
+          </article>
+        }
+      </section>
+    </main>
+
+    <footer class="attempt-footer">
+      <div class="footer-inner">
+        <div class="nav-actions">
+          <button class="outline-action" type="button" [disabled]="!canGoPrevious()" (click)="previousQuestion()">
+            Anterior
+          </button>
+          <button class="outline-action" type="button" [disabled]="!canGoNext()" (click)="nextQuestion()">
+            Siguiente
+          </button>
+        </div>
+
+        <div class="submit-actions">
+          <button class="soft-action" type="button" [disabled]="busy" (click)="saveProgress()">
+            Guardar avance
+          </button>
+          <button class="finish-action" type="button" [disabled]="busy || !canSubmitAttempt()" (click)="submitAttempt()">
+            {{ busy ? 'Finalizando...' : 'Finalizar intento' }}
+          </button>
+        </div>
+      </div>
+
+      @if (errorMessage || successMessage || !canSubmitAttempt()) {
+        <div class="attempt-message">
+          @if (!canSubmitAttempt()) {
+            <p>{{ incompleteAttemptMessage() }}</p>
+          }
+          @if (errorMessage) {
+            <p class="error">{{ errorMessage }}</p>
+          }
+          @if (successMessage) {
+            <p class="success">{{ successMessage }}</p>
+          }
+        </div>
       }
-    </div>
+    </footer>
   </section>
 } @else {
-  <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontró la evaluación.' }}</p>
-    <a class="btn btn-link" routerLink="/dashboard">Volver al dashboard</a>
+  <article class="page-card empty-attempt">
+    <h1>No hay un intento activo del posttest.</h1>
+    <p class="status-text error">{{ errorMessage || 'No se encontro la evaluacion.' }}</p>
+    <a class="btn btn-primary" routerLink="/posttests">Volver al Posttest</a>
   </article>
 }

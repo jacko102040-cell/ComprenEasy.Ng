@@ -1,210 +1,327 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando detalle del estudiante...</p>
-  </article>
+  <section class="detail-page">
+    <div class="detail-shell">
+      <article class="detail-card skeleton-card"></article>
+      <div class="metrics-grid">
+        @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+          <article class="metric-card skeleton-card"></article>
+        }
+      </div>
+    </div>
+  </section>
 } @else if (student) {
-  <section class="detail-shell">
-    <article class="page-card summary-card">
-      <div class="summary-head">
-        <div>
-          <span class="chip soft">Panel docente</span>
-          <h1 class="page-title">{{ student.fullName }}</h1>
-          <p class="page-subtitle">
-            {{ student.username }} | {{ student.grade }}ro | {{ student.section || 'Sin sección' }}
-          </p>
+  <section class="detail-page">
+    <div class="detail-shell">
+      <header class="student-hero">
+        <div class="student-title">
+          <span class="teacher-badge">Panel docente</span>
+          <h1>{{ student.fullName }}</h1>
+          <p>{{ student.username }} | {{ student.grade }}ro | {{ student.section || 'Sin sección' }}</p>
         </div>
-        <a class="btn btn-secondary" routerLink="/teacher/students">Volver a estudiantes</a>
-      </div>
 
-      <div class="grid-cards cols-3 metrics-grid">
-        <div class="metric-card">
-          <span>Activo</span>
-          <strong>{{ student.isActive ? 'Sí' : 'No' }}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Habilitado para prueba</span>
-          <strong>{{ student.isEnabledForTest ? 'Sí' : 'No' }}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Última actividad</span>
-          <strong>
-            {{
-              student.progressSummary.lastActivityAt
-                ? (student.progressSummary.lastActivityAt | date: 'short')
-                : 'Sin actividad'
-            }}
-          </strong>
-        </div>
-        <div class="metric-card">
-          <span>Evaluaciones completadas</span>
-          <strong>{{ student.progressSummary.completedEvaluationAttempts }}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Sesiones de lectura completadas</span>
-          <strong>{{ student.progressSummary.completedReadingSessions }}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Última recomendación</span>
-          <strong>{{ student.progressSummary.latestRecommendationAction || 'Sin recomendación' }}</strong>
-        </div>
-      </div>
+        <a class="back-button" routerLink="/teacher/students">
+          <span aria-hidden="true">←</span>
+          Volver a estudiantes
+        </a>
+      </header>
 
-      <p class="status-text error">{{ errorMessage }}</p>
-    </article>
-
-    <article class="page-card action-card">
-      <div class="action-head">
-        <div>
-          <h2>Reinicio simple de contraseña</h2>
-          <p class="page-subtitle">Genera una contraseña temporal para compartirla con el estudiante.</p>
-        </div>
-        <button class="btn btn-primary" type="button" [disabled]="resettingPassword" (click)="resetPassword()">
-          {{ resettingPassword ? 'Reiniciando...' : 'Reiniciar contraseña' }}
-        </button>
-      </div>
-
-      @if (resetResult) {
-        <p class="page-subtitle">
-          Nueva contraseña temporal: <strong>{{ resetResult.temporaryPassword }}</strong>
-        </p>
+      @if (errorMessage) {
+        <p class="status-text error">{{ errorMessage }}</p>
       }
 
-      <p class="status-text error">{{ resetErrorMessage }}</p>
-    </article>
+      <section class="summary-strip" aria-label="Resumen del estudiante">
+        <div class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M8 19c0-2.2 1.8-4 4-4s4 1.8 4 4" />
+                <circle cx="12" cy="9" r="3" />
+              </svg>
+            </span>
+            <span>Estado</span>
+            <strong>{{ student.isActive ? 'Activo' : 'Inactivo' }}</strong>
+          </article>
 
-    <div class="grid-cards cols-2">
-      <article class="page-card">
-        <h2>Intentos de evaluación</h2>
+          <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M7 4h10v16H7z" />
+                <path d="M9.5 9.5 11 11l3.5-3.5" />
+              </svg>
+            </span>
+            <span>Prueba / habilitado</span>
+            <strong>{{ student.isEnabledForTest ? 'Sí' : 'No' }}</strong>
+          </article>
 
-        @if (student.evaluationAttempts.length) {
-          <div class="list-block">
-            @for (attempt of student.evaluationAttempts; track trackEvaluationAttempt($index, attempt)) {
-              <div class="list-item">
-                <div>
-                  <strong>{{ attempt.assessmentTitle }}</strong>
-                  <p>{{ attempt.assessmentType }} | {{ attempt.status }}</p>
-                </div>
-                <span>{{ attempt.totalScore !== null ? (attempt.totalScore | number: '1.0-2') + '%' : 'Sin puntaje' }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="page-subtitle">No hay intentos de evaluación registrados.</p>
-        }
-      </article>
+          <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="8" />
+                <path d="M12 8v5l3 2" />
+              </svg>
+            </span>
+            <span>Última actividad</span>
+            <strong>
+              {{
+                student.progressSummary.lastActivityAt
+                  ? (student.progressSummary.lastActivityAt | date: 'shortDate')
+                  : 'Sin actividad'
+              }}
+            </strong>
+          </article>
 
-      <article class="page-card">
-        <h2>Sesiones de lectura</h2>
+          <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 19V5M8 17v-5M12 17V8M16 17v-7M20 17V6" />
+              </svg>
+            </span>
+            <span>Última recomendación</span>
+            <strong>{{ recommendationLabel(student.progressSummary.latestRecommendationAction) }}</strong>
+          </article>
 
-        @if (student.readingSessions.length) {
-          <div class="list-block">
-            @for (session of student.readingSessions; track trackReadingSession($index, session)) {
-              <div class="list-item">
-                <div>
-                  <strong>{{ session.readingTitle }}</strong>
-                  <p>{{ session.status }} | {{ session.totalTimeSeconds || 0 }} s</p>
-                </div>
-                <span>{{ session.completionPercentage !== null ? (session.completionPercentage | number: '1.0-2') + '%' : 'Sin avance' }}</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="page-subtitle">No hay sesiones de lectura registradas.</p>
-        }
-      </article>
-    </div>
+          <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M5 4h14v16H5z" />
+                <path d="M8 9h8M8 13h5" />
+              </svg>
+            </span>
+            <span>Evaluaciones completadas</span>
+            <strong>{{ student.progressSummary.completedEvaluationAttempts || 0 }}</strong>
+          </article>
 
-    <div class="grid-cards cols-2">
-      <article class="page-card">
-        <h2>Recomendaciones recientes</h2>
-
-        @if (student.recentRecommendations.length) {
-          <div class="list-block">
-            @for (recommendation of student.recentRecommendations; track recommendation.recommendationId) {
-              <div class="list-item">
-                <div>
-                  <strong>{{ recommendation.predictedAction }}</strong>
-                  <p>{{ recommendation.recommendedDifficultyLevelName }} | {{ recommendation.sourceAssessmentTitle }}</p>
-                </div>
-                <span>{{ recommendation.confidenceScore ?? 0 }}%</span>
-              </div>
-            }
-          </div>
-        } @else {
-          <p class="page-subtitle">No hay recomendaciones adaptativas registradas.</p>
-        }
-      </article>
-
-      <article class="page-card">
-        <h2>Agregar comentario</h2>
-
-        <div class="field-grid">
-          <div class="field-group">
-            <label for="commentTagId">Etiqueta</label>
-            <select id="commentTagId" [(ngModel)]="selectedTagId">
-              @for (tag of student.availableCommentTags; track trackTag($index, tag)) {
-                <option [ngValue]="tag.commentTagId">{{ tag.name }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="field-group">
-            <label for="attemptId">Intento relacionado</label>
-            <select id="attemptId" [(ngModel)]="selectedAttemptId">
-              <option [ngValue]="null">Comentario general</option>
-              @for (option of attemptOptions(); track option.value) {
-                <option [ngValue]="option.value">{{ option.label }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="field-group">
-            <label for="commentText">Comentario</label>
-            <textarea
-              id="commentText"
-              rows="5"
-              [(ngModel)]="commentText"
-              placeholder="Escribe una observación breve y útil para el seguimiento del estudiante."
-            ></textarea>
-          </div>
+          <article class="metric-card">
+            <span class="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
+                <path d="M12 7.9v12.6" />
+              </svg>
+            </span>
+            <span>Sesiones de lectura completadas</span>
+            <strong>{{ student.progressSummary.completedReadingSessions || 0 }}</strong>
+          </article>
         </div>
 
-        <div class="page-actions">
-          <button class="btn btn-primary" type="button" [disabled]="savingComment" (click)="saveComment()">
-            {{ savingComment ? 'Guardando...' : 'Guardar comentario' }}
-          </button>
-        </div>
-
-        <p class="status-text error">{{ commentErrorMessage }}</p>
-        <p class="status-text success">{{ commentSuccessMessage }}</p>
-      </article>
-    </div>
-
-    <article class="page-card">
-      <h2>Comentarios del docente</h2>
-
-      @if (student.comments.length) {
-        <div class="comment-list">
-          @for (comment of student.comments; track comment.teacherCommentId) {
-            <div class="comment-item">
-              <div class="comment-head">
-                <span class="chip soft">{{ comment.commentTagName }}</span>
-                <span class="helper-text">{{ comment.createdAt | date: 'short' }}</span>
-              </div>
-              <strong>{{ comment.teacherName }}</strong>
-              <p>{{ comment.commentText }}</p>
-              <small>Intento relacionado: {{ comment.attemptId || 'General' }}</small>
+        <article class="performance-card" [ngClass]="scoreStateClass()">
+          <div class="score-gauge" [style.background]="gaugeBackground()">
+            <div>
+              <strong>{{ latestScoreLabel() }}</strong>
+              <span>{{ scoreStateLabel() }}</span>
             </div>
-          }
-        </div>
-      } @else {
-        <p class="page-subtitle">Todavía no hay comentarios docentes para este estudiante.</p>
-      }
-    </article>
+          </div>
+        </article>
+      </section>
+
+      <div class="detail-layout">
+        <main class="main-column">
+          <article class="detail-card">
+            <header class="section-head">
+              <h2>Intentos de evaluación</h2>
+            </header>
+
+            @if (student.evaluationAttempts.length) {
+              <div class="compact-grid">
+                @for (attempt of student.evaluationAttempts; track trackEvaluationAttempt($index, attempt)) {
+                  <section class="compact-item">
+                    <div>
+                      <h3>{{ attempt.assessmentTitle }}</h3>
+                      <p>{{ attempt.assessmentType }} | {{ statusLabel(attempt.status) }}</p>
+                    </div>
+                    <div class="item-meta">
+                      <span class="pill" [ngClass]="statusClass(attempt.status)">{{ statusLabel(attempt.status) }}</span>
+                      <strong>
+                        {{ attempt.totalScore !== null ? (attempt.totalScore | number: '1.0-2') + '%' : 'Sin puntaje' }}
+                      </strong>
+                      <small>
+                        {{
+                          attempt.finishedAt
+                            ? (attempt.finishedAt | date: 'short')
+                            : (attempt.startedAt ? (attempt.startedAt | date: 'short') : 'Sin fecha')
+                        }}
+                      </small>
+                    </div>
+                  </section>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">No hay intentos de evaluación registrados.</p>
+            }
+          </article>
+
+          <article class="detail-card">
+            <header class="section-head">
+              <h2>Sesiones de lectura</h2>
+            </header>
+
+            @if (student.readingSessions.length) {
+              <div class="compact-grid">
+                @for (session of student.readingSessions; track trackReadingSession($index, session)) {
+                  <section class="compact-item reading-item">
+                    <div>
+                      <h3>{{ session.readingTitle }}</h3>
+                      <p>{{ statusLabel(session.status) }} | {{ secondsLabel(session.totalTimeSeconds) }}</p>
+                    </div>
+                    <div class="item-meta">
+                      <span class="pill" [ngClass]="statusClass(session.status)">{{ statusLabel(session.status) }}</span>
+                      <strong>
+                        {{
+                          session.completionPercentage !== null
+                            ? (session.completionPercentage | number: '1.0-2') + '%'
+                            : 'Sin avance'
+                        }}
+                      </strong>
+                      <small>
+                        {{
+                          session.finishedAt
+                            ? (session.finishedAt | date: 'short')
+                            : (session.startedAt ? (session.startedAt | date: 'short') : 'Sin fecha')
+                        }}
+                      </small>
+                    </div>
+                  </section>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">No hay sesiones de lectura registradas.</p>
+            }
+          </article>
+
+          <article class="detail-card">
+            <header class="section-head">
+              <h2>Recomendaciones recientes</h2>
+            </header>
+
+            @if (student.recentRecommendations.length) {
+              <div class="timeline-list">
+                @for (recommendation of student.recentRecommendations; track recommendation.recommendationId) {
+                  <section class="timeline-item">
+                    <span class="timeline-dot" aria-hidden="true"></span>
+                    <div>
+                      <span class="pill recommendation-pill">
+                        {{ recommendationLabel(recommendation.predictedAction) }}
+                      </span>
+                      <h3>{{ recommendationSource(recommendation) }}</h3>
+                      <p>
+                        Nivel: {{ recommendation.recommendedDifficultyLevelName || 'Sin datos' }}
+                        @if (recommendation.confidenceScore !== null) {
+                          | Confianza: {{ recommendation.confidenceScore | number: '1.0-0' }}%
+                        }
+                      </p>
+                      <small>{{ recommendation.createdAt ? (recommendation.createdAt | date: 'short') : 'Sin fecha' }}</small>
+                    </div>
+                  </section>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">Sin recomendación.</p>
+            }
+          </article>
+        </main>
+
+        <aside class="side-column">
+          <article class="detail-card admin-card">
+            <header class="section-head">
+              <h2>Administración</h2>
+              <p>Reinicio simple de contraseña</p>
+            </header>
+
+            <p>Genera una contraseña temporal para compartir con el estudiante.</p>
+            <button class="primary-button" type="button" [disabled]="resettingPassword" (click)="resetPassword()">
+              {{ resettingPassword ? 'Reiniciando...' : 'Reiniciar contraseña' }}
+            </button>
+
+            @if (resetResult) {
+              <p class="result-box">
+                Nueva contraseña temporal: <strong>{{ resetResult.temporaryPassword }}</strong>
+              </p>
+            }
+
+            @if (resetErrorMessage) {
+              <p class="status-text error">{{ resetErrorMessage }}</p>
+            }
+          </article>
+
+          <article class="detail-card tracking-card">
+            <header class="section-head">
+              <h2>Seguimiento</h2>
+              <p>Agregar comentario</p>
+            </header>
+
+            <div class="field-grid">
+              <label class="field-group" for="commentTagId">
+                <span>Etiqueta</span>
+                <select id="commentTagId" [(ngModel)]="selectedTagId">
+                  @for (tag of student.availableCommentTags; track trackTag($index, tag)) {
+                    <option [ngValue]="tag.commentTagId">{{ tag.name }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="field-group" for="attemptId">
+                <span>Intento relacionado</span>
+                <select id="attemptId" [(ngModel)]="selectedAttemptId">
+                  <option [ngValue]="null">Comentario general</option>
+                  @for (option of attemptOptions(); track option.value) {
+                    <option [ngValue]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="field-group" for="commentText">
+                <span>Comentario</span>
+                <textarea
+                  id="commentText"
+                  rows="4"
+                  [(ngModel)]="commentText"
+                  placeholder="Escribe una observación breve y útil para el seguimiento del estudiante."
+                ></textarea>
+              </label>
+            </div>
+
+            <button class="primary-button" type="button" [disabled]="savingComment" (click)="saveComment()">
+              {{ savingComment ? 'Guardando...' : 'Guardar comentario' }}
+            </button>
+
+            @if (commentErrorMessage) {
+              <p class="status-text error">{{ commentErrorMessage }}</p>
+            }
+            @if (commentSuccessMessage) {
+              <p class="status-text success">{{ commentSuccessMessage }}</p>
+            }
+          </article>
+
+          <article class="detail-card comments-card">
+            <header class="section-head">
+              <h2>Historial de comentarios</h2>
+            </header>
+
+            @if (student.comments.length) {
+              <div class="comment-list">
+                @for (comment of student.comments; track comment.teacherCommentId) {
+                  <section class="comment-item">
+                    <div class="comment-meta">
+                      <span class="pill muted">{{ comment.commentTagName }}</span>
+                      <small>{{ comment.createdAt | date: 'short' }}</small>
+                    </div>
+                    <p>{{ comment.commentText }}</p>
+                    <small>{{ relatedAttemptLabel(comment) }}</small>
+                  </section>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">Todavía no hay comentarios docentes para este estudiante.</p>
+            }
+          </article>
+        </aside>
+      </div>
+    </div>
   </section>
 } @else {
-  <article class="page-card">
-    <p class="status-text error">{{ errorMessage || 'No se encontró el estudiante.' }}</p>
-    <a class="btn btn-link" routerLink="/teacher/students">Volver a estudiantes</a>
-  </article>
+  <section class="detail-page">
+    <article class="detail-card">
+      <p class="status-text error">{{ errorMessage || 'No se encontró el estudiante.' }}</p>
+      <a class="back-button inline" routerLink="/teacher/students">Volver a estudiantes</a>
+    </article>
+  </section>
 }

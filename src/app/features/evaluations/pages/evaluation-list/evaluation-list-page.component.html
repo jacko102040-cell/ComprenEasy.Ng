@@ -1,52 +1,214 @@
-<section class="list-shell">
-  <article class="page-card hero-card">
-    <span class="chip soft">Evaluaciones activas</span>
-    <h1 class="page-title">{{ title }}</h1>
-    <p class="page-subtitle">
-      {{
-        isPosttestView
-          ? 'Esta evaluacion final cierra el proceso de refuerzo lector y comprueba tu avance despues del trabajo con lecturas.'
-          : 'Selecciona una evaluacion disponible para revisar sus preguntas antes de iniciar tu intento.'
-      }}
-    </p>
-  </article>
+@if (isPosttestView) {
+  <section class="posttest-page">
+    <header class="posttest-hero">
+      <div class="hero-pattern" aria-hidden="true"></div>
+      <article class="hero-panel">
+        <span>Evaluacion de cierre</span>
+        <h1>Posttest final disponible</h1>
+        <p>
+          Esta evaluacion final cierra el proceso de refuerzo lector y comprueba tu avance despues del trabajo con las lecturas PQ4R.
+        </p>
+      </article>
+    </header>
 
-  @if (loading) {
-    <article class="page-card">
-      <p class="page-subtitle">Cargando evaluaciones...</p>
-    </article>
-  } @else if (errorMessage) {
-    <article class="page-card">
-      <p class="status-text error">{{ errorMessage }}</p>
-    </article>
-  } @else {
-    <div class="grid-cards cols-2">
-      @for (assessment of assessments; track assessment.assessmentId) {
-        <article class="page-card assessment-card">
-          <div class="card-head">
-            <span class="chip soft">{{ assessment.assessmentType }}</span>
-            <span class="helper-text">{{ assessment.questionCount }} preguntas</span>
+    <main class="posttest-content">
+      @if (loading) {
+        <article class="posttest-card loading-card">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-grid">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
-          <h2>{{ assessment.title }}</h2>
-          <p>
-            {{
-              assessment.description ||
-                (isPosttestView
-                  ? 'Evaluacion final disponible para comprobar el cierre del refuerzo lector.'
-                  : 'Sin descripcion adicional.')
-            }}
-          </p>
-          <a class="btn btn-primary" [routerLink]="['/evaluations', assessment.assessmentId]">
-            Ver detalle
-          </a>
+        </article>
+        <aside class="recommendation-panel loading-card">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line"></div>
+        </aside>
+      } @else if (errorMessage) {
+        <article class="state-card error-state">
+          <h2>No se pudo cargar el posttest final</h2>
+          <p>{{ errorMessage }}</p>
+        </article>
+      } @else if (!posttestAssessment()) {
+        <article class="state-card empty-state">
+          <h2>Evaluacion final aun no disponible</h2>
+          <p>Completa tus lecturas PQ4R para habilitar el posttest final.</p>
+          <a routerLink="/readings">Ir a lecturas PQ4R</a>
+        </article>
+      } @else {
+        <section class="posttest-main">
+          <article class="posttest-card">
+            <header class="posttest-card-head">
+              <h2>{{ posttestTitle() }}</h2>
+            </header>
+
+            <div class="posttest-card-body">
+              <p>
+                {{
+                  posttestAssessment()?.description ||
+                    'Posttest activo para validar el cierre del flujo academico y certificar tu progreso en las dimensiones de comprension lectora.'
+                }}
+              </p>
+
+              <div class="meta-grid">
+                <article>
+                  <span class="meta-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M5 5h14v11H8l-3 3V5Z" />
+                      <path d="M9 9h6M9 12h3" />
+                    </svg>
+                  </span>
+                  <strong>Preguntas: {{ questionCount() }}</strong>
+                </article>
+                <article>
+                  <span class="meta-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="8" />
+                      <path d="M12 8v5l3 2" />
+                    </svg>
+                  </span>
+                  <strong>Tiempo estimado: 15 min</strong>
+                </article>
+                <article>
+                  <span class="meta-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9" />
+                    </svg>
+                  </span>
+                  <strong>Intento unico</strong>
+                </article>
+                <article>
+                  <span class="meta-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M8 19c0-2.2 1.8-4 4-4s4 1.8 4 4" />
+                      <circle cx="12" cy="9" r="3" />
+                      <path d="M4 18c0-1.7 1.3-3 3-3M20 18c0-1.7-1.3-3-3-3" />
+                    </svg>
+                  </span>
+                  <strong>Nivel: Integrador</strong>
+                </article>
+              </div>
+
+              <section class="progress-summary">
+                <h3>Resumen de Progreso Previo</h3>
+                <div class="dimension-grid">
+                  <article>
+                    <span class="dimension-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M2.5 12S6 6.5 12 6.5 21.5 12 21.5 12 18 17.5 12 17.5 2.5 12 2.5 12Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </span>
+                    <div>
+                      <span>Literal</span>
+                      <strong>{{ scoreLabel(readingProgress?.averageLiteralScore) }}</strong>
+                    </div>
+                  </article>
+                  <article>
+                    <span class="dimension-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <circle cx="10" cy="10" r="6" />
+                        <path d="m15 15 5 5" />
+                      </svg>
+                    </span>
+                    <div>
+                      <span>Inferencial</span>
+                      <strong>{{ scoreLabel(readingProgress?.averageInferentialScore) }}</strong>
+                    </div>
+                  </article>
+                  <article>
+                    <span class="dimension-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M9 4c-2.2.5-4 2.4-4 4.8 0 1.2.4 2.2 1.1 3A4.8 4.8 0 0 0 5 15c0 2.7 2.1 5 4.8 5H10V4H9Z" />
+                        <path d="M15 4c2.2.5 4 2.4 4 4.8 0 1.2-.4 2.2-1.1 3A4.8 4.8 0 0 1 19 15c0 2.7-2.1 5-4.8 5H14V4h1Z" />
+                        <path d="M10 8H8M14 8h2M10 13H8M14 13h2" />
+                      </svg>
+                    </span>
+                    <div>
+                      <span>Critica-evaluativa</span>
+                      <strong>{{ scoreLabel(readingProgress?.averageCriticalScore) }}</strong>
+                    </div>
+                  </article>
+                </div>
+              </section>
+
+              @if (canStartPosttest()) {
+                <a class="start-button" [routerLink]="['/evaluations', posttestAssessment()!.assessmentId]">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="6" y="10" width="12" height="10" rx="2" />
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                  </svg>
+                  Iniciar evaluacion final
+                </a>
+              } @else {
+                <button class="start-button disabled" type="button" disabled>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="6" y="10" width="12" height="10" rx="2" />
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                  </svg>
+                  Iniciar evaluacion final
+                </button>
+                <p class="locked-message">Completa las lecturas requeridas para habilitar la evaluacion final.</p>
+              }
+            </div>
+          </article>
+
+          <aside class="recommendation-panel">
+            <h2>Recomendaciones para el exito</h2>
+            <ul>
+              <li>Busca un lugar tranquilo</li>
+              <li>Lee con atencion cada pregunta</li>
+              <li>Confia en tu progreso</li>
+            </ul>
+          </aside>
+        </section>
+      }
+    </main>
+  </section>
+} @else {
+  <section class="list-shell">
+    <article class="page-card hero-card">
+      <span class="chip soft">Evaluaciones activas</span>
+      <h1 class="page-title">{{ title }}</h1>
+      <p class="page-subtitle">
+        Selecciona una evaluacion disponible para revisar sus preguntas antes de iniciar tu intento.
+      </p>
+    </article>
+
+    @if (loading) {
+      <article class="page-card">
+        <p class="page-subtitle">Cargando evaluaciones...</p>
+      </article>
+    } @else if (errorMessage) {
+      <article class="page-card">
+        <p class="status-text error">{{ errorMessage }}</p>
+      </article>
+    } @else {
+      <div class="grid-cards cols-2">
+        @for (assessment of assessments; track assessment.assessmentId) {
+          <article class="page-card assessment-card">
+            <div class="card-head">
+              <span class="chip soft">{{ assessment.assessmentType }}</span>
+              <span class="helper-text">{{ assessment.questionCount }} preguntas</span>
+            </div>
+            <h2>{{ assessment.title }}</h2>
+            <p>{{ assessment.description || 'Sin descripcion adicional.' }}</p>
+            <a class="btn btn-primary" [routerLink]="['/evaluations', assessment.assessmentId]">
+              Ver detalle
+            </a>
+          </article>
+        }
+      </div>
+
+      @if (!assessments.length) {
+        <article class="page-card">
+          <p class="page-subtitle">No hay evaluaciones activas por el momento.</p>
         </article>
       }
-    </div>
-
-    @if (!assessments.length) {
-      <article class="page-card">
-        <p class="page-subtitle">No hay evaluaciones activas por el momento.</p>
-      </article>
     }
-  }
-</section>
+  </section>
+}

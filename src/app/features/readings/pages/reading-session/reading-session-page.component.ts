@@ -33,6 +33,7 @@ export class ReadingSessionPageComponent implements OnDestroy {
 
   private readonly phaseAnchors: Record<number, number> = {};
   private readonly questionAnchors: Record<number, number> = {};
+  private readonly currentQuestionIndexes: Record<number, number> = {};
   private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
   private autoSaveRequestId = 0;
   private draftLoaded = false;
@@ -79,6 +80,111 @@ export class ReadingSessionPageComponent implements OnDestroy {
     return this.currentPhase()?.questions ?? [];
   }
 
+  protected currentQuestion(): ReadingPhaseQuestion | null {
+    const questions = this.currentQuestions();
+
+    return questions[this.currentQuestionIndex()] ?? null;
+  }
+
+  protected currentQuestionIndex(): number {
+    const currentPhase = this.currentPhase();
+    const questions = this.currentQuestions();
+
+    if (!currentPhase || !questions.length) {
+      return 0;
+    }
+
+    const savedIndex = this.currentQuestionIndexes[currentPhase.phaseId];
+    const fallbackIndex = this.firstUnansweredQuestionIndex(questions);
+    const index = savedIndex ?? fallbackIndex;
+
+    return Math.min(Math.max(index, 0), questions.length - 1);
+  }
+
+  protected questionProgressLabel(): string {
+    const totalQuestions = this.currentQuestions().length;
+
+    if (!totalQuestions) {
+      return '0/0';
+    }
+
+    return `${this.currentQuestionIndex() + 1}/${totalQuestions}`;
+  }
+
+  protected canGoToPreviousQuestion(): boolean {
+    return this.currentQuestionIndex() > 0;
+  }
+
+  protected canGoToNextQuestion(): boolean {
+    return this.currentQuestionIndex() < this.currentQuestions().length - 1;
+  }
+
+  protected goToPreviousQuestion(): void {
+    this.moveCurrentQuestion(-1);
+  }
+
+  protected goToNextQuestion(): void {
+    this.moveCurrentQuestion(1);
+  }
+
+  protected optionLetter(index: number): string {
+    return String.fromCharCode(65 + index);
+  }
+
+  protected sessionElapsedLabel(): string {
+    return this.formatClock(this.session?.totalTimeSeconds ?? 0);
+  }
+
+  protected phaseActivityTitle(phase: PhaseProgress): string {
+    switch (phase.code.toLowerCase()) {
+      case 'preview':
+        return 'Exploracion inicial';
+      case 'question':
+        return 'Preguntas guia';
+      case 'read':
+        return 'Lectura atenta';
+      case 'reflect':
+        return 'Conexion y analisis';
+      case 'recite':
+        return 'Recuperacion activa';
+      case 'review':
+        return 'Revision final';
+      default:
+        return phase.displayName;
+    }
+  }
+
+  protected phaseIntro(phase: PhaseProgress): string {
+    if (phase.guidanceText) {
+      return phase.guidanceText;
+    }
+
+    switch (phase.code.toLowerCase()) {
+      case 'preview':
+        return 'Antes de leer, observa la estructura, titulos e imagenes para predecir de que trata el texto.';
+      case 'question':
+        return 'Formula preguntas que orienten tu lectura y te ayuden a buscar informacion relevante.';
+      case 'read':
+        return 'Lee con atencion para identificar ideas centrales, detalles y relaciones importantes.';
+      case 'reflect':
+        return 'Relaciona lo leido con tus conocimientos previos y evalua sus implicancias.';
+      case 'recite':
+        return 'Explica con tus palabras las ideas principales para comprobar tu comprension.';
+      case 'review':
+        return 'Revisa tus respuestas y consolida las ideas clave antes de cerrar la sesion.';
+      default:
+        return this.feedbackForPhase(phase);
+    }
+  }
+
+  protected questionHeading(question: ReadingPhaseQuestion): string {
+    return `Paso ${question.displayOrder}: ${question.dimensionName || 'Actividad'}`;
+  }
+
+  protected aiTip(phase: PhaseProgress): string {
+    return phase.guidanceText || this.feedbackForPhase(phase);
+  }
+
   protected phaseOrder(phase: PhaseProgress): number {
     return phase.sequenceOrder ?? phase.displayOrder ?? 0;
   }
@@ -91,6 +197,7 @@ export class ReadingSessionPageComponent implements OnDestroy {
     }
 
     const now = Date.now();
+    this.rememberCurrentQuestionIndex(currentPhase);
     this.captureQuestionElapsedTime(questionId, now, true);
     this.selectedAnswers = {
       ...this.selectedAnswers,
@@ -202,6 +309,48 @@ export class ReadingSessionPageComponent implements OnDestroy {
       error: (error) => {
         this.busy = false;
         this.errorMessage = error?.error?.message ?? 'No se pudo guardar el progreso de la fase.';
+      }
+    });
+  }
+
+  protected saveAndContinue(): void {
+    if (this.canGoToNextQuestion()) {
+      this.saveProgress();
+      this.goToNextQuestion();
+      return;
+    }
+
+    this.completePhase();
+  }
+
+  protected pauseSession(): void {
+    const currentPhase = this.currentPhase();
+
+    if (!this.session || this.busy) {
+      return;
+    }
+
+    if (!currentPhase || currentPhase.status === 'Completed') {
+      void this.router.navigate(['/readings']);
+      return;
+    }
+
+    this.cancelAutoSave();
+    this.busy = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const payload = this.buildPhasePayload(currentPhase.phaseId, false);
+
+    this.readingService.savePhaseProgress(this.session.attemptId, currentPhase.phaseId, payload).subscribe({
+      next: (session) => {
+        this.syncSession(session);
+        this.busy = false;
+        void this.router.navigate(['/readings']);
+      },
+      error: (error) => {
+        this.busy = false;
+        this.errorMessage = error?.error?.message ?? 'No se pudo pausar la sesion de lectura.';
       }
     });
   }
@@ -331,6 +480,14 @@ export class ReadingSessionPageComponent implements OnDestroy {
     return backendMessage;
   }
 
+  private formatClock(seconds: number): string {
+    const safeSeconds = Math.max(0, seconds);
+    const minutes = Math.floor(safeSeconds / 60);
+    const remainingSeconds = safeSeconds % 60;
+
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
   private loadSession(attemptId: number): void {
     this.readingService.getReadingSession(attemptId).subscribe({
       next: (session) => {
@@ -439,6 +596,7 @@ export class ReadingSessionPageComponent implements OnDestroy {
 
     if (currentPhase) {
       this.resetQuestionAnchors(currentPhase.questions, true);
+      this.ensureQuestionIndex(currentPhase);
     }
 
     this.persistDraft();
@@ -514,6 +672,39 @@ export class ReadingSessionPageComponent implements OnDestroy {
         this.questionAnchors[question.questionId] = now;
       }
     }
+  }
+
+  private firstUnansweredQuestionIndex(questions: ReadingPhaseQuestion[]): number {
+    const unansweredIndex = questions.findIndex(
+      (question) => this.selectedAnswers[question.questionId] === undefined
+    );
+
+    return unansweredIndex >= 0 ? unansweredIndex : 0;
+  }
+
+  private ensureQuestionIndex(phase: PhaseProgress): void {
+    if (!phase.questions.length || this.currentQuestionIndexes[phase.phaseId] !== undefined) {
+      return;
+    }
+
+    this.currentQuestionIndexes[phase.phaseId] = this.firstUnansweredQuestionIndex(phase.questions);
+  }
+
+  private rememberCurrentQuestionIndex(phase: PhaseProgress): void {
+    this.currentQuestionIndexes[phase.phaseId] = this.currentQuestionIndex();
+  }
+
+  private moveCurrentQuestion(delta: number): void {
+    const currentPhase = this.currentPhase();
+    const questions = this.currentQuestions();
+
+    if (!currentPhase || !questions.length) {
+      return;
+    }
+
+    const nextIndex = Math.min(Math.max(this.currentQuestionIndex() + delta, 0), questions.length - 1);
+    this.currentQuestionIndexes[currentPhase.phaseId] = nextIndex;
+    this.resetQuestionAnchors([questions[nextIndex]], true);
   }
 
   private applySavedAnswersFromSession(session: ReadingSessionProgress): void {
