@@ -1,29 +1,174 @@
-<section class="content-home-shell">
-  <article class="page-card">
-    <span class="chip soft">Modulo oculto</span>
-    <h1 class="page-title">Gestion de contenido academico</h1>
-    <p class="page-subtitle">
-      Herramienta interna para cargar lecturas, evaluaciones y preguntas del proyecto sin entrar al flujo del estudiante.
-    </p>
-  </article>
+<section class="content-home-page">
+  <div class="content-shell">
+    <section class="content-hero" aria-labelledby="content-title">
+      <div class="hero-copy">
+        <span class="hero-badge">M&oacute;dulo interno</span>
+        <h1 id="content-title">Gesti&oacute;n de contenido acad&eacute;mico</h1>
+        <p>
+          Administra lecturas, evaluaciones y preguntas del sistema sin intervenir el flujo visible
+          del estudiante.
+        </p>
+      </div>
 
-  <div class="grid-cards cols-3">
-    <article class="page-card content-card">
-      <h2>Lecturas</h2>
-      <p>Edita textos, dificultad y fases PQ4R activas por lectura.</p>
-      <a class="btn btn-primary" routerLink="/teacher/content/readings">Abrir lecturas</a>
-    </article>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="shelf left"></div>
+        <div class="shelf right"></div>
+        <svg viewBox="0 0 260 170">
+          <path class="book" d="M42 103c35-15 61-10 88 9v39c-30-17-56-21-88-8v-40Z" />
+          <path class="book" d="M130 112c27-19 53-24 88-9v40c-32-13-58-9-88 8v-39Z" />
+          <path class="line" d="M56 119c20-5 38-3 55 6M56 133c20-5 38-3 55 6M148 124c17-7 35-8 55-4M148 138c17-7 35-8 55-4" />
+          <path class="screen" d="M164 34h48v42h-48z" />
+          <path class="line" d="M173 48h28M173 59h18" />
+          <path class="chart" d="M62 79h9v16h-9zM78 67h9v28h-9zM94 55h9v40h-9z" />
+          <path class="line" d="M57 98h52M116 78l15-15 14 9 24-28" />
+        </svg>
+      </div>
+    </section>
 
-    <article class="page-card content-card">
-      <h2>Evaluaciones</h2>
-      <p>Administra pretests, posttests y actividades ReadingPractice.</p>
-      <a class="btn btn-primary" routerLink="/teacher/content/assessments">Abrir evaluaciones</a>
-    </article>
+    <section class="metrics-grid" aria-label="M&eacute;tricas de contenido">
+      <article class="metric-card">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" /><path d="M12 7.9v12.6" /></svg>
+        </span>
+        <div>
+          <strong>Lecturas activas: {{ loadingMetrics ? '...' : metrics.activeReadings }}</strong>
+          <p>Disponibles para sesiones PQ4R</p>
+        </div>
+      </article>
 
-    <article class="page-card content-card">
-      <h2>Preguntas</h2>
-      <p>Crea preguntas, opciones y banco base para asociar a evaluaciones.</p>
-      <a class="btn btn-primary" routerLink="/teacher/content/questions">Abrir preguntas</a>
-    </article>
+      <article class="metric-card">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 4h10v16H7z" /><path d="M9 9h6M9 13h4" /></svg>
+        </span>
+        <div>
+          <strong>Evaluaciones: {{ loadingMetrics ? '...' : metrics.assessments }}</strong>
+          <p>Incluye pr&aacute;cticas y pruebas</p>
+        </div>
+      </article>
+
+      <article class="metric-card">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M9.5 9a2.7 2.7 0 1 1 4.1 2.3c-.9.5-1.6 1.1-1.6 2.2M12 17h.01" /></svg>
+        </span>
+        <div>
+          <strong>Preguntas: {{ loadingMetrics ? '...' : metrics.questions }}</strong>
+          <p>Organizadas por dimensi&oacute;n</p>
+        </div>
+      </article>
+
+      <article class="metric-card">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12" /><circle cx="4" cy="6" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="18" r="1" /></svg>
+        </span>
+        <div>
+          <strong>Opciones: {{ loadingMetrics ? '...' : metrics.options }}</strong>
+          <p>Banco de respuestas</p>
+        </div>
+      </article>
+
+      <article class="metric-card">
+        <span class="metric-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="m8.5 12 2.2 2.2 4.8-5" /></svg>
+        </span>
+        <div>
+          <strong>Pendientes: {{ loadingMetrics ? '...' : metrics.pending }}</strong>
+          <p>Sin incidencias visibles</p>
+        </div>
+      </article>
+    </section>
+
+    @if (hasNoContent()) {
+      <article class="empty-card">
+        <h2>A&uacute;n no hay contenido cargado</h2>
+        <p>
+          Cuando se registren lecturas, evaluaciones o preguntas, aparecer&aacute;n aqu&iacute; como
+          recursos administrables.
+        </p>
+        <button class="outline-button" type="button" (click)="loadMetrics()">Actualizar contenido</button>
+      </article>
+    }
+
+    <section class="management-grid" aria-label="Accesos de gesti&oacute;n">
+      <article class="management-card">
+        <span class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" /><path d="M12 7.9v12.6" /><path d="m18 3 3 3-3 3" /></svg>
+        </span>
+        <h2>Lecturas</h2>
+        <p>Edita textos, dificultad, sinopsis y fases PQ4R.</p>
+        <div class="chip-row">
+          <span>PQ4R</span>
+          <span>Textos</span>
+          <span>Dificultad</span>
+        </div>
+        <a class="primary-button" routerLink="/teacher/content/readings">Abrir lecturas</a>
+      </article>
+
+      <article class="management-card">
+        <span class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 4h10v16H7z" /><path d="M10 9h4M10 13h4M17 17l3 3" /><circle cx="17" cy="14" r="3" /></svg>
+        </span>
+        <h2>Evaluaciones</h2>
+        <p>Administra actividades ReadingPractice, posttest final y pruebas internas.</p>
+        <div class="chip-row">
+          <span>ReadingPractice</span>
+          <span>Posttest</span>
+          <span>Interno</span>
+        </div>
+        <a class="primary-button" routerLink="/teacher/content/assessments">Abrir evaluaciones</a>
+      </article>
+
+      <article class="management-card">
+        <span class="card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9 18h6M10 22h4" /><path d="M8 14c-1.3-1.1-2-2.7-2-4.5a6 6 0 1 1 12 0c0 1.8-.7 3.4-2 4.5-.8.7-1 1.2-1 2H9c0-.8-.2-1.3-1-2Z" /></svg>
+        </span>
+        <h2>Preguntas</h2>
+        <p>Crea preguntas, opciones y banco base para asociarlas a recursos.</p>
+        <div class="chip-row">
+          <span>Literal</span>
+          <span>Inferencial</span>
+          <span>Cr&iacute;tica</span>
+        </div>
+        <a class="primary-button" routerLink="/teacher/content/questions">Abrir preguntas</a>
+      </article>
+    </section>
+
+    <section class="bottom-row">
+      <article class="workflow-card">
+        <h2>Flujo sugerido de gesti&oacute;n</h2>
+        <div class="workflow-steps">
+          <div>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" /></svg>
+            </span>
+            <strong>1. Preparar lectura</strong>
+          </div>
+          <i aria-hidden="true">&rarr;</i>
+          <div>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M9.5 9a2.7 2.7 0 1 1 4.1 2.3c-.9.5-1.6 1.1-1.6 2.2M12 17h.01" /></svg>
+            </span>
+            <strong>2. Configurar preguntas</strong>
+          </div>
+          <i aria-hidden="true">&rarr;</i>
+          <div>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 4h10v16H7z" /><path d="M9 9h6M9 13h4" /></svg>
+            </span>
+            <strong>3. Asociar evaluaci&oacute;n</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="admin-note">
+        <span class="note-icon" aria-hidden="true">i</span>
+        <div>
+          <h2>Nota de administraci&oacute;n</h2>
+          <p>
+            Los cambios de este m&oacute;dulo afectan el contenido disponible para estudiantes. Revisa
+            t&iacute;tulos, dificultad y preguntas antes de activar nuevos recursos.
+          </p>
+        </div>
+      </article>
+    </section>
   </div>
 </section>
