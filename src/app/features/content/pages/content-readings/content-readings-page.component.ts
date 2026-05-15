@@ -19,11 +19,15 @@ import { AcademicContentService } from '../../../../core/services/academic-conte
 })
 export class ContentReadingsPageComponent {
   private readonly academicContentService = inject(AcademicContentService);
+  private readonly pq4rOrder = ['Preview', 'Question', 'Read', 'Reflect', 'Recite', 'Review'];
 
   protected lookups: ContentLookups | null = null;
   protected readings: ContentReadingListItem[] = [];
   protected form: SaveContentReadingRequest = this.buildEmptyForm();
   protected selectedReadingId: number | null = null;
+  protected readingSearch = '';
+  protected difficultyFilter = 'Todas';
+  protected expandedPhaseId: number | null = null;
   protected loading = true;
   protected saving = false;
   protected errorMessage = '';
@@ -41,6 +45,7 @@ export class ContentReadingsPageComponent {
       next: (reading) => {
         this.selectedReadingId = reading.readingId;
         this.form = this.mapReadingToForm(reading);
+        this.setDefaultExpandedPhase();
       },
       error: (error) => {
         this.errorMessage = error?.error?.message ?? 'No se pudo cargar la lectura seleccionada.';
@@ -51,6 +56,7 @@ export class ContentReadingsPageComponent {
   protected startNew(): void {
     this.selectedReadingId = null;
     this.form = this.buildEmptyForm();
+    this.setDefaultExpandedPhase();
     this.successMessage = '';
     this.errorMessage = '';
   }
@@ -70,6 +76,7 @@ export class ContentReadingsPageComponent {
         this.saving = false;
         this.selectedReadingId = reading.readingId;
         this.form = this.mapReadingToForm(reading);
+        this.setDefaultExpandedPhase();
         this.successMessage = 'Lectura guardada correctamente.';
         this.refreshReadings();
       },
@@ -103,11 +110,105 @@ export class ContentReadingsPageComponent {
     });
   }
 
+  protected filteredReadings(): ContentReadingListItem[] {
+    const query = this.readingSearch.trim().toLowerCase();
+    const filter = this.difficultyFilter.toLowerCase();
+
+    return this.readings.filter((reading) => {
+      const matchesQuery = !query || reading.title.toLowerCase().includes(query);
+      const matchesDifficulty =
+        this.difficultyFilter === 'Todas' || reading.difficultyLevelName.toLowerCase() === filter;
+
+      return matchesQuery && matchesDifficulty;
+    });
+  }
+
+  protected difficultyFilters(): string[] {
+    const levels = this.lookups?.difficultyLevels.map((level) => level.name) ?? [];
+    return ['Todas', ...levels];
+  }
+
+  protected editorTitle(): string {
+    return this.selectedReadingId ? this.form.title || 'Lectura sin titulo' : 'Nueva lectura';
+  }
+
+  protected editorSubtitle(): string {
+    return this.selectedReadingId
+      ? 'Edita el texto, dificultad, sinopsis y fases PQ4R que vera el estudiante.'
+      : 'Completa los datos principales y configura las fases PQ4R antes de guardar.';
+  }
+
+  protected difficultyName(): string {
+    if (!this.selectedReadingId && !this.form.difficultyLevelId) {
+      return 'Pendiente';
+    }
+
+    return (
+      this.lookups?.difficultyLevels.find((level) => level.id === this.form.difficultyLevelId)?.name ??
+      'Pendiente'
+    );
+  }
+
+  protected contentState(): string {
+    return this.form.content.trim().length > 0 ? 'Completo' : 'Vacio';
+  }
+
+  protected estimatedTimeLabel(): string {
+    return this.form.estimatedMinutes ? `${this.form.estimatedMinutes} min` : 'Sin datos';
+  }
+
+  protected enabledPhaseCount(): number {
+    if (!this.selectedReadingId) {
+      return this.form.phases.length;
+    }
+
+    return this.form.phases.filter((phase) => phase.isEnabled).length;
+  }
+
+  protected wordCount(): number {
+    return this.form.content.trim().split(/\s+/).filter(Boolean).length;
+  }
+
+  protected characterCount(): number {
+    return this.form.content.length;
+  }
+
+  protected orderedPhases(): ContentReadingPhaseEditor[] {
+    return [...this.form.phases].sort((a, b) => {
+      const aIndex = this.phaseSortIndex(a);
+      const bIndex = this.phaseSortIndex(b);
+
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+
+      return a.displayOrder - b.displayOrder;
+    });
+  }
+
+  protected togglePhase(phaseId: number): void {
+    this.expandedPhaseId = this.expandedPhaseId === phaseId ? null : phaseId;
+  }
+
+  protected isPhaseExpanded(phaseId: number): boolean {
+    return this.expandedPhaseId === phaseId;
+  }
+
+  protected setDifficultyFilter(filter: string): void {
+    this.difficultyFilter = filter;
+  }
+
+  protected phaseQuestionLabel(phase: ContentReadingPhaseEditor): string {
+    const count = phase.minQuestionsToUnlockNext ?? 0;
+    return count === 1 ? '1 pregunta' : `${count} preguntas`;
+  }
+
   private loadData(): void {
     this.academicContentService.getLookups().subscribe({
       next: (lookups) => {
         this.lookups = lookups;
         this.form = this.buildEmptyForm();
+        this.setDefaultExpandedPhase();
         this.refreshReadings();
       },
       error: (error) => {
@@ -136,9 +237,9 @@ export class ContentReadingsPageComponent {
       summary: null,
       content: '',
       imageUrl: null,
-      difficultyLevelId: 1,
+      difficultyLevelId: 0,
       estimatedMinutes: null,
-      isActive: true,
+      isActive: false,
       phases:
         this.lookups?.phases.map((phase) => ({
           phaseId: phase.phaseId,
@@ -196,5 +297,20 @@ export class ContentReadingsPageComponent {
         guidanceText: phase.guidanceText?.trim() || null
       }))
     };
+  }
+
+  private setDefaultExpandedPhase(): void {
+    this.expandedPhaseId = this.orderedPhases()[0]?.phaseId ?? null;
+  }
+
+  private phaseSortIndex(phase: ContentReadingPhaseEditor): number {
+    const normalizedName = phase.displayName.trim().toLowerCase();
+    const normalizedCode = phase.code.trim().toLowerCase();
+    const index = this.pq4rOrder.findIndex((item) => {
+      const normalizedItem = item.toLowerCase();
+      return normalizedName === normalizedItem || normalizedCode === normalizedItem;
+    });
+
+    return index === -1 ? Number.MAX_SAFE_INTEGER : index;
   }
 }

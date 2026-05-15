@@ -10,7 +10,7 @@
       <strong><span>Compren</span><em>Easy</em></strong>
     </a>
 
-    @if (!isReadingSession()) {
+    @if (!isReadingSession() && authService.currentUser()?.role !== 'Teacher') {
       <span class="header-divider" aria-hidden="true"></span>
       <img src="assets/img/logocolegio.png" alt="Insignia institucional" class="school-shield" />
     }

@@ -1,141 +1,275 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando gestión de lecturas...</p>
+  <article class="reading-loading-card">
+    <p class="page-subtitle">Cargando gestion de lecturas...</p>
   </article>
 } @else {
-  <section class="content-shell">
-    <article class="page-card sidebar-card">
-      <div class="sidebar-head">
-        <div>
-          <span class="chip soft">Interno</span>
-          <h1 class="page-title compact">Lecturas</h1>
+  <section class="reading-admin-shell">
+    <header class="reading-editor-hero">
+      <a class="back-link" routerLink="/teacher/content" aria-label="Volver a contenido">
+        <span aria-hidden="true">&larr;</span>
+        Volver a contenido
+      </a>
+
+      <div class="hero-row">
+        <div class="hero-copy">
+          @if (selectedReadingId) {
+            <span class="module-badge">Lecturas</span>
+          }
+
+          <div class="title-line">
+            <h1>{{ editorTitle() }}</h1>
+            <span class="status-pill" [class.inactive]="!form.isActive">
+              {{ form.isActive ? 'Activa' : 'Inactiva' }}
+            </span>
+          </div>
+          <p>{{ editorSubtitle() }}</p>
         </div>
-        <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva</button>
-      </div>
 
-      <a class="btn btn-link" routerLink="/teacher/content">Volver al indice</a>
-
-      <div class="list-shell">
-        @for (reading of readings; track reading.readingId) {
-          <button
-            class="list-item"
-            type="button"
-            [class.active]="selectedReadingId === reading.readingId"
-            (click)="selectReading(reading.readingId)"
-          >
-            <strong>{{ reading.title }}</strong>
-            <small>{{ reading.difficultyLevelName }} · {{ reading.enabledPhaseCount }} fases</small>
-            <small>{{ reading.isActive ? 'Activa' : 'Archivada' }}</small>
+        <div class="hero-actions">
+          @if (selectedReadingId) {
+            <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva lectura</button>
+          }
+          <button class="btn btn-primary primary-action" type="button" [disabled]="saving" (click)="save()">
+            {{ selectedReadingId ? 'Guardar cambios' : 'Crear lectura' }}
           </button>
-        }
-      </div>
-    </article>
-
-    <article class="page-card editor-card">
-      <div class="editor-head">
-        <div>
-          <span class="chip soft">{{ selectedReadingId ? 'Editar lectura' : 'Nueva lectura' }}</span>
-          <h2>{{ form.title || 'Sin titulo' }}</h2>
         </div>
       </div>
+    </header>
 
-      <div class="field-grid">
-        <div class="field-group">
-          <label>Titulo</label>
-          <input [(ngModel)]="form.title" />
-        </div>
+    <main class="reading-workspace">
+      <aside class="readings-panel">
+        <div class="panel-card registered-card">
+          <div class="panel-title-row">
+            <h2>Lecturas registradas</h2>
+            <button class="mini-new-button" type="button" (click)="startNew()">Nueva</button>
+          </div>
 
-        <div class="field-group">
-          <label>Dificultad</label>
-          <select [(ngModel)]="form.difficultyLevelId">
-            @for (item of lookups?.difficultyLevels ?? []; track item.id) {
-              <option [ngValue]="item.id">{{ item.name }}</option>
+          <label class="search-box">
+            <span aria-hidden="true">Buscar</span>
+            <input type="search" placeholder="Buscar lectura..." [(ngModel)]="readingSearch" />
+          </label>
+
+          <div class="filter-pills" aria-label="Filtros por dificultad">
+            @for (filter of difficultyFilters(); track filter) {
+              <button
+                class="filter-pill"
+                type="button"
+                [class.active]="difficultyFilter === filter"
+                (click)="setDifficultyFilter(filter)"
+              >
+                {{ filter }}
+              </button>
             }
-          </select>
+          </div>
+
+          <div class="reading-list" aria-label="Lista de lecturas registradas">
+            @for (reading of filteredReadings(); track reading.readingId) {
+              <button
+                class="reading-list-card"
+                type="button"
+                [class.active]="selectedReadingId === reading.readingId"
+                (click)="selectReading(reading.readingId)"
+              >
+                <strong>{{ reading.title }}</strong>
+                <span class="reading-meta">
+                  <span class="difficulty-chip">{{ reading.difficultyLevelName }}</span>
+                  <span>{{ reading.enabledPhaseCount }} fases</span>
+                  <span class="state-dot" [class.inactive]="!reading.isActive">
+                    {{ reading.isActive ? 'Activa' : 'Inactiva' }}
+                  </span>
+                </span>
+              </button>
+            } @empty {
+              <p class="empty-list">No hay lecturas con ese filtro.</p>
+            }
+          </div>
+        </div>
+      </aside>
+
+      <section class="editor-column">
+        <div class="summary-strip" aria-label="Resumen de lectura">
+          <article class="summary-item">
+            <span class="summary-icon">DI</span>
+            <div>
+              <small>Dificultad</small>
+              <strong>{{ difficultyName() }}</strong>
+            </div>
+          </article>
+
+          <article class="summary-item">
+            <span class="summary-icon gold">ES</span>
+            <div>
+              <small>Estado</small>
+              <strong>{{ form.isActive ? 'Activa' : 'Inactiva' }}</strong>
+            </div>
+          </article>
+
+          <article class="summary-item">
+            <span class="summary-icon">TM</span>
+            <div>
+              <small>Tiempo</small>
+              <strong>{{ estimatedTimeLabel() }}</strong>
+            </div>
+          </article>
+
+          <article class="summary-item">
+            <span class="summary-icon">PQ</span>
+            <div>
+              <small>Fases</small>
+              <strong>{{ enabledPhaseCount() }}/{{ form.phases.length }}</strong>
+            </div>
+          </article>
+
+          <article class="summary-item">
+            <span class="summary-icon">CO</span>
+            <div>
+              <small>Contenido</small>
+              <strong>{{ contentState() }}</strong>
+            </div>
+          </article>
         </div>
 
-        <div class="field-group">
-          <label>Resumen</label>
-          <textarea rows="3" [(ngModel)]="form.summary"></textarea>
-        </div>
-
-        <div class="field-group">
-          <label>Imagen URL</label>
-          <input [(ngModel)]="form.imageUrl" />
-        </div>
-
-        <div class="field-group">
-          <label>Minutos estimados</label>
-          <input type="number" [(ngModel)]="form.estimatedMinutes" />
-        </div>
-
-        <label class="toggle-row">
-          <input type="checkbox" [(ngModel)]="form.isActive" />
-          <span>Lectura activa</span>
-        </label>
-
-        <div class="field-group full-width">
-          <label>Contenido</label>
-          <textarea rows="10" [(ngModel)]="form.content"></textarea>
-        </div>
-      </div>
-
-      <div class="section-block">
-        <div class="section-head">
-          <h3>Fases PQ4R</h3>
-          <small>Activa solo las fases necesarias para esta lectura.</small>
-        </div>
-
-        <div class="phase-list">
-          @for (phase of form.phases; track phase.phaseId) {
-            <article class="phase-card">
-              <div class="phase-header">
-                <strong>{{ phase.displayName }}</strong>
-                <small>{{ phase.code }}</small>
+        <div class="editor-grid">
+          <div class="form-stack">
+            <article class="panel-card form-card">
+              <div class="card-heading">
+                <h2>Datos generales</h2>
+                <label class="active-toggle">
+                  <input type="checkbox" [(ngModel)]="form.isActive" />
+                  <span>Lectura activa</span>
+                </label>
               </div>
 
-              <div class="phase-fields">
-                <label class="toggle-row">
-                  <input type="checkbox" [(ngModel)]="phase.isEnabled" />
-                  <span>Habilitada</span>
-                </label>
-
-                <label class="toggle-row">
-                  <input type="checkbox" [(ngModel)]="phase.isRequired" />
-                  <span>Obligatoria</span>
-                </label>
-
+              <div class="field-grid general-grid">
                 <div class="field-group">
-                  <label>Orden</label>
-                  <input type="number" [(ngModel)]="phase.displayOrder" />
+                  <label>Titulo</label>
+                  <input required [(ngModel)]="form.title" />
                 </div>
 
                 <div class="field-group">
-                  <label>Mínimo preguntas</label>
-                  <input type="number" [(ngModel)]="phase.minQuestionsToUnlockNext" />
+                  <label>Dificultad</label>
+                  <select required [(ngModel)]="form.difficultyLevelId">
+                    <option [ngValue]="0" disabled>Seleccionar</option>
+                    @for (item of lookups?.difficultyLevels ?? []; track item.id) {
+                      <option [ngValue]="item.id">{{ item.name }}</option>
+                    }
+                  </select>
                 </div>
 
                 <div class="field-group full-width">
-                  <label>Guia</label>
-                  <textarea rows="2" [(ngModel)]="phase.guidanceText"></textarea>
+                  <label>Resumen</label>
+                  <textarea rows="4" [(ngModel)]="form.summary"></textarea>
+                </div>
+
+                <div class="field-group">
+                  <label>Imagen URL</label>
+                  <input [(ngModel)]="form.imageUrl" />
+                </div>
+
+                <div class="field-group">
+                  <label>Minutos estimados</label>
+                  <input type="number" min="1" [(ngModel)]="form.estimatedMinutes" />
                 </div>
               </div>
             </article>
-          }
+
+            <article class="panel-card form-card">
+              <div class="card-heading">
+                <div>
+                  <h2>Contenido de la lectura</h2>
+                  <p>Este texto sera usado como base para el proceso PQ4R</p>
+                </div>
+                <span class="counter-pill">{{ wordCount() }} palabras | {{ characterCount() }} caracteres</span>
+              </div>
+
+              <div class="field-group full-width">
+                <textarea class="content-textarea" rows="12" required [(ngModel)]="form.content"></textarea>
+              </div>
+            </article>
+          </div>
+
+          <article class="panel-card phases-card">
+            <div class="card-heading">
+              <div>
+                <h2>Fases PQ4R</h2>
+                <p>Configura cada etapa del recorrido lector.</p>
+              </div>
+            </div>
+
+            <div class="phase-list">
+              @for (phase of orderedPhases(); track phase.phaseId; let index = $index) {
+                <article class="phase-accordion" [class.open]="isPhaseExpanded(phase.phaseId)">
+                  <button class="phase-summary" type="button" (click)="togglePhase(phase.phaseId)">
+                    <span class="phase-title">{{ index + 1 }}. {{ phase.displayName }}</span>
+                    <span class="phase-summary-meta">
+                      <span class="phase-chip" [class.inactive]="!phase.isEnabled">
+                        {{ phase.isEnabled ? 'Habilitada' : 'Inactiva' }}
+                      </span>
+                      <span class="phase-chip muted">{{ phaseQuestionLabel(phase) }}</span>
+                      <span class="chevron" aria-hidden="true">{{ isPhaseExpanded(phase.phaseId) ? '^' : 'v' }}</span>
+                    </span>
+                  </button>
+
+                  <div class="phase-body" [class.expanded]="isPhaseExpanded(phase.phaseId)">
+                    <div class="phase-body-inner">
+                      <div class="phase-switches">
+                        <label class="toggle-row">
+                          <input type="checkbox" [(ngModel)]="phase.isEnabled" />
+                          <span>Habilitada</span>
+                        </label>
+
+                        <label class="toggle-row">
+                          <input type="checkbox" [(ngModel)]="phase.isRequired" />
+                          <span>Obligatoria</span>
+                        </label>
+                      </div>
+
+                      <div class="phase-fields">
+                        <div class="field-group">
+                          <label>Orden</label>
+                          <input type="number" [(ngModel)]="phase.displayOrder" />
+                        </div>
+
+                        <div class="field-group">
+                          <label>Minimo preguntas</label>
+                          <input type="number" min="0" [(ngModel)]="phase.minQuestionsToUnlockNext" />
+                        </div>
+
+                        <div class="field-group full-width">
+                          <label>Guia</label>
+                          <textarea rows="4" [(ngModel)]="phase.guidanceText"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          </article>
         </div>
-      </div>
 
-      <div class="page-actions">
-        <button class="btn btn-primary" type="button" [disabled]="saving" (click)="save()">Guardar</button>
-        @if (selectedReadingId) {
-          <button class="btn btn-secondary" type="button" [disabled]="saving" (click)="archive()">
-            Archivar
-          </button>
-        }
-      </div>
+        <div class="message-row">
+          <p class="status-text error">{{ errorMessage }}</p>
+          <p class="status-text success">{{ successMessage }}</p>
+        </div>
+      </section>
 
-      <p class="status-text error">{{ errorMessage }}</p>
-      <p class="status-text success">{{ successMessage }}</p>
-    </article>
+      <aside class="guide-panel">
+        <article class="panel-card guide-card">
+          @if (selectedReadingId) {
+            <h2>Guia PQ4R</h2>
+            <p><strong>Preview:</strong> observar titulo, subtitulos e imagenes.</p>
+            <p><strong>Question:</strong> formular preguntas antes de leer.</p>
+            <p><strong>Read:</strong> leer con proposito.</p>
+            <p><strong>Reflect:</strong> relacionar ideas.</p>
+            <p><strong>Recite:</strong> explicar con palabras propias.</p>
+            <p><strong>Review:</strong> repasar y consolidar.</p>
+          } @else {
+            <h2>Resumen de nueva lectura</h2>
+            <p>Completa titulo, dificultad, contenido y al menos una fase PQ4R para guardar.</p>
+          }
+        </article>
+      </aside>
+    </main>
   </section>
 }

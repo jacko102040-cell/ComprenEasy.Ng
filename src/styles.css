@@ -59,6 +59,29 @@ button {
   cursor: pointer;
 }
 
+app-content-readings-page,
+app-content-readings-page .reading-list,
+app-content-readings-page textarea {
+  scrollbar-color: #c6a64f #f6eddf;
+  scrollbar-width: thin;
+}
+
+app-content-readings-page ::-webkit-scrollbar {
+  width: 0.65rem;
+  height: 0.65rem;
+}
+
+app-content-readings-page ::-webkit-scrollbar-track {
+  background: #f6eddf;
+  border-radius: 999px;
+}
+
+app-content-readings-page ::-webkit-scrollbar-thumb {
+  border: 2px solid #f6eddf;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #c6a64f, #8b1e26);
+}
+
 .page-card {
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(129, 117, 123, 0.15);
