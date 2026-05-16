@@ -1,148 +1,318 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando gestión de evaluaciones...</p>
-  </article>
+  <section class="assessments-page loading-page">
+    <article class="assessment-panel loading-card">
+      <span class="eyebrow">Evaluaciones</span>
+      <h1>Cargando gestion de evaluaciones...</h1>
+      <p>Estamos preparando las evaluaciones internas del panel docente.</p>
+    </article>
+  </section>
 } @else {
-  <section class="content-shell">
-    <article class="page-card sidebar-card">
-      <div class="sidebar-head">
-        <div>
-          <span class="chip soft">Interno</span>
-          <h1 class="page-title compact">Evaluaciones</h1>
-        </div>
-        <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva</button>
-      </div>
+  <section class="assessments-page">
+    <div class="assessments-shell">
+      <header class="assessment-header">
+        <a class="back-link" routerLink="/teacher/content" aria-label="Volver a contenido">
+          <span aria-hidden="true">‹</span>
+          Volver a contenido
+        </a>
 
-      <a class="btn btn-link" routerLink="/teacher/content">Volver al indice</a>
+        <div class="header-grid">
+          <div class="header-copy">
+            <div class="title-row">
+              <span class="badge">Evaluaciones</span>
+              <h1>{{ editorTitle() }}</h1>
+              <span class="state-chip" [class.active]="form.isActive" [class.inactive]="!form.isActive">
+                <i aria-hidden="true"></i>
+                {{ statusLabel() }}
+              </span>
+            </div>
+            <p>{{ editorSubtitle() }}</p>
+          </div>
 
-      <div class="list-shell">
-        @for (assessment of assessments; track assessment.assessmentId) {
-          <button
-            class="list-item"
-            type="button"
-            [class.active]="selectedAssessmentId === assessment.assessmentId"
-            (click)="selectAssessment(assessment.assessmentId)"
-          >
-            <strong>{{ assessment.title }}</strong>
-            <small>{{ assessment.assessmentType }} · {{ assessment.questionCount }} preguntas</small>
-            <small>{{ assessment.isActive ? 'Activa' : 'Archivada' }}</small>
-          </button>
-        }
-      </div>
-    </article>
-
-    <article class="page-card editor-card">
-      <div class="field-grid">
-        <div class="field-group">
-          <label>Titulo</label>
-          <input [(ngModel)]="form.title" />
-        </div>
-
-        <div class="field-group">
-          <label>Tipo</label>
-          <select [(ngModel)]="form.assessmentType">
-            <option value="Pretest">Pretest</option>
-            <option value="Posttest">Posttest</option>
-            <option value="ReadingPractice">ReadingPractice</option>
-          </select>
-        </div>
-
-        <div class="field-group">
-          <label>Lectura asociada</label>
-          <select [(ngModel)]="form.readingId" [disabled]="form.assessmentType !== 'ReadingPractice'">
-            <option [ngValue]="null">Sin lectura</option>
-            @for (item of lookups?.readings ?? []; track item.id) {
-              <option [ngValue]="item.id">{{ item.name }}</option>
+          <div class="top-actions">
+            @if (selectedAssessmentId) {
+              <button class="secondary-action" type="button" (click)="startNew()">Nueva evaluacion</button>
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            } @else {
+              <button class="secondary-action disabled" type="button" disabled>Nueva evaluacion</button>
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Creando...' : 'Crear evaluacion' }}
+              </button>
             }
-          </select>
+          </div>
         </div>
+      </header>
 
-        <div class="field-group">
-          <label>Dificultad</label>
-          <select [(ngModel)]="form.difficultyLevelId">
-            <option [ngValue]="null">Sin dificultad</option>
-            @for (item of lookups?.difficultyLevels ?? []; track item.id) {
-              <option [ngValue]="item.id">{{ item.name }}</option>
-            }
-          </select>
-        </div>
+      <div class="workspace-grid">
+        <aside class="assessment-bank panel-card">
+          <div class="panel-title">
+            <h2>Evaluaciones registradas</h2>
+            <span>{{ assessments.length }}</span>
+          </div>
 
-        <div class="field-group full-width">
-          <label>Descripcion</label>
-          <textarea rows="3" [(ngModel)]="form.description"></textarea>
-        </div>
+          <label class="search-box">
+            <span class="sr-only">Buscar evaluacion</span>
+            <input type="search" placeholder="Buscar evaluacion..." [(ngModel)]="searchTerm" />
+          </label>
 
-        <label class="toggle-row">
-          <input type="checkbox" [(ngModel)]="form.isActive" />
-          <span>Evaluacion activa</span>
-        </label>
-      </div>
+          <div class="filter-pills" aria-label="Filtros de evaluaciones">
+            <button type="button" [class.selected]="assessmentFilter === 'Todas'" (click)="setAssessmentFilter('Todas')">
+              Todas
+            </button>
+            <button
+              type="button"
+              [class.selected]="assessmentFilter === 'ReadingPractice'"
+              (click)="setAssessmentFilter('ReadingPractice')"
+            >
+              ReadingPractice
+            </button>
+            <button type="button" [class.selected]="assessmentFilter === 'Posttest'" (click)="setAssessmentFilter('Posttest')">
+              Posttest
+            </button>
+            <button type="button" [class.selected]="assessmentFilter === 'Internas'" (click)="setAssessmentFilter('Internas')">
+              Internas
+            </button>
+            <button type="button" [class.selected]="assessmentFilter === 'Activas'" (click)="setAssessmentFilter('Activas')">
+              Activas
+            </button>
+          </div>
 
-      <div class="section-block">
-        <div class="section-head">
-          <h3>Preguntas asociadas</h3>
-          <button class="btn btn-secondary" type="button" (click)="addQuestionLink()">Agregar</button>
-        </div>
-
-        <div class="question-links">
-          @for (link of form.questions; track $index) {
-            <article class="phase-card">
-              <div class="field-grid">
-                <div class="field-group">
-                  <label>Pregunta</label>
-                  <select [(ngModel)]="link.questionId" (ngModelChange)="syncQuestionLookup(link)">
-                    @for (item of lookups?.questions ?? []; track item.questionId) {
-                      <option [ngValue]="item.questionId">{{ item.stem }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="field-group">
-                  <label>Fase</label>
-                  <select [(ngModel)]="link.phaseId" [disabled]="form.assessmentType !== 'ReadingPractice'">
-                    <option [ngValue]="null">Sin fase</option>
-                    @for (item of lookups?.phases ?? []; track item.phaseId) {
-                      <option [ngValue]="item.phaseId">{{ item.displayName }}</option>
-                    }
-                  </select>
-                </div>
-
-                <div class="field-group">
-                  <label>Orden</label>
-                  <input type="number" [(ngModel)]="link.displayOrder" />
-                </div>
-
-                <div class="field-group">
-                  <label>Puntos</label>
-                  <input type="number" [(ngModel)]="link.points" />
-                </div>
-
-                <label class="toggle-row">
-                  <input type="checkbox" [(ngModel)]="link.isActive" />
-                  <span>Activa</span>
-                </label>
-              </div>
-
-              <div class="phase-header">
-                <small>{{ link.dimensionName || 'Dimension pendiente' }}</small>
-                <button class="btn btn-link" type="button" (click)="removeQuestionLink($index)">Quitar</button>
-              </div>
+          @if (assessments.length === 0) {
+            <article class="empty-state">
+              <h3>Aun no hay evaluaciones registradas</h3>
+              <p>Crea tu primera evaluacion para asociarla a lecturas, posttest o actividades ReadingPractice.</p>
+              <button class="primary-action" type="button" (click)="startNew()">Crear nueva evaluacion</button>
             </article>
+          } @else {
+            <div class="assessment-list">
+              @for (assessment of filteredAssessments(); track assessment.assessmentId) {
+                <button
+                  class="assessment-card"
+                  type="button"
+                  [class.selected]="selectedAssessmentId === assessment.assessmentId"
+                  (click)="selectAssessment(assessment.assessmentId)"
+                >
+                  <strong>{{ truncateText(assessment.title, 82) }}</strong>
+                  <span class="card-meta">
+                    <span class="mini-chip" [ngClass]="typeClass(assessment.assessmentType)">
+                      {{ displayAssessmentType(assessment.assessmentType) }}
+                    </span>
+                    <span class="mini-chip status" [class.inactive]="!assessment.isActive">
+                      {{ assessment.isActive ? 'Activa' : 'Inactiva' }}
+                    </span>
+                  </span>
+                  <small>{{ listReading(assessment) }}</small>
+                  <small>{{ assessment.questionCount }} preguntas</small>
+                </button>
+              } @empty {
+                <article class="empty-state compact">
+                  <h3>No hay coincidencias</h3>
+                  <p>Ajusta la busqueda o cambia el filtro seleccionado.</p>
+                </article>
+              }
+            </div>
           }
-        </div>
-      </div>
+        </aside>
 
-      <div class="page-actions">
-        <button class="btn btn-primary" type="button" [disabled]="saving" (click)="save()">Guardar</button>
-        @if (selectedAssessmentId) {
-          <button class="btn btn-secondary" type="button" [disabled]="saving" (click)="archive()">
-            Archivar
-          </button>
-        }
-      </div>
+        <main class="assessment-main" aria-label="Editor de evaluacion">
+          <section class="summary-strip panel-card" aria-label="Resumen de evaluacion">
+            <div>
+              <span>Tipo</span>
+              <strong>{{ summaryType() }}</strong>
+            </div>
+            <div>
+              <span>Lectura</span>
+              <strong>{{ summaryReading() }}</strong>
+            </div>
+            <div>
+              <span>Dificultad</span>
+              <strong>{{ summaryDifficulty() }}</strong>
+            </div>
+            <div>
+              <span>Preguntas</span>
+              <strong>{{ form.questions.length }}</strong>
+            </div>
+            <div>
+              <span>Estado</span>
+              <strong>{{ statusLabel() }}</strong>
+            </div>
+          </section>
 
-      <p class="status-text error">{{ errorMessage }}</p>
-      <p class="status-text success">{{ successMessage }}</p>
-    </article>
+          <section class="assessment-panel">
+            <h2>Datos de la evaluacion</h2>
+            <div class="assessment-fields">
+              <label class="field title-field">
+                <span>Titulo</span>
+                <input [(ngModel)]="form.title" placeholder="Titulo" />
+              </label>
+
+              <label class="field">
+                <span>Tipo</span>
+                <select [(ngModel)]="form.assessmentType">
+                  <option value="">Seleccionar</option>
+                  <option value="ReadingPractice">ReadingPractice</option>
+                  <option value="Posttest">Posttest</option>
+                  <option value="Pretest">Interno / Historico</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Lectura asociada</span>
+                <select [(ngModel)]="form.readingId" [disabled]="form.assessmentType !== 'ReadingPractice'">
+                  <option [ngValue]="null">Sin lectura</option>
+                  @for (item of lookups?.readings ?? []; track item.id) {
+                    <option [ngValue]="item.id">{{ item.name }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Dificultad</span>
+                <select [(ngModel)]="form.difficultyLevelId">
+                  <option [ngValue]="null">Sin dificultad</option>
+                  @for (item of lookups?.difficultyLevels ?? []; track item.id) {
+                    <option [ngValue]="item.id">{{ item.name }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="active-switch">
+                <span>Evaluacion activa</span>
+                <input type="checkbox" [(ngModel)]="form.isActive" />
+                <i aria-hidden="true"></i>
+              </label>
+            </div>
+          </section>
+
+          <section class="assessment-panel">
+            <h2>Descripcion</h2>
+            <label class="field full-field">
+              <span>Descripcion</span>
+              <textarea
+                rows="4"
+                [(ngModel)]="form.description"
+                placeholder="Ingresa una descripcion breve y clara para los estudiantes sobre el proposito y contenido de esta evaluacion."
+              ></textarea>
+            </label>
+            <p class="helper-note">
+              Ingresa una descripcion breve y clara para los estudiantes sobre el proposito y contenido de esta
+              evaluacion.
+            </p>
+          </section>
+
+          <section class="assessment-panel questions-panel">
+            <div class="section-heading">
+              <div>
+                <h2>Preguntas asociadas</h2>
+                <p>{{ form.questions.length }} preguntas</p>
+              </div>
+              <button class="secondary-action" type="button" (click)="addQuestionLink()">Agregar pregunta</button>
+            </div>
+
+            @if (form.questions.length === 0) {
+              <article class="empty-questions">
+                <h3>Aun no hay preguntas asociadas</h3>
+                <p>Agrega preguntas del banco para completar esta evaluacion.</p>
+                <button class="secondary-action" type="button" (click)="addQuestionLink()">Agregar pregunta</button>
+              </article>
+            } @else {
+              <div class="linked-question-grid">
+                @for (link of form.questions; track $index) {
+                  <article class="linked-question-card">
+                    <div class="question-card-head">
+                      <strong>{{ link.displayOrder || $index + 1 }}.</strong>
+                      <button class="remove-action" type="button" (click)="removeQuestionLink($index)">Quitar</button>
+                    </div>
+
+                    <label class="field compact-field">
+                      <span>Pregunta</span>
+                      <select [(ngModel)]="link.questionId" (ngModelChange)="syncQuestionLookup(link)">
+                        @for (item of lookups?.questions ?? []; track item.questionId) {
+                          <option [ngValue]="item.questionId">{{ item.stem }}</option>
+                        }
+                      </select>
+                    </label>
+
+                    <p class="question-stem">{{ truncateText(link.questionStem, 112) }}</p>
+
+                    <div class="question-chip-row">
+                      <span class="mini-chip" [ngClass]="dimensionClass(link.dimensionName)">
+                        {{ link.dimensionName || 'Dimension pendiente' }}
+                      </span>
+                      <span class="mini-chip difficulty">Dificultad: {{ questionDifficultyLabel() }}</span>
+                    </div>
+
+                    <div class="question-config">
+                      <label class="field compact-field">
+                        <span>Fase</span>
+                        <select [(ngModel)]="link.phaseId" [disabled]="form.assessmentType !== 'ReadingPractice'">
+                          <option [ngValue]="null">Sin fase</option>
+                          @for (item of lookups?.phases ?? []; track item.phaseId) {
+                            <option [ngValue]="item.phaseId">{{ item.displayName }}</option>
+                          }
+                        </select>
+                      </label>
+
+                      <label class="field compact-field">
+                        <span>Orden</span>
+                        <input type="number" min="1" [(ngModel)]="link.displayOrder" />
+                      </label>
+
+                      <label class="field compact-field">
+                        <span>Puntos</span>
+                        <input type="number" min="0" [(ngModel)]="link.points" />
+                      </label>
+                    </div>
+
+                    <label class="question-active">
+                      <input type="checkbox" [(ngModel)]="link.isActive" />
+                      <span>Activa</span>
+                    </label>
+                  </article>
+                }
+              </div>
+            }
+          </section>
+
+          <div class="bottom-actions">
+            @if (selectedAssessmentId) {
+              <button class="secondary-action" type="button" [disabled]="saving" (click)="archive()">Archivar</button>
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            } @else {
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Creando...' : 'Crear evaluacion' }}
+              </button>
+            }
+          </div>
+
+          @if (errorMessage) {
+            <p class="status-message error">{{ errorMessage }}</p>
+          }
+          @if (successMessage) {
+            <p class="status-message success">{{ successMessage }}</p>
+          }
+        </main>
+
+        <aside class="guide-column">
+          <article class="guide-card">
+            <h2>Guia de evaluacion</h2>
+            <p><strong>ReadingPractice:</strong> evaluaciones breves para el refuerzo de contenidos especificos.</p>
+            <p><strong>Posttest:</strong> prueba posterior al proceso lector.</p>
+            <p><strong>Interno / Historico:</strong> evaluacion creada manualmente o archivada, no asociada al flujo principal.</p>
+          </article>
+
+          <article class="guide-card">
+            <h2>Recomendacion</h2>
+            <p>
+              Para activar una evaluacion, asegurate de que todas las secciones esten completas y revisa que las
+              preguntas asociadas correspondan al tipo y dificultad seleccionados.
+            </p>
+          </article>
+        </aside>
+      </div>
+    </div>
   </section>
 }

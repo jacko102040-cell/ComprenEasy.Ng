@@ -3,7 +3,7 @@
   top: 0;
   z-index: 50;
   padding: 0;
-  background: #7b1418;
+  background: linear-gradient(90deg, #7b1418 0%, #661a15 100%);
   box-shadow: 0 5px 18px rgba(43, 29, 26, 0.18);
 }
 
@@ -15,50 +15,21 @@
   align-items: center;
   gap: clamp(0.7rem, 1.5vw, 1.2rem);
   padding: 0.55rem clamp(1rem, 4.4vw, 4.2rem);
-  background: linear-gradient(90deg, #7b1418, #661a15);
+  background: transparent;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
   color: #fffdf8;
-  font-size: 1.2rem;
-  font-weight: 900;
   white-space: nowrap;
 }
 
-.brand strong {
-  display: inline-flex;
-  align-items: baseline;
-  font-style: normal;
-  letter-spacing: 0;
-}
-
-.brand strong span {
-  color: #fffdf8;
-}
-
-.brand strong em {
-  color: #d6a640;
-  font-style: normal;
-}
-
-.brand-mark {
-  width: 2rem;
-  height: 2rem;
-  display: inline-grid;
-  place-items: center;
-  color: #d6a640;
-}
-
-.brand-mark svg {
-  width: 100%;
-  height: 100%;
-  fill: rgba(214, 166, 64, 0.18);
-  stroke: #d6a640;
-  stroke-width: 0.9;
-  stroke-linejoin: round;
+.brand-logo {
+  width: auto;
+  height: 1.9rem;
+  display: block;
+  object-fit: contain;
 }
 
 .header-divider {
@@ -165,6 +136,55 @@
   transform: translateY(-1px);
 }
 
+.header-shell.teacher-shell {
+  background: rgba(255, 253, 247, 0.94);
+  border-bottom: 1px solid #e8ddc8;
+  box-shadow: 0 5px 18px rgba(47, 37, 29, 0.08);
+}
+
+.header-card.teacher-card {
+  background: transparent;
+}
+
+.teacher-card .nav-links a {
+  color: #170d0b;
+}
+
+.teacher-card .header-divider {
+  background: #d9cdb8;
+}
+
+.teacher-card .nav-links a::after {
+  background: #5c0d12;
+}
+
+.teacher-card .nav-links a:hover,
+.teacher-card .nav-links a.active {
+  color: #5c0d12;
+}
+
+.teacher-card .user-box,
+.teacher-card .user-name {
+  color: #170d0b;
+}
+
+.teacher-card .user-avatar {
+  background: linear-gradient(135deg, #efe3b6, #7a1118);
+  border-color: #fffdf7;
+}
+
+.teacher-card .logout-button {
+  border: 1px solid #5c0d12;
+  background: #fffdf7;
+  color: #5c0d12;
+  border-radius: 999px;
+}
+
+.teacher-card .logout-button:hover {
+  background: #5c0d12;
+  color: #fffdf7;
+}
+
 @media (max-width: 980px) {
   .header-card {
     flex-wrap: wrap;
@@ -185,12 +205,7 @@
   }
 
   .brand {
-    font-size: 1.08rem;
-  }
-
-  .brand-mark {
-    width: 1.65rem;
-    height: 1.65rem;
+    max-width: 9.8rem;
   }
 
   .nav-links {

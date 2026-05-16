@@ -411,6 +411,10 @@
   font-size: 0.72rem;
 }
 
+.register-form .field-group:has(select#grade) {
+  display: none;
+}
+
 .password-field {
   position: relative;
 }

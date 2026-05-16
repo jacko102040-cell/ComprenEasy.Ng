@@ -1,16 +1,16 @@
-<header class="header-shell">
-  <div class="header-card">
+<header class="header-shell" [class.teacher-shell]="authService.currentUser()?.role === 'Teacher'">
+  <div class="header-card" [class.teacher-card]="authService.currentUser()?.role === 'Teacher'">
     <a class="brand" routerLink="/dashboard" aria-label="Ir al dashboard">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M3 8.5 12 4l9 4.5-9 4.5L3 8.5Z" />
-          <path d="M6.5 10.3v4.6c1.6 1.4 3.4 2.1 5.5 2.1s3.9-.7 5.5-2.1v-4.6" />
-        </svg>
-      </span>
-      <strong><span>Compren</span><em>Easy</em></strong>
+      <img
+        [src]="authService.currentUser()?.role === 'Teacher'
+          ? 'assets/img/logo_horizontal.png'
+          : 'assets/img/logo_horizontal_negativo.png'"
+        alt="ComprenEasy"
+        class="brand-logo"
+      />
     </a>
 
-    @if (!isReadingSession() && authService.currentUser()?.role !== 'Teacher') {
+    @if (!isReadingSession() && authService.currentUser()) {
       <span class="header-divider" aria-hidden="true"></span>
       <img src="assets/img/logocolegio.png" alt="Insignia institucional" class="school-shield" />
     }

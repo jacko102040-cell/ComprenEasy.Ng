@@ -55,4 +55,12 @@ export class ReadingListPageComponent {
   protected phaseCount(reading: ActiveReading): number {
     return reading.activePhaseCount || 6;
   }
+
+  protected hasReadingImage(reading: ActiveReading): boolean {
+    return !!reading.imageUrl;
+  }
+
+  protected readingBannerStyle(reading: ActiveReading): string | null {
+    return reading.imageUrl ? `url('${reading.imageUrl}')` : null;
+  }
 }

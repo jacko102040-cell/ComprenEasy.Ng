@@ -20,28 +20,41 @@
       <div class="reading-grid">
         @for (reading of readings; track reading.readingId) {
           <article class="reading-card">
-            <header class="reading-card-head">
-              <span class="difficulty-badge" [ngClass]="difficultyClass(reading)">
-                {{ reading.difficultyLevelName }}
-              </span>
-              <span class="phase-count">{{ phaseCount(reading) }} fases activas</span>
-            </header>
-
-            <div class="reading-content">
-              <h2>{{ reading.title }}</h2>
-              <p>{{ readingSummary(reading) }}</p>
+            <div
+              class="reading-banner"
+              [class.reading-banner-fallback]="!hasReadingImage(reading)"
+              [style.background-image]="readingBannerStyle(reading)">
+              @if (!hasReadingImage(reading)) {
+                <div class="reading-banner-placeholder" aria-hidden="true">
+                  <span class="placeholder-icon">📖</span>
+                </div>
+              }
             </div>
 
-            <footer class="reading-footer">
-              <div class="reading-meta">
-                <span>{{ estimatedMinutes(reading) }} min aprox.</span>
-                <span>ID {{ reading.readingId }}</span>
+            <div class="reading-body">
+              <header class="reading-card-head">
+                <span class="difficulty-badge" [ngClass]="difficultyClass(reading)">
+                  {{ reading.difficultyLevelName }}
+                </span>
+                <span class="phase-count">{{ phaseCount(reading) }} fases activas</span>
+              </header>
+
+              <div class="reading-content">
+                <h2>{{ reading.title }}</h2>
+                <p>{{ readingSummary(reading) }}</p>
               </div>
 
-              <a class="detail-button" [routerLink]="['/readings', reading.readingId]">
-                Ver detalle
-              </a>
-            </footer>
+              <footer class="reading-footer">
+                <div class="reading-meta">
+                  <span>{{ estimatedMinutes(reading) }} min aprox.</span>
+                  <span>ID {{ reading.readingId }}</span>
+                </div>
+
+                <a class="detail-button" [routerLink]="['/readings', reading.readingId]">
+                  Ver detalle
+                </a>
+              </footer>
+            </div>
           </article>
         }
       </div>

@@ -28,6 +28,8 @@ export class ContentAssessmentsPageComponent {
   protected saving = false;
   protected errorMessage = '';
   protected successMessage = '';
+  protected searchTerm = '';
+  protected assessmentFilter: 'Todas' | 'ReadingPractice' | 'Posttest' | 'Internas' | 'Activas' = 'Todas';
 
   constructor() {
     this.loadData();
@@ -126,6 +128,142 @@ export class ContentAssessmentsPageComponent {
     });
   }
 
+  protected filteredAssessments(): ContentAssessmentListItem[] {
+    const normalizedSearch = this.normalizeText(this.searchTerm);
+
+    return this.assessments.filter((assessment) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        this.normalizeText(assessment.title).includes(normalizedSearch) ||
+        this.normalizeText(assessment.assessmentType).includes(normalizedSearch) ||
+        this.normalizeText(assessment.readingTitle ?? '').includes(normalizedSearch) ||
+        this.normalizeText(assessment.difficultyLevelName ?? '').includes(normalizedSearch);
+
+      const normalizedType = this.normalizeText(assessment.assessmentType);
+      const matchesFilter =
+        this.assessmentFilter === 'Todas' ||
+        (this.assessmentFilter === 'Activas' && assessment.isActive) ||
+        (this.assessmentFilter === 'Internas' && this.isInternalType(assessment.assessmentType)) ||
+        (this.assessmentFilter !== 'Activas' &&
+          this.assessmentFilter !== 'Internas' &&
+          normalizedType === this.normalizeText(this.assessmentFilter));
+
+      return matchesSearch && matchesFilter;
+    });
+  }
+
+  protected selectedAssessment(): ContentAssessmentListItem | null {
+    return (
+      this.assessments.find((assessment) => assessment.assessmentId === this.selectedAssessmentId) ?? null
+    );
+  }
+
+  protected editorTitle(): string {
+    if (!this.selectedAssessmentId) {
+      return 'Nueva evaluacion';
+    }
+
+    return this.form.title.trim() || this.selectedAssessment()?.title || 'Evaluacion sin titulo';
+  }
+
+  protected editorSubtitle(): string {
+    return this.selectedAssessmentId
+      ? 'Configura tipo, lectura asociada, dificultad y preguntas del sistema.'
+      : 'Completa titulo, tipo, dificultad y preguntas asociadas antes de guardar.';
+  }
+
+  protected statusLabel(): string {
+    return this.form.isActive ? 'Activa' : 'Inactiva';
+  }
+
+  protected summaryType(): string {
+    return this.selectedAssessmentId ? this.displayAssessmentType(this.form.assessmentType) : 'Pendiente';
+  }
+
+  protected summaryReading(): string {
+    if (!this.form.readingId) {
+      return 'Sin lectura';
+    }
+
+    return this.lookups?.readings.find((item) => item.id === Number(this.form.readingId))?.name ?? 'Sin lectura';
+  }
+
+  protected summaryDifficulty(): string {
+    if (!this.selectedAssessmentId || !this.form.difficultyLevelId) {
+      return 'Pendiente';
+    }
+
+    return (
+      this.lookups?.difficultyLevels.find((item) => item.id === Number(this.form.difficultyLevelId))?.name ??
+      'Pendiente'
+    );
+  }
+
+  protected listReading(assessment: ContentAssessmentListItem): string {
+    return assessment.readingTitle || 'Sin lectura';
+  }
+
+  protected displayAssessmentType(type: string | null | undefined): string {
+    if (!type) {
+      return 'Pendiente';
+    }
+
+    return this.isInternalType(type) ? 'Interno / Historico' : type;
+  }
+
+  protected typeClass(type: string | null | undefined): string {
+    const normalized = this.normalizeText(type ?? '');
+
+    if (normalized === 'readingpractice') {
+      return 'reading';
+    }
+
+    if (normalized === 'posttest') {
+      return 'posttest';
+    }
+
+    return 'internal';
+  }
+
+  protected dimensionClass(dimensionName: string | null | undefined): string {
+    const normalized = this.normalizeText(dimensionName ?? '');
+
+    if (normalized.includes('inferencial')) {
+      return 'inferential';
+    }
+
+    if (normalized.includes('critica') || normalized.includes('evaluativa')) {
+      return 'critical';
+    }
+
+    return 'literal';
+  }
+
+  protected questionDifficultyLabel(): string {
+    if (!this.form.difficultyLevelId) {
+      return 'Sin dificultad';
+    }
+
+    return (
+      this.lookups?.difficultyLevels.find((item) => item.id === Number(this.form.difficultyLevelId))?.name ??
+      'Sin dificultad'
+    );
+  }
+
+  protected truncateText(value: string | null | undefined, maxLength = 78): string {
+    const text = (value ?? '').trim();
+
+    if (!text) {
+      return 'Sin titulo';
+    }
+
+    return text.length > maxLength ? `${text.slice(0, maxLength).trim()}...` : text;
+  }
+
+  protected setAssessmentFilter(filter: 'Todas' | 'ReadingPractice' | 'Posttest' | 'Internas' | 'Activas'): void {
+    this.assessmentFilter = filter;
+  }
+
   private loadData(): void {
     this.academicContentService.getLookups().subscribe({
       next: (lookups) => {
@@ -155,12 +293,12 @@ export class ContentAssessmentsPageComponent {
 
   private buildEmptyForm(): SaveContentAssessmentRequest {
     return {
-      assessmentType: 'Pretest',
+      assessmentType: '',
       readingId: null,
       title: '',
       description: null,
       difficultyLevelId: null,
-      isActive: true,
+      isActive: false,
       questions: []
     };
   }
@@ -198,5 +336,17 @@ export class ContentAssessmentsPageComponent {
         points: Number(question.points)
       }))
     };
+  }
+
+  private isInternalType(type: string | null | undefined): boolean {
+    const normalized = this.normalizeText(type ?? '');
+    return normalized === 'pretest' || normalized === 'interno' || normalized === 'historico';
+  }
+
+  private normalizeText(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 }

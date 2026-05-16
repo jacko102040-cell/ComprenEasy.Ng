@@ -1,188 +1,134 @@
 @if (authService.currentUser(); as user) {
   <section class="student-dashboard">
     <div class="dashboard-shell">
-      <article class="greeting-card">
-        <h1>Hola, {{ firstName(user.fullName) }}. Tu panel de aprendizaje</h1>
-      </article>
+      <section class="posttest-hero" [class.locked]="!isPosttestEnabled()">
+        @if (isPosttestEnabled()) {
+          <span class="hero-kicker">Meta cumplida</span>
+          <h1>¡Ya puedes realizar tu posttest final!</h1>
+          <p>Completaste las lecturas requeridas y puedes cerrar tu proceso de refuerzo lector.</p>
 
-      <article class="next-activity-card">
-        <div class="next-copy">
-          <span>Siguiente actividad</span>
-          <h2>{{ nextActivityLabel() }}</h2>
-          <p>{{ nextActivityDescription() }}</p>
-        </div>
-
-        <div class="next-progress">
-          <p>Lecturas completadas: {{ completedReadingsLabel() }}</p>
-          <div class="gold-meter" aria-hidden="true">
-            <span [style.width.%]="readingProgressPercent()"></span>
+          <div class="hero-progress" aria-label="Progreso de lecturas requeridas">
+            <span class="check-dot" aria-hidden="true">✓</span>
+            <strong>Lecturas requeridas: {{ requiredCompletedLabel() }}</strong>
+            <span>{{ progressValueLabel() }}</span>
+            <div class="mini-meter" aria-hidden="true">
+              <i [style.width.%]="readingProgressPercent()"></i>
+            </div>
+            <em>Lecturas realizadas: {{ totalCompletedReadings() }}</em>
           </div>
-          <a class="gold-action" [routerLink]="nextActivityRoute()">
-            {{ isPosttestEnabled() ? 'Ir a evaluacion final' : 'Continuar lectura' }}
-          </a>
-        </div>
-      </article>
 
-      <div class="dashboard-cards">
-        <article class="dashboard-card path-card">
-          <header class="card-title-row">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 4.5h12v15H6z" />
-              <path d="M9 8h6M9 11h6M9 14h3" />
-            </svg>
+          <a class="hero-action" routerLink="/posttests">Iniciar posttest final</a>
+        } @else {
+          <span class="hero-kicker muted">En progreso</span>
+          <h1>Posttest aún no disponible</h1>
+          <p>Completa las lecturas requeridas para desbloquear la evaluación final.</p>
+
+          <div class="hero-progress" aria-label="Progreso de lecturas requeridas">
+            <strong>Lecturas requeridas: {{ requiredCompletedLabel() }}</strong>
+            <span>{{ progressValueLabel() }}</span>
+            <div class="mini-meter" aria-hidden="true">
+              <i [style.width.%]="readingProgressPercent()"></i>
+            </div>
+            <em>Lecturas realizadas: {{ totalCompletedReadings() }}</em>
+          </div>
+
+          <a class="hero-action" routerLink="/readings">Continuar lecturas PQ4R</a>
+        }
+      </section>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-column">
+          <article class="dashboard-panel path-panel">
             <h2>Tu recorrido lector</h2>
-          </header>
-
-          <div class="path-flow" aria-label="Recorrido lector">
-            <span class="path-line" aria-hidden="true"></span>
-
-            <div class="path-step" [ngClass]="flowStepClass('Readings')">
-              <span class="path-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
-                  <path d="M12 7.9v12.6" />
-                </svg>
-              </span>
-              <p>1. Lecturas PQ4R</p>
+            <div class="path-flow" aria-label="Recorrido lector">
+              <div class="path-step done">
+                <span aria-hidden="true">✓</span>
+                <strong>1. Lecturas PQ4R</strong>
+              </div>
+              <div class="path-step done">
+                <span aria-hidden="true">✓</span>
+                <strong>2. Refuerzo guiado</strong>
+              </div>
+              <div class="path-step" [class.current]="canAccessPosttest()" [class.pending]="!canAccessPosttest()">
+                <span aria-hidden="true">{{ canAccessPosttest() ? '3' : '•' }}</span>
+                <strong>3. Posttest final</strong>
+              </div>
             </div>
+          </article>
 
-            <div class="path-step" [ngClass]="flowStepClass('Reinforcement')">
-              <span class="path-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 3v4M12 17v4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M3 12h4M17 12h4M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8" />
-                </svg>
-              </span>
-              <p>2. Refuerzo guiado</p>
+          <article class="dashboard-panel intervention-panel">
+            <h2>Estado de intervención</h2>
+            <div class="status-chips">
+              <span>Lecturas requeridas: {{ requiredCompletedLabel() }}</span>
+              <span>Total realizadas: {{ totalCompletedReadings() }}</span>
+              <span>Estado: {{ readingProgressStatus() }}</span>
+              <span>Intervención: {{ interventionShortLabel() }}</span>
             </div>
-
-            <div class="path-step" [ngClass]="flowStepClass('Posttest')">
-              <span class="path-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M4 19V5M4 19h16" />
-                  <path d="M8 16v-4M12 16V8M16 16v-7" />
-                  <path d="M8 9c4.2 0 7.4-1.4 10-4" />
-                </svg>
-              </span>
-              <p>3. Posttest final</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="dashboard-card recommendation-card">
-          <header class="recommendation-header">
-            <h2>Tu recomendacion<br />mas reciente</h2>
-            <span>{{ recommendation?.confidenceScore ?? 85 }}% confianza</span>
-          </header>
-
-          <div class="recommendation-metrics">
-            <div class="recommendation-metric">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" />
-                <path d="m14 7 3 3" />
-              </svg>
-              <span>Accion:</span>
-              <strong>{{ recommendation?.predictedAction ?? 'Reforzar' }}</strong>
-            </div>
-
-            <div class="recommendation-metric">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 19V9M12 19V5M19 19v-7" />
-              </svg>
-              <span>Dificultad:</span>
-              <strong>{{ recommendation?.recommendedDifficultyLevelName ?? 'Media' }}</strong>
-            </div>
-
-            <div class="recommendation-metric">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 5.5c2.8 0 5.2.7 8 2.4 2.8-1.7 5.2-2.4 8-2.4v12.6c-2.8 0-5.2.7-8 2.4-2.8-1.7-5.2-2.4-8-2.4V5.5Z" />
-                <path d="M12 7.9v12.6" />
-              </svg>
-              <span>Actividad:</span>
-              <strong>{{ recommendation ? recommendationActivityLabel() : 'Reading' }}</strong>
-            </div>
-          </div>
-
-          <div class="card-actions">
-            <a class="maroon-button" [routerLink]="recommendationPrimaryRoute()">Ver actividad sugerida</a>
-            <a class="outline-button" [routerLink]="nextActivityRoute()">
-              {{ isPosttestEnabled() ? 'Ver evaluacion final' : 'Continuar lectura sugerida' }}
-            </a>
-          </div>
-        </article>
-
-        <article class="dashboard-card intervention-card">
-          <h2>Estado de intervencion</h2>
-
-          <div class="intervention-badges">
-            <span>Lecturas completadas ({{ completedReadingsLabel() }})</span>
-            <span>Estado: {{ readingProgressStatus() }}</span>
-            <span>{{ interventionStateLabel() }}</span>
-          </div>
-
-          <p class="intervention-copy">
-            El refuerzo lector sigue centrado en lecturas PQ4R, avance guiado y preparacion para la evaluacion final.
-          </p>
-
-          <div class="intervention-grid">
-            <article>
-              <span>Lecturas completadas</span>
-              <strong>{{ completedReadingsLabel() }}</strong>
-              <p>{{ latestReadingHint() }}</p>
-            </article>
-
-            <article>
-              <span>Estado actual:</span>
-              <strong>{{ readingProgressStatus() }}</strong>
-              <p>{{ readingProgressHint() }}</p>
-            </article>
-
-            <article>
-              <span>Intervencion:</span>
-              <strong>{{ interventionStateLabel() }}</strong>
-              <p>La plataforma mantiene el foco en lectura guiada, practica por fases y recomendacion adaptativa.</p>
-            </article>
-          </div>
-
-          <a class="maroon-button intervention-action" [routerLink]="nextActivityRoute()">
-            {{ isPosttestEnabled() ? 'Ir a evaluacion final' : 'Continuar lectura sugerida' }}
-          </a>
-        </article>
-
-        <article class="dashboard-card posttest-card" [ngClass]="posttestCardState()">
-          <header class="card-title-row">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M9 12.75 11.25 15 15.5 9.75" />
-              <path d="M12 3.75 5.5 6.5v5.25c0 4.1 2.65 7.93 6.5 8.5 3.85-.57 6.5-4.4 6.5-8.5V6.5L12 3.75Z" />
-            </svg>
-            <h2>{{ posttestTitle() }}</h2>
-          </header>
-
-          <div class="posttest-badges">
-            <span>Estado: {{ posttestStatusLabel() }}</span>
-            <span>Cierre del refuerzo lector</span>
-          </div>
-
-          <p class="posttest-copy">{{ posttestDescription() }}</p>
-
-          <div class="posttest-panel">
-            <strong>Comprobacion posterior al trabajo con lecturas</strong>
-            <p>Usa el posttest como evaluacion final interna para validar el progreso lector alcanzado.</p>
-          </div>
-
-          @if (showPosttestAction()) {
-            <a class="maroon-button intervention-action" [routerLink]="posttestActionRoute()">
-              {{ posttestActionLabel() }}
-            </a>
-          } @else {
-            <span class="posttest-pending-note">
+            <p>
               {{
-                summary?.hasCompletedPosttest
-                  ? 'La evaluacion final ya fue registrada.'
-                  : 'Aun no se habilita el acceso al posttest.'
+                canAccessPosttest()
+                  ? 'El proceso de refuerzo lector ha finalizado y está listo para la validación final con el posttest.'
+                  : 'El proceso de refuerzo lector continúa con lecturas PQ4R antes de habilitar la evaluación final.'
               }}
-            </span>
-          }
-        </article>
+            </p>
+          </article>
+        </div>
+
+        <div class="dashboard-column">
+          <article class="dashboard-panel recommendation-panel">
+            <header>
+              <h2>Tu recomendación más reciente</h2>
+            </header>
+
+            @if (recommendationLoading) {
+              <p class="muted-copy">Cargando recomendación...</p>
+            } @else if (recommendationError) {
+              <p class="muted-copy">{{ recommendationError }}</p>
+            } @else if (recommendationEmpty || !recommendation) {
+              <p class="muted-copy">Aún no hay recomendación disponible.</p>
+            } @else {
+              <div class="recommendation-metrics">
+                <div>
+                  <span>Acción</span>
+                  <strong>{{ recommendationActionLabel() }}</strong>
+                </div>
+                <div>
+                  <span>Dificultad</span>
+                  <strong>{{ recommendation.recommendedDifficultyLevelName || 'No disponible' }}</strong>
+                </div>
+                <div>
+                  <span>Actividad</span>
+                  <strong>{{ recommendationActivityLabel() }}</strong>
+                </div>
+                <div>
+                  <span>Confianza</span>
+                  <strong>{{ recommendation.confidenceScore ?? 'Sin datos' }}{{ recommendation.confidenceScore !== null ? '%' : '' }}</strong>
+                </div>
+              </div>
+
+              <a class="panel-action" [routerLink]="isPosttestRecommendation() && isPosttestEnabled() ? '/posttests' : recommendationPrimaryRoute()">
+                {{ recommendationButtonLabel() }}
+              </a>
+            }
+          </article>
+
+          <article class="dashboard-panel final-panel" [class.pending]="!showPosttestAction()">
+            <h2>{{ posttestTitle() }}</h2>
+            <p>{{ posttestDescription() }}</p>
+
+            <div class="final-facts">
+              <span>Estado: {{ posttestStatusLabel() }}</span>
+              <span>Tipo: Posttest final</span>
+              <span>Propósito: validar progreso lector final</span>
+            </div>
+
+            @if (showPosttestAction()) {
+              <a class="secondary-posttest-action" [routerLink]="posttestActionRoute()">Ir al posttest</a>
+            } @else {
+              <a class="secondary-posttest-action muted" routerLink="/readings">Continuar lecturas PQ4R</a>
+            }
+          </article>
+        </div>
       </div>
     </div>
   </section>

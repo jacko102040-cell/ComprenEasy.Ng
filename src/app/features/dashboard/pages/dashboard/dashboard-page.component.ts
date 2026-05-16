@@ -45,7 +45,7 @@ export class DashboardPageComponent {
         }
 
         this.recommendationError =
-          error?.error?.message ?? 'No se pudo cargar la recomendacion adaptativa.';
+          error?.error?.message ?? 'No se pudo cargar la recomendación adaptativa.';
       }
     });
 
@@ -86,7 +86,7 @@ export class DashboardPageComponent {
 
   protected nextActivityLabel(): string {
     if (this.isPosttestEnabled()) {
-      return 'Realizar evaluacion final';
+      return 'Iniciar posttest final';
     }
 
     if (this.summary?.completedReadingSessions) {
@@ -106,7 +106,7 @@ export class DashboardPageComponent {
 
   protected nextActivityDescription(): string {
     if (this.isPosttestEnabled()) {
-      return 'Cierra tu proceso de refuerzo lector con la comprobacion final posterior al trabajo con lecturas.';
+      return 'Completaste las lecturas requeridas y puedes cerrar tu proceso de refuerzo lector.';
     }
 
     return '[Seed Flow] Los ecos del bosque';
@@ -122,6 +122,30 @@ export class DashboardPageComponent {
       this.recommendation.recommendedAssessmentTitle ??
       'Actividad de refuerzo'
     );
+  }
+
+  protected recommendationActionLabel(): string {
+    if (!this.recommendation) {
+      return 'Sin datos';
+    }
+
+    return this.isPosttestRecommendation() ? 'Posttest' : this.recommendation.predictedAction;
+  }
+
+  protected recommendationButtonLabel(): string {
+    if (this.isPosttestRecommendation()) {
+      return 'Ver recomendación';
+    }
+
+    return this.hasRecommendationPrimaryRoute() ? 'Ir a lectura recomendada' : 'Ver recomendación';
+  }
+
+  protected isPosttestRecommendation(): boolean {
+    const activity = `${this.recommendation?.recommendedActivityType ?? ''} ${
+      this.recommendation?.recommendedAssessmentTitle ?? ''
+    } ${this.recommendation?.recommendedRoute ?? ''}`;
+
+    return activity.toLowerCase().includes('posttest');
   }
 
   protected recommendationPrimaryRoute(): string | unknown[] {
@@ -160,7 +184,7 @@ export class DashboardPageComponent {
       return 'No se pudo determinar el avance actual de lecturas.';
     }
 
-    return `${this.summary.completedReadingSessions}/${this.summary.minimumReadingSessionsRequired} sesiones completas. ${this.availableReadings} lectura(s) activa(s) disponibles para continuar.`;
+    return `${this.summary.completedReadingSessions}/${this.summary.minimumReadingSessionsRequired} lecturas requeridas completadas.`;
   }
 
   protected completedReadingsLabel(): string {
@@ -181,8 +205,30 @@ export class DashboardPageComponent {
     }
 
     return this.summary.hasCompletedMinimumReadingIntervention
-      ? 'Intervencion completada'
-      : 'Intervencion en curso';
+      ? 'Intervención completada'
+      : 'Intervención en curso';
+  }
+
+  protected interventionShortLabel(): string {
+    return this.summary?.hasCompletedMinimumReadingIntervention ? 'Completada' : 'Pendiente';
+  }
+
+  protected totalCompletedReadings(): number {
+    return this.summary?.completedReadingSessions ?? 0;
+  }
+
+  protected requiredCompletedLabel(): string {
+    const completed = this.summary?.completedReadingSessions ?? 0;
+    const required = this.summary?.minimumReadingSessionsRequired ?? 0;
+    const requiredProgress = this.summary?.hasCompletedMinimumReadingIntervention
+      ? required
+      : Math.min(completed, required);
+
+    return `${requiredProgress}/${required}`;
+  }
+
+  protected progressValueLabel(): string {
+    return `${this.readingProgressPercent()}%`;
   }
 
   protected flowStepClass(stage: 'Readings' | 'Reinforcement' | 'Posttest'): string {
@@ -209,6 +255,10 @@ export class DashboardPageComponent {
     return !!this.summary?.canAccessPosttest && !this.summary?.hasCompletedPosttest;
   }
 
+  protected canAccessPosttest(): boolean {
+    return !!this.summary?.canAccessPosttest;
+  }
+
   protected posttestCardState(): 'available' | 'pending' | 'completed' {
     if (this.summary?.hasCompletedPosttest) {
       return 'completed';
@@ -231,22 +281,22 @@ export class DashboardPageComponent {
   protected posttestTitle(): string {
     switch (this.posttestCardState()) {
       case 'available':
-        return 'Evaluacion final disponible';
+        return 'Evaluación final disponible';
       case 'completed':
-        return 'Evaluacion final completada';
+        return 'Evaluación final completada';
       default:
-        return 'Evaluacion final pendiente';
+        return 'Posttest aún no disponible';
     }
   }
 
   protected posttestDescription(): string {
     switch (this.posttestCardState()) {
       case 'available':
-        return 'Ya puedes cerrar el proceso de refuerzo lector con el posttest y comprobar tu avance despues del trabajo con lecturas.';
+        return 'Usa el posttest para validar tu avance después del trabajo con lecturas PQ4R.';
       case 'completed':
         return 'Ya registraste el posttest como cierre del proceso de refuerzo lector.';
       default:
-        return 'El posttest aparecera al completar el refuerzo lector requerido por tu progreso academico.';
+        return 'Completa las lecturas requeridas para desbloquear la evaluación final.';
     }
   }
 

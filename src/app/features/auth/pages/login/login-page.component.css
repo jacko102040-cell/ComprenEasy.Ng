@@ -264,15 +264,15 @@
 .card-body {
   background-color: white;
   border-radius: 2.5rem 2.5rem 1.2rem 1.2rem;
-  padding: 0.85rem 1.75rem 1rem;
+  padding: 1.6rem 1.75rem 1rem;
 }
 
 @media (min-width: 768px) {
-  .card-body { padding: 1rem 2rem 1.1rem; }
+  .card-body { padding: 1.8rem 2rem 1.1rem; }
 }
 
 .card-header {
-  margin-bottom: 0.35rem;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
@@ -284,46 +284,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
   width: 100%;
   margin-left: 0;
-  padding-right: 0.75rem;
-  min-height: 5.2rem;
+  min-height: 3.7rem;
+  margin-bottom: 1.2rem;
   overflow: visible;
 }
 
 @media (min-width: 768px) {
   .app-brand {
-    justify-content: flex-end;
-    padding-right: 1.45rem;
+    justify-content: center;
   }
 }
 
-.app-tag {
-  background-color: #f7e7ed;
-  color: #801313;
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid rgba(128, 19, 19, 0.1);
-}
-
-.app-tag-logo {
-  width: 11.2rem;
-  height: 5.2rem;
+.app-brand-logo {
+  width: min(13.6rem, 100%);
+  height: auto;
+  max-height: 4.5rem;
   flex: 0 0 auto;
-  object-fit: contain;
-  object-position: center;
+  display: block;
   filter: drop-shadow(0 6px 10px rgba(128, 19, 19, 0.15));
-  margin-left: 0.15rem;
 }
 
 .card-title {
-  margin-top: 0.1rem;
+  margin-top: 0;
   font-size: 2.25rem;
   font-weight: 800;
   color: #111827;

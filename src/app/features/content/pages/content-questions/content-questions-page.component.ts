@@ -27,6 +27,8 @@ export class ContentQuestionsPageComponent {
   protected saving = false;
   protected errorMessage = '';
   protected successMessage = '';
+  protected searchTerm = '';
+  protected dimensionFilter: 'Todas' | 'Literal' | 'Inferencial' | 'Critica' = 'Todas';
 
   constructor() {
     this.loadData();
@@ -115,6 +117,118 @@ export class ContentQuestionsPageComponent {
     });
   }
 
+  protected filteredQuestions(): ContentQuestionListItem[] {
+    const normalizedSearch = this.normalizeText(this.searchTerm);
+
+    return this.questions.filter((question) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        this.normalizeText(question.stem).includes(normalizedSearch) ||
+        this.normalizeText(question.dimensionName).includes(normalizedSearch) ||
+        this.normalizeText(question.questionType).includes(normalizedSearch) ||
+        this.normalizeText(question.difficultyLevelName ?? '').includes(normalizedSearch);
+
+      const matchesDimension =
+        this.dimensionFilter === 'Todas' ||
+        this.normalizeText(question.dimensionName).includes(this.normalizeText(this.dimensionFilter));
+
+      return matchesSearch && matchesDimension;
+    });
+  }
+
+  protected selectedQuestion(): ContentQuestionListItem | null {
+    return this.questions.find((question) => question.questionId === this.selectedQuestionId) ?? null;
+  }
+
+  protected editorTitle(): string {
+    if (!this.selectedQuestionId) {
+      return 'Nueva pregunta';
+    }
+
+    return this.truncateText(this.selectedQuestion()?.stem ?? this.form.stem, 54);
+  }
+
+  protected editorSubtitle(): string {
+    return this.selectedQuestionId
+      ? 'Administra enunciado, dimension, dificultad y opciones de respuesta del banco de preguntas.'
+      : 'Completa el enunciado, dimension, dificultad y al menos dos opciones antes de guardar.';
+  }
+
+  protected statusLabel(): string {
+    if (!this.selectedQuestionId) {
+      return 'Pendiente';
+    }
+
+    return this.form.isActive ? 'Activa' : 'Inactiva';
+  }
+
+  protected dimensionName(): string {
+    return this.lookups?.dimensions.find((item) => item.id === Number(this.form.dimensionId))?.name ?? 'Pendiente';
+  }
+
+  protected difficultyName(): string {
+    if (!this.form.difficultyLevelId) {
+      return 'Pendiente';
+    }
+
+    return (
+      this.lookups?.difficultyLevels.find((item) => item.id === Number(this.form.difficultyLevelId))?.name ??
+      'Pendiente'
+    );
+  }
+
+  protected summaryType(): string {
+    return this.selectedQuestionId ? this.form.questionType || 'Pendiente' : 'Pendiente';
+  }
+
+  protected summaryDimension(): string {
+    return this.selectedQuestionId ? this.dimensionName() : 'Pendiente';
+  }
+
+  protected summaryDifficulty(): string {
+    return this.selectedQuestionId ? this.difficultyName() : 'Pendiente';
+  }
+
+  protected correctSummary(): string {
+    const correctIndexes = this.form.options
+      .map((option, index) => (option.isCorrect ? index + 1 : null))
+      .filter((index): index is number => index !== null);
+
+    if (!correctIndexes.length) {
+      return 'Sin seleccionar';
+    }
+
+    return correctIndexes.join(', ');
+  }
+
+  protected dimensionClass(dimensionName: string | null | undefined): string {
+    const normalized = this.normalizeText(dimensionName ?? '');
+
+    if (normalized.includes('inferencial')) {
+      return 'inferential';
+    }
+
+    if (normalized.includes('critica') || normalized.includes('evaluativa')) {
+      return 'critical';
+    }
+
+    return 'literal';
+  }
+
+  protected truncateText(value: string | null | undefined, maxLength = 72): string {
+    const text = (value ?? '').trim();
+
+    if (!text) {
+      return 'Pregunta sin enunciado';
+    }
+
+    return text.length > maxLength ? `${text.slice(0, maxLength).trim()}...` : text;
+  }
+
+  protected setDimensionFilter(filter: 'Todas' | 'Literal' | 'Inferencial' | 'Critica'): void {
+    this.dimensionFilter = filter;
+  }
+
   private loadData(): void {
     this.academicContentService.getLookups().subscribe({
       next: (lookups) => {
@@ -183,5 +297,12 @@ export class ContentQuestionsPageComponent {
         displayOrder: Number(option.displayOrder)
       }))
     };
+  }
+
+  private normalizeText(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 }

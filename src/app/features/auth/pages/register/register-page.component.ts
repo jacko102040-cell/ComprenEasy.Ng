@@ -96,7 +96,7 @@ export class RegisterPageComponent {
         fullName: value.fullName?.trim() ?? '',
         username: value.username?.trim() ?? '',
         password: value.password ?? '',
-        grade: value.grade ?? null,
+        grade: 1,
         section: value.section?.trim() || null
       })
       .subscribe({
@@ -108,7 +108,7 @@ export class RegisterPageComponent {
             fullName: '',
             username: '',
             password: '',
-            grade: null,
+            grade: 1,
             section: ''
           });
 

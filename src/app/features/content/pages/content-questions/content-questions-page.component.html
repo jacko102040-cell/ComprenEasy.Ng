@@ -1,121 +1,275 @@
 @if (loading) {
-  <article class="page-card">
-    <p class="page-subtitle">Cargando gestion de preguntas...</p>
-  </article>
+  <section class="questions-page loading-page">
+    <article class="editor-panel loading-card">
+      <span class="eyebrow">Preguntas</span>
+      <h1>Cargando gestion de preguntas...</h1>
+      <p>Estamos preparando el banco academico del panel docente.</p>
+    </article>
+  </section>
 } @else {
-  <section class="content-shell">
-    <article class="page-card sidebar-card">
-      <div class="sidebar-head">
-        <div>
-          <span class="chip soft">Interno</span>
-          <h1 class="page-title compact">Preguntas</h1>
-        </div>
-        <button class="btn btn-secondary" type="button" (click)="startNew()">Nueva</button>
-      </div>
+  <section class="questions-page">
+    <div class="questions-shell">
+      <header class="editor-header">
+        <a class="back-link" routerLink="/teacher/content" aria-label="Volver a contenido">
+          <span aria-hidden="true">‹</span>
+          Volver a contenido
+        </a>
 
-      <a class="btn btn-link" routerLink="/teacher/content">Volver al indice</a>
+        <div class="header-grid">
+          <div class="header-copy">
+            <div class="title-row">
+              <span class="badge">Preguntas</span>
+              <h1>{{ editorTitle() }}</h1>
+              <span
+                class="state-chip"
+                [class.active]="!!selectedQuestionId && form.isActive"
+                [class.inactive]="!!selectedQuestionId && !form.isActive"
+              >
+                <i aria-hidden="true"></i>
+                {{ statusLabel() }}
+              </span>
+            </div>
+            <p>{{ editorSubtitle() }}</p>
+          </div>
 
-      <div class="list-shell">
-        @for (question of questions; track question.questionId) {
-          <button
-            class="list-item"
-            type="button"
-            [class.active]="selectedQuestionId === question.questionId"
-            (click)="selectQuestion(question.questionId)"
-          >
-            <strong>{{ question.stem }}</strong>
-            <small>{{ question.dimensionName }} · {{ question.optionCount }} opciones</small>
-            <small>{{ question.isActive ? 'Activa' : 'Archivada' }}</small>
-          </button>
-        }
-      </div>
-    </article>
-
-    <article class="page-card editor-card">
-      <div class="field-grid">
-        <div class="field-group">
-          <label>Enunciado</label>
-          <textarea rows="4" [(ngModel)]="form.stem"></textarea>
-        </div>
-
-        <div class="field-group">
-          <label>Tipo</label>
-          <input [(ngModel)]="form.questionType" />
-        </div>
-
-        <div class="field-group">
-          <label>Dimension</label>
-          <select [(ngModel)]="form.dimensionId">
-            @for (item of lookups?.dimensions ?? []; track item.id) {
-              <option [ngValue]="item.id">{{ item.name }}</option>
+          <div class="top-actions">
+            @if (selectedQuestionId) {
+              <button class="secondary-action" type="button" (click)="startNew()">Nueva pregunta</button>
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            } @else {
+              <button class="secondary-action disabled" type="button" disabled>Nueva pregunta</button>
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Creando...' : 'Crear pregunta' }}
+              </button>
             }
-          </select>
+          </div>
         </div>
+      </header>
 
-        <div class="field-group">
-          <label>Dificultad</label>
-          <select [(ngModel)]="form.difficultyLevelId">
-            <option [ngValue]="null">Sin dificultad</option>
-            @for (item of lookups?.difficultyLevels ?? []; track item.id) {
-              <option [ngValue]="item.id">{{ item.name }}</option>
-            }
-          </select>
-        </div>
+      <div class="workspace-grid">
+        <aside class="question-bank panel-card">
+          <div class="panel-title">
+            <h2>Preguntas registradas</h2>
+            <span>{{ questions.length }}</span>
+          </div>
 
-        <div class="field-group full-width">
-          <label>Explicacion</label>
-          <textarea rows="3" [(ngModel)]="form.explanation"></textarea>
-        </div>
+          <label class="search-box">
+            <span class="sr-only">Buscar pregunta</span>
+            <input type="search" placeholder="Buscar pregunta..." [(ngModel)]="searchTerm" />
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m20 20-4.6-4.6M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+            </svg>
+          </label>
 
-        <label class="toggle-row">
-          <input type="checkbox" [(ngModel)]="form.isActive" />
-          <span>Pregunta activa</span>
-        </label>
-      </div>
+          <div class="filter-pills" aria-label="Filtros por dimension">
+            <button type="button" [class.selected]="dimensionFilter === 'Todas'" (click)="setDimensionFilter('Todas')">
+              Todas
+            </button>
+            <button type="button" [class.selected]="dimensionFilter === 'Literal'" (click)="setDimensionFilter('Literal')">
+              Literal
+            </button>
+            <button type="button" [class.selected]="dimensionFilter === 'Inferencial'" (click)="setDimensionFilter('Inferencial')">
+              Inferencial
+            </button>
+            <button type="button" [class.selected]="dimensionFilter === 'Critica'" (click)="setDimensionFilter('Critica')">
+              Critica
+            </button>
+          </div>
 
-      <div class="section-block">
-        <div class="section-head">
-          <h3>Opciones</h3>
-          <button class="btn btn-secondary" type="button" (click)="addOption()">Agregar</button>
-        </div>
-
-        <div class="option-list">
-          @for (option of form.options; track $index) {
-            <article class="phase-card">
-              <div class="field-grid">
-                <div class="field-group full-width">
-                  <label>Texto</label>
-                  <input [(ngModel)]="option.optionText" />
-                </div>
-
-                <div class="field-group">
-                  <label>Orden</label>
-                  <input type="number" [(ngModel)]="option.displayOrder" />
-                </div>
-
-                <label class="toggle-row">
-                  <input type="checkbox" [(ngModel)]="option.isCorrect" />
-                  <span>Correcta</span>
-                </label>
-
-                <button class="btn btn-link" type="button" (click)="removeOption($index)">Quitar</button>
-              </div>
+          @if (questions.length === 0) {
+            <article class="empty-state">
+              <h3>Aun no hay preguntas registradas</h3>
+              <p>Crea tu primera pregunta para asociarla a una lectura, evaluacion o fase PQ4R.</p>
+              <button class="primary-action" type="button" (click)="startNew()">Crear nueva pregunta</button>
             </article>
+          } @else {
+            <div class="question-list">
+              @for (question of filteredQuestions(); track question.questionId) {
+                <button
+                  class="question-card"
+                  type="button"
+                  [class.selected]="selectedQuestionId === question.questionId"
+                  (click)="selectQuestion(question.questionId)"
+                >
+                  <strong>{{ truncateText(question.stem, 86) }}</strong>
+                  <span class="card-meta">
+                    <span class="mini-chip" [ngClass]="dimensionClass(question.dimensionName)">
+                      {{ question.dimensionName }}
+                    </span>
+                    <span class="mini-chip origin">{{ question.questionType }}</span>
+                    <span class="mini-chip status">{{ question.isActive ? 'Activa' : 'Inactiva' }}</span>
+                  </span>
+                  <small>{{ question.optionCount }} opciones</small>
+                </button>
+              } @empty {
+                <article class="empty-state compact">
+                  <h3>No hay coincidencias</h3>
+                  <p>Ajusta la busqueda o cambia el filtro de dimension.</p>
+                </article>
+              }
+            </div>
           }
-        </div>
-      </div>
+        </aside>
 
-      <div class="page-actions">
-        <button class="btn btn-primary" type="button" [disabled]="saving" (click)="save()">Guardar</button>
-        @if (selectedQuestionId) {
-          <button class="btn btn-secondary" type="button" [disabled]="saving" (click)="archive()">
-            Archivar
-          </button>
-        }
-      </div>
+        <main class="editor-main" aria-label="Editor de pregunta">
+          <section class="summary-strip panel-card" aria-label="Resumen de pregunta">
+            <div>
+              <span>Tipo</span>
+              <strong>{{ summaryType() }}</strong>
+            </div>
+            <div>
+              <span>Dimension</span>
+              <strong>{{ summaryDimension() }}</strong>
+            </div>
+            <div>
+              <span>Dificultad</span>
+              <strong>{{ summaryDifficulty() }}</strong>
+            </div>
+            <div>
+              <span>Opciones</span>
+              <strong>{{ form.options.length }}</strong>
+            </div>
+            <div>
+              <span>Correcta</span>
+              <strong>{{ correctSummary() }}</strong>
+            </div>
+          </section>
 
-      <p class="status-text error">{{ errorMessage }}</p>
-      <p class="status-text success">{{ successMessage }}</p>
-    </article>
+          <section class="editor-panel">
+            <h2>Datos de la pregunta</h2>
+            <div class="question-fields">
+              <label class="field full-field">
+                <span>Enunciado</span>
+                <textarea rows="3" [(ngModel)]="form.stem"></textarea>
+              </label>
+
+              <label class="field">
+                <span>Tipo</span>
+                <input [(ngModel)]="form.questionType" />
+              </label>
+
+              <label class="field">
+                <span>Dimension</span>
+                <select [(ngModel)]="form.dimensionId">
+                  @for (item of lookups?.dimensions ?? []; track item.id) {
+                    <option [ngValue]="item.id">{{ item.name }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Dificultad</span>
+                <select [(ngModel)]="form.difficultyLevelId">
+                  <option [ngValue]="null">Sin dificultad</option>
+                  @for (item of lookups?.difficultyLevels ?? []; track item.id) {
+                    <option [ngValue]="item.id">{{ item.name }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="active-switch">
+                <span>Pregunta activa</span>
+                <input type="checkbox" [(ngModel)]="form.isActive" />
+                <i aria-hidden="true"></i>
+              </label>
+            </div>
+          </section>
+
+          <section class="editor-panel">
+            <h2>Explicacion</h2>
+            <label class="field full-field">
+              <span>Explicacion</span>
+              <textarea
+                rows="4"
+                [(ngModel)]="form.explanation"
+                placeholder="Proporciona una explicacion clara y breve que justifique por que la respuesta correcta es adecuada y por que las opciones incorrectas no lo son."
+              ></textarea>
+            </label>
+            <p class="helper-note">
+              Proporciona una explicacion clara y breve que justifique por que la respuesta correcta es adecuada y
+              por que las opciones incorrectas no lo son.
+            </p>
+          </section>
+
+          <section class="editor-panel options-panel">
+            <div class="section-heading">
+              <div>
+                <h2>Opciones de respuesta</h2>
+                <p>{{ form.options.length }} opciones · correcta: {{ correctSummary() }}</p>
+              </div>
+              <button class="secondary-action" type="button" (click)="addOption()">Agregar opcion</button>
+            </div>
+
+            <div class="options-grid">
+              @for (option of form.options; track $index) {
+                <article class="option-card" [class.correct]="option.isCorrect">
+                  <div class="option-head">
+                    <strong>Opcion {{ $index + 1 }}</strong>
+                    @if (option.isCorrect) {
+                      <span class="correct-badge">Correcta</span>
+                    }
+                  </div>
+
+                  <label class="field compact-field">
+                    <span>Texto</span>
+                    <input [(ngModel)]="option.optionText" />
+                  </label>
+
+                  <label class="field compact-field order-field">
+                    <span>Orden</span>
+                    <input type="number" min="1" [(ngModel)]="option.displayOrder" />
+                  </label>
+
+                  <div class="option-actions">
+                    <label class="correct-control">
+                      <input type="checkbox" [(ngModel)]="option.isCorrect" />
+                      <span>Correcta</span>
+                    </label>
+                    <button class="remove-action" type="button" (click)="removeOption($index)">Quitar</button>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+
+          <div class="bottom-actions">
+            @if (selectedQuestionId) {
+              <button class="secondary-action" type="button" [disabled]="saving" (click)="archive()">Archivar</button>
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            } @else {
+              <button class="primary-action" type="button" [disabled]="saving" (click)="save()">
+                {{ saving ? 'Creando...' : 'Crear pregunta' }}
+              </button>
+            }
+          </div>
+
+          @if (errorMessage) {
+            <p class="status-message error">{{ errorMessage }}</p>
+          }
+          @if (successMessage) {
+            <p class="status-message success">{{ successMessage }}</p>
+          }
+        </main>
+
+        <aside class="guide-column">
+          <article class="guide-card">
+            <h2>Guia de pregunta</h2>
+            <p><strong>Literal:</strong> la respuesta se encuentra directamente en el texto.</p>
+            <p><strong>Inferencial:</strong> la respuesta requiere deducir informacion implicita.</p>
+            <p><strong>Critica:</strong> la respuesta implica evaluar, justificar, comparar o valorar informacion.</p>
+          </article>
+
+          <article class="guide-card">
+            <h2>Recomendacion</h2>
+            <p><strong>Opciones claras:</strong> asegurate de que todas las opciones sean plausibles y breves.</p>
+            <p><strong>Explicaciones utiles:</strong> proporciona una justificacion que ayude a revisar cada opcion.</p>
+          </article>
+        </aside>
+      </div>
+    </div>
   </section>
 }
