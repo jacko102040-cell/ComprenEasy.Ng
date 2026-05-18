@@ -17,7 +17,7 @@
           [ngClass]="phaseStatusClass(phase.status)"
           [attr.aria-current]="session.currentPhaseId === phase.phaseId ? 'step' : null"
         >
-          <span>{{ phaseOrder(phase) }}. {{ phase.displayName }}</span>
+          <span>{{ phaseOrder(phase) }}. {{ phaseDisplayLabel(phase) }}</span>
         </button>
       }
     </nav>
@@ -52,7 +52,7 @@
       <section class="activity-panel">
         @if (currentPhase(); as phase) {
           <header class="phase-intro">
-            <p>Fase Actual: <strong>{{ phase.displayName }}</strong></p>
+            <p>Fase actual: <strong>{{ phaseDisplayLabel(phase) }}</strong></p>
 
             <div class="phase-title-row">
               <span class="phase-compass" aria-hidden="true">

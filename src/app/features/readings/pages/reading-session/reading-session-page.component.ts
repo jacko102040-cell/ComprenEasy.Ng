@@ -154,6 +154,25 @@ export class ReadingSessionPageComponent implements OnDestroy {
     }
   }
 
+  protected phaseDisplayLabel(phase: Pick<PhaseProgress, 'code' | 'displayName'>): string {
+    switch (phase.code.toLowerCase()) {
+      case 'preview':
+        return 'Explorar';
+      case 'question':
+        return 'Preguntar';
+      case 'read':
+        return 'Leer';
+      case 'reflect':
+        return 'Reflexionar';
+      case 'recite':
+        return 'Recitar';
+      case 'review':
+        return 'Repasar';
+      default:
+        return phase.displayName;
+    }
+  }
+
   protected phaseIntro(phase: PhaseProgress): string {
     if (phase.guidanceText) {
       return phase.guidanceText;

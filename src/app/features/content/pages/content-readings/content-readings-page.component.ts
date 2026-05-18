@@ -19,7 +19,7 @@ import { AcademicContentService } from '../../../../core/services/academic-conte
 })
 export class ContentReadingsPageComponent {
   private readonly academicContentService = inject(AcademicContentService);
-  private readonly pq4rOrder = ['Preview', 'Question', 'Read', 'Reflect', 'Recite', 'Review'];
+  private readonly pq4rOrder = ['preview', 'question', 'read', 'reflect', 'recite', 'review'];
 
   protected lookups: ContentLookups | null = null;
   protected readings: ContentReadingListItem[] = [];
@@ -203,6 +203,25 @@ export class ContentReadingsPageComponent {
     return count === 1 ? '1 pregunta' : `${count} preguntas`;
   }
 
+  protected translatedPhaseLabel(phase: Pick<ContentReadingPhaseEditor, 'code' | 'displayName'>): string {
+    switch (phase.code.trim().toLowerCase()) {
+      case 'preview':
+        return 'Explorar';
+      case 'question':
+        return 'Preguntar';
+      case 'read':
+        return 'Leer';
+      case 'reflect':
+        return 'Reflexionar';
+      case 'recite':
+        return 'Recitar';
+      case 'review':
+        return 'Repasar';
+      default:
+        return phase.displayName;
+    }
+  }
+
   private loadData(): void {
     this.academicContentService.getLookups().subscribe({
       next: (lookups) => {
@@ -304,12 +323,8 @@ export class ContentReadingsPageComponent {
   }
 
   private phaseSortIndex(phase: ContentReadingPhaseEditor): number {
-    const normalizedName = phase.displayName.trim().toLowerCase();
     const normalizedCode = phase.code.trim().toLowerCase();
-    const index = this.pq4rOrder.findIndex((item) => {
-      const normalizedItem = item.toLowerCase();
-      return normalizedName === normalizedItem || normalizedCode === normalizedItem;
-    });
+    const index = this.pq4rOrder.findIndex((item) => normalizedCode === item);
 
     return index === -1 ? Number.MAX_SAFE_INTEGER : index;
   }

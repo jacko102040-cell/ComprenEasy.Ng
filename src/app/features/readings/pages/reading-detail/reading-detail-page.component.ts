@@ -25,7 +25,7 @@ const defaultReadingBackground = 'assets/img/readings/default-reading.png';
 const phasePresentations: PhasePresentation[] = [
   {
     code: 'preview',
-    title: 'Preview',
+    title: 'Explorar',
     guidance: 'Observa titulos y pistas antes de leer.',
     minutes: 1,
     icon: 'book-open',
@@ -33,7 +33,7 @@ const phasePresentations: PhasePresentation[] = [
   },
   {
     code: 'question',
-    title: 'Question',
+    title: 'Preguntar',
     guidance: 'Formula preguntas sobre lo que esperas encontrar.',
     minutes: 3,
     icon: 'question',
@@ -41,7 +41,7 @@ const phasePresentations: PhasePresentation[] = [
   },
   {
     code: 'read',
-    title: 'Read',
+    title: 'Leer',
     guidance: 'Lee con atencion buscando ideas centrales y detalles.',
     minutes: 4,
     icon: 'book',
@@ -49,7 +49,7 @@ const phasePresentations: PhasePresentation[] = [
   },
   {
     code: 'reflect',
-    title: 'Reflect',
+    title: 'Reflexionar',
     guidance: 'Relaciona lo leido con conocimientos previos y situaciones reales.',
     minutes: 5,
     icon: 'spark',
@@ -57,7 +57,7 @@ const phasePresentations: PhasePresentation[] = [
   },
   {
     code: 'recite',
-    title: 'Recite',
+    title: 'Recitar',
     guidance: 'Explica con tus palabras lo aprendido.',
     minutes: 3,
     icon: 'chat',
@@ -65,7 +65,7 @@ const phasePresentations: PhasePresentation[] = [
   },
   {
     code: 'review',
-    title: 'Review',
+    title: 'Repasar',
     guidance: 'Revisa ideas clave y verifica tus respuestas.',
     minutes: 3,
     icon: 'edit',

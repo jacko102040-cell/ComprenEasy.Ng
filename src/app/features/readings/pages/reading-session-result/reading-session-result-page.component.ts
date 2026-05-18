@@ -152,7 +152,16 @@ export class ReadingSessionResultPageComponent {
   }
 
   protected statusLabel(status: string): string {
-    return status === 'Completed' ? 'Completado' : status;
+    switch (status) {
+      case 'Completed':
+        return 'Completada';
+      case 'InProgress':
+        return 'En progreso';
+      case 'Pending':
+        return 'Pendiente';
+      default:
+        return status;
+    }
   }
 
   protected translatedStatus(status: string | null | undefined): string {
@@ -215,6 +224,25 @@ export class ReadingSessionResultPageComponent {
     return this.recommendation.recommendedAssessmentTitle
       ?? this.recommendation.recommendedDifficultyLevelName
       ?? this.recommendation.predictedAction;
+  }
+
+  protected phaseDisplayLabel(phase: Pick<PhaseProgress, 'code' | 'displayName'>): string {
+    switch (phase.code.toLowerCase()) {
+      case 'preview':
+        return 'Explorar';
+      case 'question':
+        return 'Preguntar';
+      case 'read':
+        return 'Leer';
+      case 'reflect':
+        return 'Reflexionar';
+      case 'recite':
+        return 'Recitar';
+      case 'review':
+        return 'Repasar';
+      default:
+        return phase.displayName;
+    }
   }
 
   protected recommendationPrimaryRoute(): string | unknown[] | null {

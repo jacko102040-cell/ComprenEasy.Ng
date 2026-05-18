@@ -200,7 +200,7 @@
               @for (phase of orderedPhases(); track phase.phaseId; let index = $index) {
                 <article class="phase-accordion" [class.open]="isPhaseExpanded(phase.phaseId)">
                   <button class="phase-summary" type="button" (click)="togglePhase(phase.phaseId)">
-                    <span class="phase-title">{{ index + 1 }}. {{ phase.displayName }}</span>
+                    <span class="phase-title">{{ index + 1 }}. {{ translatedPhaseLabel(phase) }}</span>
                     <span class="phase-summary-meta">
                       <span class="phase-chip" [class.inactive]="!phase.isEnabled">
                         {{ phase.isEnabled ? 'Habilitada' : 'Inactiva' }}
@@ -258,12 +258,12 @@
         <article class="panel-card guide-card">
           @if (selectedReadingId) {
             <h2>Guia PQ4R</h2>
-            <p><strong>Preview:</strong> observar titulo, subtitulos e imagenes.</p>
-            <p><strong>Question:</strong> formular preguntas antes de leer.</p>
-            <p><strong>Read:</strong> leer con proposito.</p>
-            <p><strong>Reflect:</strong> relacionar ideas.</p>
-            <p><strong>Recite:</strong> explicar con palabras propias.</p>
-            <p><strong>Review:</strong> repasar y consolidar.</p>
+            <p><strong>Explorar:</strong> observar titulo, subtitulos e imagenes.</p>
+            <p><strong>Preguntar:</strong> formular preguntas antes de leer.</p>
+            <p><strong>Leer:</strong> leer con proposito.</p>
+            <p><strong>Reflexionar:</strong> relacionar ideas.</p>
+            <p><strong>Recitar:</strong> explicar con palabras propias.</p>
+            <p><strong>Repasar:</strong> repasar y consolidar.</p>
           } @else {
             <h2>Resumen de nueva lectura</h2>
             <p>Completa titulo, dificultad, contenido y al menos una fase PQ4R para guardar.</p>

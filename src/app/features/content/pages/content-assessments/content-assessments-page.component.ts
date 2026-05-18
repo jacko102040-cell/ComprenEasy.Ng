@@ -208,7 +208,15 @@ export class ContentAssessmentsPageComponent {
       return 'Pendiente';
     }
 
-    return this.isInternalType(type) ? 'Interno / Historico' : type;
+    if (this.normalizeText(type) === 'readingpractice') {
+      return 'Práctica de lectura';
+    }
+
+    if (this.normalizeText(type) === 'posttest') {
+      return 'Postest';
+    }
+
+    return this.isInternalType(type) ? 'Interno / Histórico' : type;
   }
 
   protected typeClass(type: string | null | undefined): string {

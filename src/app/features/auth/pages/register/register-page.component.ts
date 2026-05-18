@@ -27,32 +27,32 @@ export class RegisterPageComponent {
   protected readonly pq4rSteps = [
     {
       id: 'preview',
-      name: 'Preview',
+      name: 'Explorar',
       description: 'Explora el texto antes de leer.'
     },
     {
       id: 'question',
-      name: 'Question',
+      name: 'Preguntar',
       description: 'Convierte ideas en preguntas.'
     },
     {
       id: 'read',
-      name: 'Read',
+      name: 'Leer',
       description: 'Lee con propósito y atención.'
     },
     {
       id: 'reflect',
-      name: 'Reflect',
+      name: 'Reflexionar',
       description: 'Relaciona y analiza lo leído.'
     },
     {
       id: 'recite',
-      name: 'Recite',
+      name: 'Recitar',
       description: 'Explica con tus palabras.'
     },
     {
       id: 'review',
-      name: 'Review',
+      name: 'Repasar',
       description: 'Repasa y consolida tu avance.'
     }
   ];

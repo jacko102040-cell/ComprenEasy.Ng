@@ -8,7 +8,7 @@ type MaterialCategory =
   | 'Lectura crítica'
   | 'PQ4R'
   | 'Inteligencia artificial'
-  | 'Machine Learning';
+  | 'Aprendizaje automático';
 
 type MaterialCategoryFilter = MaterialCategory | 'Todos';
 
@@ -39,7 +39,7 @@ export class MaterialsPageComponent {
     'Lectura crítica',
     'PQ4R',
     'Inteligencia artificial',
-    'Machine Learning'
+    'Aprendizaje automático'
   ];
 
   protected readonly materials: LearningMaterial[] = [
@@ -135,7 +135,7 @@ export class MaterialsPageComponent {
     {
       id: 9,
       title: 'Cómo usar PQ4R para leer mejor',
-      description: 'Conoce las fases Preview, Question, Read, Reflect, Recite y Review.',
+      description: 'Conoce las fases Explorar, Preguntar, Leer, Reflexionar, Recitar y Repasar.',
       category: 'PQ4R',
       type: 'Video',
       duration: '7 min',
@@ -168,10 +168,10 @@ export class MaterialsPageComponent {
     },
     {
       id: 12,
-      title: 'Machine Learning explicado fácil',
+      title: 'Aprendizaje automático explicado fácil',
       description:
         'Introducción simple a cómo los sistemas aprenden de datos para realizar recomendaciones.',
-      category: 'Machine Learning',
+      category: 'Aprendizaje automático',
       type: 'Video',
       duration: '6 min',
       youtubeVideoId: 'vj6v4YHTNF4',

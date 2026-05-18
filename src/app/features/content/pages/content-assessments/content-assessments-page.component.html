@@ -65,10 +65,10 @@
               [class.selected]="assessmentFilter === 'ReadingPractice'"
               (click)="setAssessmentFilter('ReadingPractice')"
             >
-              ReadingPractice
+              Práctica de lectura
             </button>
             <button type="button" [class.selected]="assessmentFilter === 'Posttest'" (click)="setAssessmentFilter('Posttest')">
-              Posttest
+              Postest
             </button>
             <button type="button" [class.selected]="assessmentFilter === 'Internas'" (click)="setAssessmentFilter('Internas')">
               Internas
@@ -81,7 +81,7 @@
           @if (assessments.length === 0) {
             <article class="empty-state">
               <h3>Aun no hay evaluaciones registradas</h3>
-              <p>Crea tu primera evaluacion para asociarla a lecturas, posttest o actividades ReadingPractice.</p>
+              <p>Crea tu primera evaluacion para asociarla a lecturas, postest o actividades de práctica de lectura.</p>
               <button class="primary-action" type="button" (click)="startNew()">Crear nueva evaluacion</button>
             </article>
           } @else {
@@ -151,9 +151,9 @@
                 <span>Tipo</span>
                 <select [(ngModel)]="form.assessmentType">
                   <option value="">Seleccionar</option>
-                  <option value="ReadingPractice">ReadingPractice</option>
-                  <option value="Posttest">Posttest</option>
-                  <option value="Pretest">Interno / Historico</option>
+                  <option value="ReadingPractice">Práctica de lectura</option>
+                  <option value="Posttest">Postest</option>
+                  <option value="Pretest">Interno / Histórico</option>
                 </select>
               </label>
 
@@ -299,9 +299,9 @@
         <aside class="guide-column">
           <article class="guide-card">
             <h2>Guia de evaluacion</h2>
-            <p><strong>ReadingPractice:</strong> evaluaciones breves para el refuerzo de contenidos especificos.</p>
-            <p><strong>Posttest:</strong> prueba posterior al proceso lector.</p>
-            <p><strong>Interno / Historico:</strong> evaluacion creada manualmente o archivada, no asociada al flujo principal.</p>
+            <p><strong>Práctica de lectura:</strong> evaluaciones breves para el refuerzo de contenidos especificos.</p>
+            <p><strong>Postest:</strong> prueba posterior al proceso lector.</p>
+            <p><strong>Interno / Histórico:</strong> evaluacion creada manualmente o archivada, no asociada al flujo principal.</p>
           </article>
 
           <article class="guide-card">

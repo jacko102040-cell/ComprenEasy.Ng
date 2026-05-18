@@ -24,12 +24,12 @@ export class LoginPageComponent {
   protected errorMessage = '';
 
   protected pq4rSteps = [
-    { id: 'preview', name: 'Preview', icon: 'ph ph-eye' },
-    { id: 'question', name: 'Question', icon: 'ph ph-question' },
-    { id: 'read', name: 'Read', icon: 'ph ph-book-open' },
-    { id: 'reflect', name: 'Reflect', icon: 'ph ph-brain' },
-    { id: 'recite', name: 'Recite', icon: 'ph ph-microphone' },
-    { id: 'review', name: 'Review', icon: 'ph ph-arrows-counter-clockwise' },
+    { id: 'preview', name: 'Explorar', icon: 'ph ph-eye' },
+    { id: 'question', name: 'Preguntar', icon: 'ph ph-question' },
+    { id: 'read', name: 'Leer', icon: 'ph ph-book-open' },
+    { id: 'reflect', name: 'Reflexionar', icon: 'ph ph-brain' },
+    { id: 'recite', name: 'Recitar', icon: 'ph ph-microphone' },
+    { id: 'review', name: 'Repasar', icon: 'ph ph-arrows-counter-clockwise' }
   ];
 
   constructor() {

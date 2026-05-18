@@ -39,7 +39,7 @@
             <div class="hero-actions">
               <a class="secondary-action" routerLink="/readings">Volver a lecturas</a>
               <button class="primary-action" type="button" (click)="openAdaptiveRecommendation()">
-                Recomendacion adaptativa
+                Recomendación adaptativa
               </button>
             </div>
           </div>
@@ -83,7 +83,7 @@
           </article>
 
           <article class="result-card recommendation-card">
-            <h2>3. Recomendacion IA</h2>
+            <h2>3. Recomendación IA</h2>
 
             @if (recommendationLoading) {
               <p class="recommendation-muted">Generando recomendacion adaptativa...</p>
@@ -114,7 +114,7 @@
             <article class="phase-card">
               <div class="phase-top">
                 <div>
-                  <h3>{{ phaseOrder(phase.sequenceOrder, phase.displayOrder) }}. {{ phase.displayName }}</h3>
+                  <h3>{{ phaseOrder(phase.sequenceOrder, phase.displayOrder) }}. {{ phaseDisplayLabel(phase) }}</h3>
                   <p>
                     {{ phase.answeredQuestions }}/{{ phase.totalQuestions }} preguntas
                     <span aria-hidden="true">|</span>
