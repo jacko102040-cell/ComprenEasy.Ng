@@ -1,3 +1,4 @@
 export const environment = {
-  apiBaseUrl: 'https://REEMPLAZAR-POR-API-AZURE.azurewebsites.net/api'
+  production: true,
+  apiBaseUrl: 'https://compreneasy-api-jairo-fwfbaxbwffauacf7.centralus-01.azurewebsites.net/api'
 };
