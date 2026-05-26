@@ -75,9 +75,11 @@ export class AttemptResultPageComponent {
       return 'Actividad sugerida no disponible';
     }
 
-    return this.recommendation.recommendedActivityType
+    const activity = this.recommendation.recommendedActivityType
       ?? this.recommendation.recommendedAssessmentTitle
       ?? 'Actividad sugerida no disponible';
+
+    return this.displayEvaluationLabel(activity);
   }
 
   protected recommendationPrimaryRoute(): string | unknown[] | null {
@@ -252,6 +254,10 @@ export class AttemptResultPageComponent {
         this.generateRecommendation(attemptId);
       }
     });
+  }
+
+  private displayEvaluationLabel(value: string): string {
+    return value.replace(/post[-\s]?test|postest/gi, 'Evaluacion final');
   }
 
   private generateRecommendation(attemptId: number): void {

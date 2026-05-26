@@ -4,7 +4,7 @@
       <section class="posttest-hero" [class.locked]="!isPosttestEnabled()">
         @if (isPosttestEnabled()) {
           <span class="hero-kicker">Meta cumplida</span>
-          <h1>¡Ya puedes realizar tu posttest final!</h1>
+          <h1>¡Ya puedes realizar tu Evaluacion final!</h1>
           <p>Completaste las lecturas requeridas y puedes cerrar tu proceso de refuerzo lector.</p>
 
           <div class="hero-progress" aria-label="Progreso de lecturas requeridas">
@@ -17,10 +17,10 @@
             <em>Lecturas realizadas: {{ totalCompletedReadings() }}</em>
           </div>
 
-          <a class="hero-action" routerLink="/posttests">Iniciar posttest final</a>
+          <a class="hero-action" routerLink="/posttests">Iniciar Evaluacion final</a>
         } @else {
           <span class="hero-kicker muted">En progreso</span>
-          <h1>Posttest aún no disponible</h1>
+          <h1>Evaluacion aún no disponible</h1>
           <p>Completa las lecturas requeridas para desbloquear la evaluación final.</p>
 
           <div class="hero-progress" aria-label="Progreso de lecturas requeridas">
@@ -51,7 +51,7 @@
               </div>
               <div class="path-step" [class.current]="canAccessPosttest()" [class.pending]="!canAccessPosttest()">
                 <span aria-hidden="true">{{ canAccessPosttest() ? '3' : '•' }}</span>
-                <strong>3. Posttest final</strong>
+                <strong>3. Evaluacion final</strong>
               </div>
             </div>
           </article>
@@ -67,7 +67,7 @@
             <p>
               {{
                 canAccessPosttest()
-                  ? 'El proceso de refuerzo lector ha finalizado y está listo para la validación final con el posttest.'
+                  ? 'El proceso de refuerzo lector ha finalizado y está listo para la validación final con la evaluaciòn.'
                   : 'El proceso de refuerzo lector continúa con lecturas PQ4R antes de habilitar la evaluación final.'
               }}
             </p>
@@ -118,12 +118,12 @@
 
             <div class="final-facts">
               <span>Estado: {{ posttestStatusLabel() }}</span>
-              <span>Tipo: Posttest final</span>
+              <span>Tipo: Evaluacion final</span>
               <span>Propósito: validar progreso lector final</span>
             </div>
 
             @if (showPosttestAction()) {
-              <a class="secondary-posttest-action" [routerLink]="posttestActionRoute()">Ir al posttest</a>
+              <a class="secondary-posttest-action" [routerLink]="posttestActionRoute()">Ir a la evaluaciòn</a>
             } @else {
               <a class="secondary-posttest-action muted" routerLink="/readings">Continuar lecturas PQ4R</a>
             }

@@ -86,7 +86,7 @@ export class DashboardPageComponent {
 
   protected nextActivityLabel(): string {
     if (this.isPosttestEnabled()) {
-      return 'Iniciar posttest final';
+      return 'Iniciar evaluacion final';
     }
 
     if (this.summary?.completedReadingSessions) {
@@ -117,11 +117,13 @@ export class DashboardPageComponent {
       return 'Sin actividad directa';
     }
 
-    return (
+    const activity = (
       this.recommendation.recommendedActivityType ??
       this.recommendation.recommendedAssessmentTitle ??
       'Actividad de refuerzo'
     );
+
+    return this.displayEvaluationLabel(activity);
   }
 
   protected recommendationActionLabel(): string {
@@ -129,7 +131,9 @@ export class DashboardPageComponent {
       return 'Sin datos';
     }
 
-    return this.isPosttestRecommendation() ? 'Posttest' : this.recommendation.predictedAction;
+    return this.isPosttestRecommendation()
+      ? 'Evaluacion final'
+      : this.displayEvaluationLabel(this.recommendation.predictedAction);
   }
 
   protected recommendationButtonLabel(): string {
@@ -281,27 +285,27 @@ export class DashboardPageComponent {
   protected posttestTitle(): string {
     switch (this.posttestCardState()) {
       case 'available':
-        return 'Evaluación final disponible';
+        return 'Evaluacion final disponible';
       case 'completed':
-        return 'Evaluación final completada';
+        return 'Evaluacion final completada';
       default:
-        return 'Posttest aún no disponible';
+        return 'Evaluacion final aún no disponible';
     }
   }
 
   protected posttestDescription(): string {
     switch (this.posttestCardState()) {
       case 'available':
-        return 'Usa el posttest para validar tu avance después del trabajo con lecturas PQ4R.';
+        return 'Usa la evaluacion final para validar tu avance después del trabajo con lecturas PQ4R.';
       case 'completed':
-        return 'Ya registraste el posttest como cierre del proceso de refuerzo lector.';
+        return 'Ya registraste la evaluacion final como cierre del proceso de refuerzo lector.';
       default:
         return 'Completa las lecturas requeridas para desbloquear la evaluación final.';
     }
   }
 
   protected posttestActionLabel(): string {
-    return this.summary?.hasCompletedPosttest ? 'Ver dashboard' : 'Ir al posttest';
+    return this.summary?.hasCompletedPosttest ? 'Ver dashboard' : 'Ir a la evaluacion final';
   }
 
   protected posttestActionRoute(): string {
@@ -318,5 +322,9 @@ export class DashboardPageComponent {
     }
 
     return ['/pretests', '/pre-post-comparison'].includes(route) ? '/readings' : route;
+  }
+
+  private displayEvaluationLabel(value: string): string {
+    return value.replace(/post[-\s]?test|postest/gi, 'Evaluacion final');
   }
 }

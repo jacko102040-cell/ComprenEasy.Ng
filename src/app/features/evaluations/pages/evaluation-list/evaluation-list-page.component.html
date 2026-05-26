@@ -4,7 +4,7 @@
       <div class="hero-pattern" aria-hidden="true"></div>
       <article class="hero-panel">
         <span>Evaluacion de cierre</span>
-        <h1>Posttest final disponible</h1>
+        <h1>Evaluacion final disponible</h1>
         <p>
           Esta evaluacion final cierra el proceso de refuerzo lector y comprueba tu avance despues del trabajo con las lecturas PQ4R.
         </p>
@@ -30,13 +30,13 @@
         </aside>
       } @else if (errorMessage) {
         <article class="state-card error-state">
-          <h2>No se pudo cargar el posttest final</h2>
+          <h2>No se pudo cargar la evaluacion final</h2>
           <p>{{ errorMessage }}</p>
         </article>
       } @else if (!posttestAssessment()) {
         <article class="state-card empty-state">
           <h2>Evaluacion final aun no disponible</h2>
-          <p>Completa tus lecturas PQ4R para habilitar el posttest final.</p>
+          <p>Completa tus lecturas PQ4R para habilitar la evaluacion final.</p>
           <a routerLink="/readings">Ir a lecturas PQ4R</a>
         </article>
       } @else {
@@ -48,10 +48,7 @@
 
             <div class="posttest-card-body">
               <p>
-                {{
-                  posttestAssessment()?.description ||
-                    'Posttest activo para validar el cierre del flujo academico y certificar tu progreso en las dimensiones de comprension lectora.'
-                }}
+                {{ posttestDescription() }}
               </p>
 
               <div class="meta-grid">

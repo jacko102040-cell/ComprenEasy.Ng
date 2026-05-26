@@ -58,7 +58,16 @@ export class EvaluationListPageComponent {
   protected posttestTitle(): string {
     const assessment = this.posttestAssessment();
 
-    return assessment?.readingTitle?.trim() || assessment?.title || '[Seed Flow] Posttest Final';
+    return this.displayEvaluationLabel(
+      assessment?.readingTitle?.trim() || assessment?.title || '[Seed Flow] Evaluacion Final'
+    );
+  }
+
+  protected posttestDescription(): string {
+    return this.displayEvaluationLabel(
+      this.posttestAssessment()?.description ||
+        'Evaluacion activa para validar el cierre del flujo academico y certificar tu progreso en las dimensiones de comprension lectora.'
+    );
   }
 
   protected canStartPosttest(): boolean {
@@ -67,7 +76,7 @@ export class EvaluationListPageComponent {
 
   protected posttestUnavailableMessage(): string {
     if (!this.posttestAssessment()) {
-      return 'Completa tus lecturas PQ4R para habilitar el posttest final.';
+      return 'Completa tus lecturas PQ4R para habilitar la evaluacion final.';
     }
 
     return 'Completa las lecturas requeridas para habilitar la evaluacion final.';
@@ -99,8 +108,12 @@ export class EvaluationListPageComponent {
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error?.error?.message ?? 'No se pudo cargar el posttest final.';
+        this.errorMessage = error?.error?.message ?? 'No se pudo cargar la evaluacion final.';
       }
     });
+  }
+
+  private displayEvaluationLabel(value: string): string {
+    return value.replace(/post[-\s]?test|postest/gi, 'Evaluacion final');
   }
 }

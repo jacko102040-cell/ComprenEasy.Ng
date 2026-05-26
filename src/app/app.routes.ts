@@ -65,7 +65,7 @@ export const routes: Routes = [
       requiredAcademicAccessFlag: 'canAccessPosttest',
       allowedAcademicStages: ['Posttest'],
       assessmentType: 'Posttest',
-      title: 'Posttest disponible'
+      title: 'Evaluacion final disponible'
     }
   },
   {

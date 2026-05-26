@@ -129,12 +129,12 @@ export class TeacherStudentListPageComponent {
     this.teacherPanelService.exportPosttestReadings().subscribe({
       next: (file) => {
         this.exporting = false;
-        this.downloadFile(file, 'seguimiento_postest_lecturas.xlsx');
+        this.downloadFile(file, 'seguimiento_evaluacion_final_lecturas.xlsx');
       },
       error: (error) => {
         this.exporting = false;
         this.errorMessage =
-          error?.error?.message ?? 'No se pudo descargar el Excel de postest y lecturas.';
+          error?.error?.message ?? 'No se pudo descargar el Excel de evaluacion final y lecturas.';
       }
     });
   }

@@ -213,7 +213,7 @@ export class ContentAssessmentsPageComponent {
     }
 
     if (this.normalizeText(type) === 'posttest') {
-      return 'Postest';
+      return 'Evaluacion final';
     }
 
     return this.isInternalType(type) ? 'Interno / Histórico' : type;
