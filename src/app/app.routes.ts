@@ -73,7 +73,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: {
       roles: ['Student'],
-      allowedAcademicStages: ['Readings', 'Posttest']
+      allowedAcademicStages: ['Readings', 'Posttest', 'Completed']
     },
     loadComponent: () =>
       import('./features/readings/pages/reading-list/reading-list-page.component').then(
@@ -85,7 +85,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: {
       roles: ['Student'],
-      allowedAcademicStages: ['Readings', 'Posttest']
+      allowedAcademicStages: ['Readings', 'Posttest', 'Completed']
     },
     loadComponent: () =>
       import('./features/readings/pages/reading-detail/reading-detail-page.component').then(
@@ -97,7 +97,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: {
       roles: ['Student'],
-      allowedAcademicStages: ['Readings', 'Posttest']
+      allowedAcademicStages: ['Readings', 'Posttest', 'Completed']
     },
     loadComponent: () =>
       import('./features/readings/pages/reading-session/reading-session-page.component').then(

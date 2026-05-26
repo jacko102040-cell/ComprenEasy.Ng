@@ -105,6 +105,10 @@ export class EvaluationDetailPageComponent {
   }
 
   protected selectOption(questionId: number, optionId: number): void {
+    if (this.busy) {
+      return;
+    }
+
     const now = Date.now();
     this.captureElapsedTime(questionId, now, true);
     this.selectedAnswers = {
@@ -112,6 +116,7 @@ export class EvaluationDetailPageComponent {
       [questionId]: optionId
     };
     this.persistDraft();
+    this.saveSelectedAnswerAndAdvance(questionId);
   }
 
   protected isSelected(questionId: number, optionId: number): boolean {
@@ -325,6 +330,63 @@ export class EvaluationDetailPageComponent {
     });
   }
 
+  private ensureAttemptForAutosave(nextStep: () => void): void {
+    if (this.attemptId) {
+      nextStep();
+      return;
+    }
+
+    if (!this.assessment) {
+      return;
+    }
+
+    this.busy = true;
+    this.errorMessage = '';
+
+    this.evaluationService.startAttempt(this.assessment.assessmentId).subscribe({
+      next: (attempt) => {
+        this.attemptId = attempt.attemptId;
+        this.attemptStatus = attempt.status;
+        this.persistDraft();
+        nextStep();
+      },
+      error: (error) => {
+        this.busy = false;
+        this.errorMessage = error?.error?.message ?? 'No se pudo iniciar el intento.';
+      }
+    });
+  }
+
+  private saveSelectedAnswerAndAdvance(questionId: number): void {
+    this.ensureAttemptForAutosave(() => {
+      const answer = this.buildAnswerPayloadForQuestion(questionId);
+
+      if (!answer) {
+        this.busy = false;
+        return;
+      }
+
+      this.busy = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+
+      this.evaluationService.saveAnswers(this.attemptId!, { answers: [answer] }).subscribe({
+        next: () => {
+          this.commitSyncedAnswerTimes([answer]);
+          this.busy = false;
+
+          if (this.canGoNext()) {
+            this.nextQuestion();
+          }
+        },
+        error: (error) => {
+          this.busy = false;
+          this.errorMessage = error?.error?.message ?? 'No se pudo guardar la respuesta.';
+        }
+      });
+    });
+  }
+
   private syncAttemptFromBackend(
     attemptId: number,
     successMessage?: string,
@@ -423,6 +485,25 @@ export class EvaluationDetailPageComponent {
         answerTimeSeconds: accumulated + deltaSeconds
       };
     });
+  }
+
+  private buildAnswerPayloadForQuestion(questionId: number): SaveAttemptAnswerItem | null {
+    const selectedOptionId = this.selectedAnswers[questionId];
+
+    if (!selectedOptionId) {
+      return null;
+    }
+
+    const now = Date.now();
+    const accumulated = this.answerTimeSeconds[questionId] ?? 0;
+    const anchor = this.answerAnchors[questionId] ?? now;
+    const deltaSeconds = Math.max(0, Math.floor((now - anchor) / 1000));
+
+    return {
+      questionId,
+      selectedOptionId,
+      answerTimeSeconds: accumulated + deltaSeconds
+    };
   }
 
   private commitSyncedAnswerTimes(answers: SaveAttemptAnswerItem[]): void {
