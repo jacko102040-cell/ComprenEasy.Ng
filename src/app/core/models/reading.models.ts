@@ -137,6 +137,17 @@ export interface SaveReadingPhaseAnswerItem {
   answerTimeSeconds: number;
 }
 
+export interface SaveReadingPhaseAnswerResponse {
+  attemptId: number;
+  phaseId: number;
+  savedAnswers: number;
+  phaseAnsweredQuestions: number;
+  phaseTotalQuestions: number;
+  totalAnsweredQuestions: number;
+  totalQuestions: number;
+  completionPercentage: number;
+}
+
 export interface SaveReadingPhaseProgressRequest {
   timeSpentSeconds: number;
   progressNote: string | null;

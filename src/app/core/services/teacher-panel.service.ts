@@ -28,6 +28,12 @@ export class TeacherPanelService {
     return this.http.get<TeacherCommentTag[]>(`${this.apiBaseUrl}/teacher-panel/comment-tags`);
   }
 
+  exportPosttestReadings(): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/teacher-panel/exports/posttest-readings.xlsx`, {
+      responseType: 'blob'
+    });
+  }
+
   resetStudentPassword(studentId: number): Observable<ResetStudentPasswordResult> {
     return this.http.post<ResetStudentPasswordResult>(
       `${this.apiBaseUrl}/teacher-panel/students/${studentId}/reset-password`,

@@ -13,6 +13,7 @@ import {
   TeacherStudentReadingSession
 } from '../../../../core/models/teacher-panel.models';
 import { TeacherPanelService } from '../../../../core/services/teacher-panel.service';
+import { utcDateInput } from '../../../../core/utils/date-time.utils';
 
 @Component({
   selector: 'app-teacher-student-detail-page',
@@ -248,6 +249,10 @@ export class TeacherStudentDetailPageComponent {
     }
 
     return `Intento #${comment.attemptId}`;
+  }
+
+  protected utcDate(value: string | null | undefined): string | null {
+    return utcDateInput(value);
   }
 
   protected trackTag(_: number, tag: TeacherCommentTag): number {

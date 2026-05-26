@@ -4,6 +4,19 @@
       <span class="teacher-badge">Panel docente</span>
       <h1>Seguimiento de estudiantes</h1>
       <p>Revisa progreso, sesiones, puntajes y recomendaciones desde un panel único de seguimiento.</p>
+      <button
+        class="export-button"
+        type="button"
+        [disabled]="exporting"
+        (click)="downloadPosttestReadingsExport()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3v11" />
+          <path d="m8 10 4 4 4-4" />
+          <path d="M5 17v2h14v-2" />
+        </svg>
+        {{ exporting ? 'Preparando Excel...' : 'Descargar Excel' }}
+      </button>
       @if (errorMessage) {
         <p class="status-text error">{{ errorMessage }}</p>
       }
@@ -170,7 +183,7 @@
                     <span>
                       {{
                         student.lastActivityAt
-                          ? (student.lastActivityAt | date: 'short')
+                          ? (utcDate(student.lastActivityAt) | date: 'dd/MM/yyyy HH:mm':'-0500')
                           : 'Sin actividad registrada'
                       }}
                     </span>

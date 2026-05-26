@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TeacherStudentListItem } from '../../../../core/models/teacher-panel.models';
 import { TeacherPanelService } from '../../../../core/services/teacher-panel.service';
+import { utcDateInput } from '../../../../core/utils/date-time.utils';
 
 @Component({
   selector: 'app-teacher-student-list-page',
@@ -16,6 +17,7 @@ export class TeacherStudentListPageComponent {
 
   protected students: TeacherStudentListItem[] = [];
   protected loading = true;
+  protected exporting = false;
   protected errorMessage = '';
   protected searchTerm = '';
   protected selectedGrade = 'Todos';
@@ -114,6 +116,27 @@ export class TeacherStudentListPageComponent {
     this.selectedGrade = 'Todos';
     this.selectedSection = 'Todos';
     this.selectedStatus = 'Todos';
+  }
+
+  protected downloadPosttestReadingsExport(): void {
+    if (this.exporting) {
+      return;
+    }
+
+    this.exporting = true;
+    this.errorMessage = '';
+
+    this.teacherPanelService.exportPosttestReadings().subscribe({
+      next: (file) => {
+        this.exporting = false;
+        this.downloadFile(file, 'seguimiento_postest_lecturas.xlsx');
+      },
+      error: (error) => {
+        this.exporting = false;
+        this.errorMessage =
+          error?.error?.message ?? 'No se pudo descargar el Excel de postest y lecturas.';
+      }
+    });
   }
 
   protected initials(fullName: string): string {
@@ -218,6 +241,10 @@ export class TeacherStudentListPageComponent {
     return 'muted';
   }
 
+  protected utcDate(value: string | null | undefined): string | null {
+    return utcDateInput(value);
+  }
+
   protected requiresReinforcement(student: TeacherStudentListItem): boolean {
     const recommendation = (student.latestRecommendationAction || '').toLowerCase();
 
@@ -241,5 +268,14 @@ export class TeacherStudentListPageComponent {
 
   private uniqueOptions(options: string[]): string[] {
     return Array.from(new Set(options)).sort((first, second) => first.localeCompare(second));
+  }
+
+  private downloadFile(file: Blob, fileName: string): void {
+    const url = URL.createObjectURL(file);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
   }
 }

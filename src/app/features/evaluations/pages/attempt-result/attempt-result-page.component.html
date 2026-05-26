@@ -1,131 +1,223 @@
 @if (loading) {
-  <article class="page-card">
+  <article class="page-card loading-card">
+    <span class="result-badge muted">Posttest final</span>
     <p class="page-subtitle">Cargando resultado...</p>
   </article>
 } @else if (result) {
-  <section class="result-shell">
-    <article class="page-card summary-card">
-      <span class="chip soft">{{ result.assessmentType }}</span>
-      <h1 class="page-title">{{ result.assessmentTitle }}</h1>
-      <p class="page-subtitle">
-        Estado: {{ result.status }} | Finalizado:
-        {{ result.finishedAt ? (result.finishedAt | date: 'short') : 'Aún no finalizado' }}
-      </p>
-      <p class="result-note">
-        Has completado esta evaluación. Revisa tus fortalezas por dimensión y continúa con la actividad sugerida.
-      </p>
+  <section class="posttest-result-page">
+    <div class="result-shell">
+      <header class="result-hero">
+        <div class="hero-copy">
+          <span class="result-badge">Posttest final completado</span>
+          <h1>Resultado del posttest final</h1>
+          <p>Revisa tu desempeño final y la recomendación generada para continuar tu avance lector.</p>
 
-      <div class="grid-cards cols-3 metrics-grid">
-        <div class="metric-card metric-emphasis">
-          <span>Puntaje total</span>
-          <strong>{{ result.totalScore | number: '1.0-2' }}%</strong>
+          <dl class="hero-meta">
+            <div>
+              <dt>Fecha de finalización</dt>
+              <dd>{{ utcDate(result.finishedAt) ? (utcDate(result.finishedAt) | date: 'dd/MM/yyyy HH:mm':'-0500') : 'Aún no finalizado' }}</dd>
+            </div>
+            <div>
+              <dt>Tiempo total</dt>
+              <dd>{{ formatSeconds(result.totalTimeSeconds) }}</dd>
+            </div>
+            <div>
+              <dt>Avance completado</dt>
+              <dd>{{ result.completionPercentage | number: '1.0-2' }}%</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>{{ resultStatusLabel(result.status) }}</dd>
+            </div>
+          </dl>
         </div>
-        <div class="metric-card">
-          <span>Literal</span>
-          <strong>{{ result.literalScore | number: '1.0-2' }}%</strong>
-        </div>
-        <div class="metric-card">
-          <span>Inferencial</span>
-          <strong>{{ result.inferentialScore | number: '1.0-2' }}%</strong>
-        </div>
-        <div class="metric-card">
-          <span>Crítica</span>
-          <strong>{{ result.criticalScore | number: '1.0-2' }}%</strong>
-        </div>
-        <div class="metric-card success-card">
-          <span>Aciertos</span>
-          <strong>{{ result.totalCorrect }}</strong>
-        </div>
-        <div class="metric-card danger-card">
-          <span>Errores</span>
-          <strong>{{ result.totalErrors }}</strong>
-        </div>
-      </div>
 
-      <p class="helper-text">
-        Tiempo total: {{ result.totalTimeSeconds }} s | Avance completado:
-        {{ result.completionPercentage | number: '1.0-2' }}%
-      </p>
+        <a class="secondary-action" routerLink="/dashboard">Volver al dashboard</a>
+      </header>
 
-      <div class="page-actions">
-        <a class="btn btn-secondary" routerLink="/dashboard">Volver al dashboard</a>
-      </div>
-    </article>
-
-    <article class="page-card recommendation-card">
-      <div class="recommendation-head">
-        <div>
-          <span class="chip soft">Siguiente paso</span>
-          <h2>Recomendación adaptativa</h2>
-        </div>
-        @if (recommendation?.confidenceScore !== null && recommendation?.confidenceScore !== undefined) {
-          <span class="chip soft">{{ recommendation?.confidenceScore }}% confianza</span>
-        }
-      </div>
-
-      @if (recommendationLoading) {
-        <p class="page-subtitle">Generando recomendación según tu intento...</p>
-      } @else if (recommendation) {
-        <div class="recommendation-grid">
-          <div class="metric-card">
-            <span>Acción recomendada</span>
-            <strong>{{ recommendation.predictedAction }}</strong>
+      <main class="result-summary-grid">
+        <article class="score-card">
+          <div class="section-kicker">Puntaje total</div>
+          <strong class="score-value">{{ result.totalScore | number: '1.0-2' }}%</strong>
+          <div class="score-meter" aria-hidden="true">
+            <span [style.width.%]="normalizedScore(result.totalScore)"></span>
           </div>
-          <div class="metric-card">
-            <span>Dificultad sugerida</span>
-            <strong>{{ recommendation.recommendedDifficultyLevelName }}</strong>
-          </div>
-          <div class="metric-card">
-            <span>Actividad sugerida</span>
-            <strong>{{ recommendationActivityLabel() }}</strong>
-          </div>
-        </div>
+          <p>{{ performanceMessage(result.totalScore) }}</p>
 
-        <p class="page-subtitle">{{ recommendationHint() }}</p>
-
-        @if (recommendationPrimaryRoute(); as route) {
-          <div class="page-actions">
-            <a class="btn btn-primary primary-action" [routerLink]="route">Abrir actividad sugerida</a>
-          </div>
-        }
-      } @else if (recommendationEmpty) {
-        <p class="page-subtitle">No hay una recomendación disponible para este intento.</p>
-      } @else {
-        <p class="status-text error">{{ recommendationError }}</p>
-      }
-    </article>
-
-    <div class="question-list">
-      @for (answer of result.answers; track answer.questionId) {
-        <article class="page-card answer-card">
-          <div class="answer-head">
-            <span class="chip soft">{{ answer.dimensionName }}</span>
-            <span
-              class="chip"
-              [class.correct]="answer.isCorrect === true"
-              [class.incorrect]="answer.isCorrect === false"
-              [class.pending]="answer.isCorrect === null"
-            >
-              {{
-                answer.isCorrect === true
-                  ? 'Correcta'
-                  : answer.isCorrect === false
-                    ? 'Incorrecta'
-                    : 'Sin responder'
-              }}
-            </span>
-          </div>
-          <h2>{{ answer.stem }}</h2>
-          <p class="helper-text">
-            Puntaje: {{ answer.scoreObtained | number: '1.0-2' }} | Tiempo:
-            {{ answer.answerTimeSeconds }} s
-          </p>
+          <dl class="score-stats">
+            <div>
+              <dt>Aciertos</dt>
+              <dd>{{ result.totalCorrect }}</dd>
+            </div>
+            <div>
+              <dt>Errores</dt>
+              <dd>{{ result.totalErrors }}</dd>
+            </div>
+            <div>
+              <dt>Respondidas</dt>
+              <dd>{{ answeredQuestions(result) }}/{{ result.answers.length }}</dd>
+            </div>
+          </dl>
         </article>
-      }
+
+        <section class="dimension-panel" aria-labelledby="dimension-title">
+          <div class="section-heading">
+            <span class="section-kicker">Síntesis por habilidad</span>
+            <h2 id="dimension-title">Desempeño por dimensiones</h2>
+          </div>
+
+          <div class="dimension-grid">
+            @for (dimension of dimensionSummaries(result); track dimension.key) {
+              <article class="dimension-card">
+                <div class="dimension-head">
+                  <h3>{{ dimension.name }}</h3>
+                  <span
+                    class="state-pill"
+                    [class.reinforce]="dimensionStatusClass(dimension.score) === 'reinforce'"
+                    [class.process]="dimensionStatusClass(dimension.score) === 'process'"
+                    [class.good]="dimensionStatusClass(dimension.score) === 'good'"
+                  >
+                    {{ dimensionStatus(dimension.score) }}
+                  </span>
+                </div>
+                <p>{{ dimension.description }}</p>
+                <div class="dimension-progress">
+                  <span [style.width.%]="normalizedScore(dimension.score)"></span>
+                </div>
+                <div class="dimension-score">
+                  <strong>{{ dimension.score | number: '1.0-2' }}%</strong>
+                  <span>{{ dimension.score | number: '1.0-0' }}/100</span>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+
+        <article class="recommendation-card">
+          <div class="recommendation-copy">
+            <span class="section-kicker">Siguiente paso</span>
+            <h2>Recomendación adaptativa</h2>
+
+            @if (recommendationLoading) {
+              <p>Generando recomendación según tu intento...</p>
+            } @else if (recommendation) {
+              <dl class="recommendation-metrics">
+                <div>
+                  <dt>Acción recomendada</dt>
+                  <dd>{{ recommendation.predictedAction }}</dd>
+                </div>
+                <div>
+                  <dt>Dificultad sugerida</dt>
+                  <dd>{{ recommendation.recommendedDifficultyLevelName }}</dd>
+                </div>
+                <div>
+                  <dt>Actividad sugerida</dt>
+                  <dd>{{ recommendationActivityLabel() }}</dd>
+                </div>
+                <div>
+                  <dt>Confianza</dt>
+                  <dd>
+                    {{
+                      recommendation.confidenceScore !== null && recommendation.confidenceScore !== undefined
+                        ? (recommendation.confidenceScore + '%')
+                        : 'No disponible'
+                    }}
+                  </dd>
+                </div>
+              </dl>
+
+              @if (recommendationHint()) {
+                <p>{{ recommendationHint() }}</p>
+              }
+            } @else if (recommendationEmpty) {
+              <p>Actividad sugerida no disponible.</p>
+            } @else {
+              <p class="status-text error">{{ recommendationError }}</p>
+            }
+          </div>
+
+          @if (recommendationPrimaryRoute(); as route) {
+            <a class="primary-action" [routerLink]="route">Abrir actividad sugerida</a>
+          } @else {
+            <span class="primary-action disabled">Actividad sugerida no disponible</span>
+          }
+        </article>
+      </main>
+
+      <section class="answers-section" aria-labelledby="answers-title">
+        <div class="section-heading">
+          <span class="section-kicker">Detalle del intento</span>
+          <h2 id="answers-title">Revisión de respuestas</h2>
+        </div>
+
+        <div class="answer-filters" aria-label="Filtros de revisión de respuestas">
+          <button type="button" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">Todas</button>
+          <button type="button" [class.active]="activeFilter === 'correct'" (click)="setFilter('correct')">Correctas</button>
+          <button type="button" [class.active]="activeFilter === 'incorrect'" (click)="setFilter('incorrect')">Incorrectas</button>
+          <button type="button" [class.active]="activeFilter === 'literal'" (click)="setFilter('literal')">Literal</button>
+          <button type="button" [class.active]="activeFilter === 'inferential'" (click)="setFilter('inferential')">Inferencial</button>
+          <button type="button" [class.active]="activeFilter === 'critical'" (click)="setFilter('critical')">Crítica-evaluativa</button>
+        </div>
+
+        @if (filteredAnswers().length > 0) {
+          <div class="answer-list">
+            @for (answer of filteredAnswers(); track answer.questionId) {
+              <article class="answer-card">
+                <div class="answer-topline">
+                  <span class="dimension-chip">{{ answer.dimensionName }}</span>
+                  <span
+                    class="answer-chip"
+                    [class.correct]="answer.isCorrect === true"
+                    [class.incorrect]="answer.isCorrect === false"
+                    [class.pending]="answer.isCorrect === null"
+                  >
+                    {{ answerStatusLabel(answer) }}
+                  </span>
+                </div>
+
+                <h3>{{ answer.stem }}</h3>
+
+                <dl class="answer-facts">
+                  <div>
+                    <dt>Puntaje</dt>
+                    <dd>{{ answer.scoreObtained | number: '1.0-2' }}/100</dd>
+                  </div>
+                  <div>
+                    <dt>Tiempo</dt>
+                    <dd>{{ formatSeconds(answer.answerTimeSeconds) }}</dd>
+                  </div>
+                </dl>
+              </article>
+            }
+          </div>
+        } @else {
+          <article class="empty-state">
+            <h3>No hay respuestas para este filtro</h3>
+            <p>Elige otra categoría para revisar el intento completo.</p>
+          </article>
+        }
+      </section>
+
+      <section class="continuity-card">
+        <div>
+          <span class="section-kicker">Continúa tu refuerzo lector</span>
+          <h2>Continúa tu refuerzo lector</h2>
+          <p>Puedes revisar tus resultados, reforzar con una actividad sugerida o volver al dashboard.</p>
+        </div>
+
+        <div class="continuity-actions">
+          @if (recommendationPrimaryRoute(); as route) {
+            <a class="primary-action" [routerLink]="route">Abrir actividad sugerida</a>
+          } @else {
+            <span class="primary-action disabled">Actividad sugerida no disponible</span>
+          }
+          <a class="secondary-action" routerLink="/dashboard">Volver al dashboard</a>
+        </div>
+      </section>
     </div>
   </section>
 } @else {
-  <article class="page-card">
+  <article class="page-card loading-card">
     <p class="status-text error">{{ errorMessage || 'No se encontró el resultado.' }}</p>
     <a class="btn btn-link" routerLink="/dashboard">Volver al dashboard</a>
   </article>

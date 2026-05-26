@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { AcademicFlowSummary } from '../../../core/models/academic-flow.models';
 import { AcademicFlowService } from '../../../core/services/academic-flow.service';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -14,18 +13,15 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class HeaderComponent {
   protected readonly authService = inject(AuthService);
-
   private readonly academicFlowService = inject(AcademicFlowService);
   private readonly router = inject(Router);
-  protected academicSummary: AcademicFlowSummary | null = null;
+  protected readonly academicSummary = this.academicFlowService.currentSummary;
 
   constructor() {
     this.academicFlowService
       .getCurrentSummary()
-      .pipe(catchError(() => of<AcademicFlowSummary | null>(null)))
-      .subscribe((summary) => {
-        this.academicSummary = summary;
-      });
+      .pipe(catchError(() => of(null)))
+      .subscribe();
   }
 
   protected initials(fullName: string): string {
@@ -67,6 +63,6 @@ export class HeaderComponent {
   }
 
   protected canShowPosttestLink(): boolean {
-    return this.authService.currentUser()?.role === 'Student' && !!this.academicSummary?.canAccessPosttest;
+    return this.authService.currentUser()?.role === 'Student' && !!this.academicSummary()?.canAccessPosttest;
   }
 }

@@ -6,6 +6,7 @@ import {
   ReadingProgressSummary
 } from '../../../../core/models/reading.models';
 import { ReadingService } from '../../../../core/services/reading.service';
+import { utcDateInput } from '../../../../core/utils/date-time.utils';
 
 type ReadingProgressImage = ReadingProgressItem & {
   coverImageUrl?: string | null;
@@ -174,7 +175,7 @@ export class PrePostComparisonPageComponent {
   }
 
   protected dateValue(reading: ReadingProgressItem): string | null {
-    return reading.finishedAt ?? reading.startedAt;
+    return utcDateInput(reading.finishedAt ?? reading.startedAt);
   }
 
   protected getReadingImage(reading: ReadingProgressItem): string {

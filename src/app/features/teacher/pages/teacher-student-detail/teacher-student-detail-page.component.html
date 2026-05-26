@@ -64,7 +64,7 @@
             <strong>
               {{
                 student.progressSummary.lastActivityAt
-                  ? (student.progressSummary.lastActivityAt | date: 'shortDate')
+                  ? (utcDate(student.progressSummary.lastActivityAt) | date: 'dd/MM/yyyy':'-0500')
                   : 'Sin actividad'
               }}
             </strong>
@@ -136,8 +136,8 @@
                       <small>
                         {{
                           attempt.finishedAt
-                            ? (attempt.finishedAt | date: 'short')
-                            : (attempt.startedAt ? (attempt.startedAt | date: 'short') : 'Sin fecha')
+                            ? (utcDate(attempt.finishedAt) | date: 'dd/MM/yyyy HH:mm':'-0500')
+                            : (attempt.startedAt ? (utcDate(attempt.startedAt) | date: 'dd/MM/yyyy HH:mm':'-0500') : 'Sin fecha')
                         }}
                       </small>
                     </div>
@@ -174,8 +174,8 @@
                       <small>
                         {{
                           session.finishedAt
-                            ? (session.finishedAt | date: 'short')
-                            : (session.startedAt ? (session.startedAt | date: 'short') : 'Sin fecha')
+                            ? (utcDate(session.finishedAt) | date: 'dd/MM/yyyy HH:mm':'-0500')
+                            : (session.startedAt ? (utcDate(session.startedAt) | date: 'dd/MM/yyyy HH:mm':'-0500') : 'Sin fecha')
                         }}
                       </small>
                     </div>
@@ -208,7 +208,7 @@
                           | Confianza: {{ recommendation.confidenceScore | number: '1.0-0' }}%
                         }
                       </p>
-                      <small>{{ recommendation.createdAt ? (recommendation.createdAt | date: 'short') : 'Sin fecha' }}</small>
+                      <small>{{ recommendation.createdAt ? (utcDate(recommendation.createdAt) | date: 'dd/MM/yyyy HH:mm':'-0500') : 'Sin fecha' }}</small>
                     </div>
                   </section>
                 }
@@ -302,7 +302,7 @@
                   <section class="comment-item">
                     <div class="comment-meta">
                       <span class="pill muted">{{ comment.commentTagName }}</span>
-                      <small>{{ comment.createdAt | date: 'short' }}</small>
+                      <small>{{ utcDate(comment.createdAt) | date: 'dd/MM/yyyy HH:mm':'-0500' }}</small>
                     </div>
                     <p>{{ comment.commentText }}</p>
                     <small>{{ relatedAttemptLabel(comment) }}</small>

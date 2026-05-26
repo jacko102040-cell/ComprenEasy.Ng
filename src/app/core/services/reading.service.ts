@@ -7,6 +7,8 @@ import {
   ReadingDetail,
   ReadingPhase,
   ReadingProgressSummary,
+  SaveReadingPhaseAnswerItem,
+  SaveReadingPhaseAnswerResponse,
   ReadingSessionProgress,
   SaveReadingPhaseProgressRequest
 } from '../models/reading.models';
@@ -39,6 +41,17 @@ export class ReadingService {
   ): Observable<ReadingSessionProgress> {
     return this.http.put<ReadingSessionProgress>(
       `${this.apiBaseUrl}/readings/sessions/${attemptId}/phases/${phaseId}/progress`,
+      payload
+    );
+  }
+
+  savePhaseAnswer(
+    attemptId: number,
+    phaseId: number,
+    payload: SaveReadingPhaseAnswerItem
+  ): Observable<SaveReadingPhaseAnswerResponse> {
+    return this.http.post<SaveReadingPhaseAnswerResponse>(
+      `${this.apiBaseUrl}/readings/sessions/${attemptId}/phases/${phaseId}/answers`,
       payload
     );
   }

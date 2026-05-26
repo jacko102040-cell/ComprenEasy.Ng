@@ -10,6 +10,7 @@ import {
   ReadingPhaseQuestion,
   ReadingSessionProgress,
   SaveReadingPhaseAnswerItem,
+  SaveReadingPhaseAnswerResponse,
   SaveReadingPhaseProgressRequest
 } from '../../../../core/models/reading.models';
 
@@ -223,7 +224,7 @@ export class ReadingSessionPageComponent implements OnDestroy {
       [questionId]: optionId
     };
     this.persistDraft();
-    this.scheduleAutoSave(currentPhase.phaseId);
+    this.saveSelectedAnswer(currentPhase.phaseId, questionId);
   }
 
   protected isSelected(questionId: number, optionId: number): boolean {
@@ -532,36 +533,29 @@ export class ReadingSessionPageComponent implements OnDestroy {
     });
   }
 
-  private scheduleAutoSave(phaseId: number): void {
+  private saveSelectedAnswer(phaseId: number, questionId: number): void {
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer);
+      this.autoSaveTimer = null;
     }
 
     const requestId = ++this.autoSaveRequestId;
-    this.autoSaveState = 'saving';
-    this.autoSaveMessage = 'Guardando...';
-    this.autoSaveTimer = setTimeout(() => {
-      this.autoSaveTimer = null;
-      this.autoSaveProgress(phaseId, requestId);
-    }, 650);
-  }
+    const answer = this.buildSingleAnswerPayload(questionId);
 
-  private autoSaveProgress(phaseId: number, requestId: number): void {
-    const phase = this.session?.phases.find((item) => item.phaseId === phaseId);
-
-    if (!this.session || !phase || phase.status === 'Completed') {
+    if (!this.session || !answer) {
       return;
     }
 
-    const payload = this.buildPhasePayload(phaseId, false);
-
-    this.readingService.savePhaseProgress(this.session.attemptId, phaseId, payload).subscribe({
-      next: (session) => {
+    this.autoSaveState = 'saving';
+    this.autoSaveMessage = 'Guardando...';
+    this.readingService.savePhaseAnswer(this.session.attemptId, phaseId, answer).subscribe({
+      next: (response) => {
         if (requestId !== this.autoSaveRequestId) {
           return;
         }
 
-        this.syncSession(session);
+        this.commitSyncedAnswerTime(answer);
+        this.applyLightweightAnswerResponse(response);
         this.autoSaveState = 'saved';
         this.autoSaveMessage = 'Guardado automáticamente';
       },
@@ -652,6 +646,54 @@ export class ReadingSessionPageComponent implements OnDestroy {
           answerTimeSeconds: accumulated + deltaSeconds
         };
       });
+  }
+
+  private buildSingleAnswerPayload(questionId: number): SaveReadingPhaseAnswerItem | null {
+    const selectedOptionId = this.selectedAnswers[questionId];
+
+    if (!selectedOptionId) {
+      return null;
+    }
+
+    const now = Date.now();
+    const accumulated = this.answerTimeSeconds[questionId] ?? 0;
+    const anchor = this.questionAnchors[questionId] ?? now;
+    const deltaSeconds = Math.max(0, Math.floor((now - anchor) / 1000));
+
+    return {
+      questionId,
+      selectedOptionId,
+      answerTimeSeconds: accumulated + deltaSeconds
+    };
+  }
+
+  private commitSyncedAnswerTime(answer: SaveReadingPhaseAnswerItem): void {
+    this.answerTimeSeconds = {
+      ...this.answerTimeSeconds,
+      [answer.questionId]: answer.answerTimeSeconds
+    };
+    this.questionAnchors[answer.questionId] = Date.now();
+    this.persistDraft();
+  }
+
+  private applyLightweightAnswerResponse(response: SaveReadingPhaseAnswerResponse): void {
+    if (!this.session || this.session.attemptId !== response.attemptId) {
+      return;
+    }
+
+    this.session = {
+      ...this.session,
+      completionPercentage: response.completionPercentage,
+      phases: this.session.phases.map((phase) =>
+        phase.phaseId === response.phaseId
+          ? {
+              ...phase,
+              answeredQuestions: response.phaseAnsweredQuestions,
+              totalQuestions: response.phaseTotalQuestions
+            }
+          : phase
+      )
+    };
   }
 
   private captureElapsedSeconds(phaseId: number, requireMinimumOneSecond: boolean): number {
